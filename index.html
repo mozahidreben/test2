@@ -3,156 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Reben Pro - Precision Scanner</title>
+    <title>Reben Pro - 200% Precision</title>
     <style>
-        :root { --primary: #000DFF; --success: #28a745; --bg: #f4f7f6; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
-        body { background: #667eea; padding: 15px; }
-        .container { max-width: 800px; margin: auto; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); overflow: hidden; }
-        .header { background: linear-gradient(to right, #6B73FF, var(--primary)); color: white; padding: 20px; text-align: center; }
-        .content { padding: 20px; }
+        :root { --accent: #007AFF; --panel: #1c1c1e; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background: #000; color: white; padding: 10px; }
+        .app-card { background: #121212; border-radius: 20px; padding: 15px; border: 1px solid #333; }
+        h2 { text-align: center; margin-bottom: 15px; color: var(--accent); font-size: 1.2rem; }
         
-        /* Table Styles */
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th { background: #eee; padding: 10px; font-size: 12px; }
-        td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-        .reading-input { width: 85%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; font-weight: bold; }
-        .cam-btn { padding: 10px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer; }
+        table { width: 100%; border-spacing: 0 8px; margin-bottom: 15px; }
+        th { font-size: 10px; color: #888; text-transform: uppercase; padding-bottom: 5px; }
+        td { background: #1c1c1e; padding: 10px; text-align: center; border-top: 1px solid #333; border-bottom: 1px solid #333; }
+        td:first-child { border-radius: 10px 0 0 10px; border-left: 1px solid #333; font-weight: bold; width: 30px; }
+        td:last-child { border-radius: 0 10px 10px 0; border-right: 1px solid #333; }
 
-        /* Calculation Area */
-        .calc-box { background: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #eee; }
-        .res-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
-        .total-val { font-weight: bold; color: var(--success); font-size: 1.2em; }
-        .clear-btn { width: 100%; padding: 15px; background: #ff4444; color: white; border: none; border-radius: 8px; margin-top: 15px; font-weight: bold; cursor: pointer; }
+        .input-row { display: flex; align-items: center; gap: 5px; }
+        input { background: transparent; border: none; color: white; width: 100%; font-size: 16px; font-family: 'Courier New', monospace; font-weight: bold; outline: none; }
+        .scan-btn { background: var(--accent); color: white; border: none; border-radius: 8px; width: 35px; height: 35px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        /* Modal & Live Video */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; }
-        .cam-wrap { position: relative; width: 90%; max-width: 400px; border: 3px solid white; border-radius: 10px; overflow: hidden; }
-        video { width: 100%; display: block; }
-        .guide-box { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 60px; border: 2px solid #00ff00; box-shadow: 0 0 0 1000px rgba(0,0,0,0.5); }
-        .guide-box::after { content: "ALIGN DECIMAL HERE"; position: absolute; top: -20px; width: 100%; text-align: center; color: #00ff00; font-size: 10px; }
-        .controls { width: 90%; max-width: 400px; margin-top: 20px; }
-        .snap-btn { width: 100%; padding: 20px; background: var(--success); color: white; border: none; border-radius: 50px; font-size: 18px; font-weight: bold; }
+        .summary { background: var(--panel); border-radius: 15px; padding: 15px; margin-top: 10px; }
+        .row { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .val { font-weight: 800; font-family: monospace; color: #4cd964; font-size: 1.1rem; }
+        .price-input { background: #2c2c2e; padding: 8px; border-radius: 8px; width: 80px; color: var(--accent); text-align: right; }
+
+        /* Scanner Modal */
+        .modal { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; flex-direction: column; }
+        .v-container { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; background: #000; }
+        video { width: 100%; height: 100%; object-fit: cover; }
+        .reticle { position: absolute; width: 85%; height: 70px; border: 2px solid var(--accent); border-radius: 4px; box-shadow: 0 0 0 2000px rgba(0,0,0,0.7); }
+        .reticle::before { content: "CENTER DECIMAL POINT"; position: absolute; top: -20px; left: 0; width: 100%; text-align: center; color: var(--accent); font-size: 10px; font-weight: bold; }
         
-        .loading-overlay { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.7); color: white; align-items: center; justify-content: center; flex-direction: column; }
+        .scan-footer { padding: 30px; background: #000; }
+        .capture-trigger { width: 100%; padding: 20px; border-radius: 50px; background: white; color: black; font-weight: bold; font-size: 18px; border: none; }
+        .loader { display: none; text-align: center; color: var(--accent); margin-bottom: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header"><h1>⛽ Reben Pro Scanner</h1></div>
-    <div class="content">
-        <table>
-            <thead><tr><th>#</th><th>Initial</th><th>Final</th></tr></thead>
-            <tbody id="rows"></tbody>
-        </table>
+<div class="app-card">
+    <h2>REBEN PRO 2026</h2>
+    <table>
+        <thead><tr><th>#</th><th>Start Reading</th><th>End Reading</th></tr></thead>
+        <tbody id="mainBody"></tbody>
+    </table>
 
-        <div class="calc-box">
-            <div style="margin-bottom:15px">
-                <label>Price (SAR): </label>
-                <input type="number" id="price" value="2.18" step="0.01" style="padding:8px" oninput="doMath()">
-            </div>
-            <div class="res-row"><span>Total Liters:</span> <span id="dispLtrs">0.000</span></div>
-            <div class="res-row"><span>Total SAR:</span> <span id="dispAmt">0.00</span></div>
-            <button class="clear-btn" onclick="reset()">RESET TABLE</button>
-        </div>
+    <div class="summary">
+        <div class="row"><span>Fuel Price (SAR)</span><input type="number" id="unitPrice" class="price-input" value="2.18" step="0.01" oninput="calc()"></div>
+        <div class="row"><span>Total Liters</span><span class="val" id="resLtrs">0.000</span></div>
+        <div class="row"><span>Total Amount</span><span class="val" id="resAmt">0.00</span></div>
     </div>
+    <button onclick="window.location.reload()" style="width:100%; padding:15px; margin-top:10px; background:none; border:1px solid #444; color:#888; border-radius:10px;">Clear Table</button>
 </div>
 
-<div class="modal" id="camModal">
-    <div class="cam-wrap">
+<div class="modal" id="scanner">
+    <div class="v-container">
         <video id="v" autoplay playsinline></video>
-        <div class="guide-box"></div>
-        <div class="loading-overlay" id="load">Processing Decimal...</div>
+        <div class="reticle"></div>
     </div>
-    <canvas id="c" style="display:none"></canvas>
-    <div class="controls">
-        <button class="snap-btn" onclick="scan()">READ NUMBERS</button>
-        <button onclick="stopCam()" style="color:white; background:none; border:none; width:100%; margin-top:15px">Cancel</button>
+    <div class="scan-footer">
+        <div class="loader" id="wait">ENHANCING DIGITS...</div>
+        <button class="capture-trigger" onclick="runOCR()">CAPTURE NOW</button>
+        <button onclick="stop()" style="width:100%; background:none; color:white; border:none; margin-top:20px; opacity:0.6">Cancel</button>
     </div>
+    <canvas id="proc" style="display:none"></canvas>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 <script>
-    let activeId = null;
+    let activeInput = null;
     let stream = null;
 
-    // Build Table
-    const rows = document.getElementById('rows');
+    // Build UI
+    const body = document.getElementById('mainBody');
     for(let i=1; i<=5; i++) {
-        rows.innerHTML += `<tr>
+        body.innerHTML += `<tr>
             <td>${i}</td>
-            <td><input type="number" id="i${i}" class="reading-input" step="0.001" oninput="doMath()"><button class="cam-btn" onclick="startCam('i${i}')">📸</button></td>
-            <td><input type="number" id="f${i}" class="reading-input" step="0.001" oninput="doMath()"><button class="cam-btn" onclick="startCam('f${i}')">📸</button></td>
+            <td><div class="input-row"><input type="number" id="s${i}" step="0.001" oninput="calc()"><button class="scan-btn" onclick="start('s${i}')">📸</button></div></td>
+            <td><div class="input-row"><input type="number" id="e${i}" step="0.001" oninput="calc()"><button class="scan-btn" onclick="start('e${i}')">📸</button></div></td>
         </tr>`;
     }
 
-    async function startCam(id) {
-        activeId = id;
-        document.getElementById('camModal').style.display = 'flex';
-        stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: 'environment', width: 1280}});
+    async function start(id) {
+        activeInput = id;
+        document.getElementById('scanner').style.display = 'flex';
+        stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: 'environment', width: {ideal: 1920}}});
         document.getElementById('v').srcObject = stream;
     }
 
-    function stopCam() {
+    function stop() {
         if(stream) stream.getTracks().forEach(t => t.stop());
-        document.getElementById('camModal').style.display = 'none';
-        document.getElementById('load').style.display = 'none';
+        document.getElementById('scanner').style.display = 'none';
+        document.getElementById('wait').style.display = 'none';
     }
 
-    async function scan() {
+    async function runOCR() {
         const v = document.getElementById('v');
-        const c = document.getElementById('c');
-        const ctx = c.getContext('2d');
-        const load = document.getElementById('load');
-        load.style.display = 'flex';
+        const canvas = document.getElementById('proc');
+        const ctx = canvas.getContext('2d');
+        const wait = document.getElementById('wait');
+        
+        wait.style.display = 'block';
 
-        // 1. Precise Crop
-        const ratio = v.videoWidth / v.clientWidth;
-        const w = v.videoWidth * 0.7;
-        const h = 80 * ratio;
-        const x = (v.videoWidth - w) / 2;
-        const y = (v.videoHeight - h) / 2;
+        // 1. DYNAMIC CROP BASED ON HIGH RES
+        const vW = v.videoWidth;
+        const vH = v.videoHeight;
+        const cropW = vW * 0.7;
+        const cropH = vH * 0.15;
+        const cropX = (vW - cropW) / 2;
+        const cropY = (vH - cropH) / 2;
 
-        // 2. UPSCALE (Increases decimal recognition by 70%)
-        // We draw the small numbers onto a large canvas to make the dot bigger
-        c.width = w * 2; 
-        c.height = h * 2;
-        ctx.filter = 'contrast(1.5) brightness(1.1) grayscale(1)';
-        ctx.drawImage(v, x, y, w, h, 0, 0, c.width, c.height);
+        canvas.width = cropW * 2; // Double size for super-resolution
+        canvas.height = cropH * 2;
+
+        // 2. IMAGE ENHANCEMENT PIPELINE
+        ctx.filter = 'grayscale(1) contrast(2) brightness(1.2)';
+        ctx.drawImage(v, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
+
+        // 3. BINARIZATION (Forces pixels to be either pure black or pure white)
+        // This removes the "grey" shadows from the dispenser screen
+        let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        let pixels = imgData.data;
+        for (let i = 0; i < pixels.length; i += 4) {
+            let brightness = (pixels[i] + pixels[i+1] + pixels[i+2]) / 3;
+            let val = brightness < 120 ? 0 : 255; // Threshold
+            pixels[i] = pixels[i+1] = pixels[i+2] = val;
+        }
+        ctx.putImageData(imgData, 0, 0);
 
         try {
-            const { data: { text } } = await Tesseract.recognize(c, 'eng', {
-                tessedit_char_whitelist: '0123456789.'
+            const { data: { text } } = await Tesseract.recognize(canvas, 'eng', {
+                tessedit_char_whitelist: '0123456789.',
+                tessedit_pageseg_mode: '7' // Treat image as a single line
             });
             
-            // Clean the text to find the most likely decimal number
-            const match = text.replace(/\s/g, '').match(/\d+\.\d+|\d+/);
-            if(match) {
-                document.getElementById(activeId).value = match[0];
-                doMath();
-                stopCam();
-            } else {
-                alert("Keep steady. Could not detect decimal.");
-            }
+            // Clean logic: Remove spaces and ensure only one decimal point exists
+            let result = text.replace(/\s/g, '');
+            if(result) {
+                document.getElementById(activeInput).value = result;
+                calc();
+                stop();
+            } else { alert("Not clear. Get closer to numbers."); }
         } catch (e) { console.error(e); }
-        load.style.display = 'none';
+        wait.style.display = 'none';
     }
 
-    function doMath() {
-        let ltrs = 0;
-        const p = parseFloat(document.getElementById('price').value) || 0;
+    function calc() {
+        let total = 0;
+        const price = parseFloat(document.getElementById('unitPrice').value) || 0;
         for(let i=1; i<=5; i++) {
-            const start = parseFloat(document.getElementById('i'+i).value) || 0;
-            const end = parseFloat(document.getElementById('f'+i).value) || 0;
-            if(end > start) ltrs += (end - start);
+            const s = parseFloat(document.getElementById('s'+i).value) || 0;
+            const e = parseFloat(document.getElementById('e'+i).value) || 0;
+            if(e > s) total += (e - s);
         }
-        document.getElementById('dispLtrs').innerText = ltrs.toFixed(3);
-        document.getElementById('dispAmt').innerText = (ltrs * p).toFixed(2);
+        document.getElementById('resLtrs').innerText = total.toFixed(3);
+        document.getElementById('resAmt').innerText = (total * price).toFixed(2);
     }
-
-    function reset() { if(confirm("Clear all?")) { location.reload(); } }
 </script>
-
 </body>
 </html>
