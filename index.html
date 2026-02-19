@@ -2,512 +2,169 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reben Calculator - Dispenser Reading Entry</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Reben Calculator Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
-
-        .content {
-            padding: 30px;
-        }
-
-        .input-method {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-        }
-
-        .method-btn {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .method-btn.manual {
-            background: #4CAF50;
-            color: white;
-        }
-
-        .method-btn.camera {
-            background: #2196F3;
-            color: white;
-        }
-
-        .method-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        .product-info {
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .product-info input {
-            padding: 10px;
-            width: 200px;
-            border: 2px solid #2196F3;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 25px;
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        th {
-            background: #333;
-            color: white;
-            padding: 12px;
-            font-weight: 600;
-        }
-
-        td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            text-align: center;
-        }
-
-        .reading-input {
-            width: 100%;
-            padding: 8px;
-            border: 2px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            transition: border 0.3s;
-        }
-
-        .reading-input:focus {
-            border-color: #667eea;
-            outline: none;
-        }
-
-        .camera-btn {
-            background: #2196F3;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            margin-left: 5px;
-            transition: background 0.3s;
-        }
-
-        .camera-btn:hover {
-            background: #1976D2;
-        }
-
-        .calculation-section {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
-
-        .input-group {
-            margin-bottom: 15px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: #555;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        .results {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-
-        .result-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-            font-size: 16px;
-        }
-
-        .result-item.total {
-            font-weight: bold;
-            font-size: 18px;
-            color: #4CAF50;
-            border-bottom: none;
-        }
-
-        .clear-btn {
-            background: #ff4444;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            width: 100%;
-            transition: background 0.3s;
-        }
-
-        .clear-btn:hover {
-            background: #cc0000;
-        }
-
-        /* Camera Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 600px;
-            width: 90%;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #666;
-        }
-
-        #camera-feed {
-            width: 100%;
-            border-radius: 5px;
-            margin-bottom: 15px;
-        }
-
-        .capture-btn {
-            background: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            width: 100%;
-        }
-
-        .ocr-result {
-            margin-top: 15px;
-            padding: 10px;
-            background: #f0f0f0;
-            border-radius: 5px;
-        }
+        body { background: #f0f2f5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .row-grid { display: grid; grid-template-columns: 0.5fr 1.5fr 1.5fr; gap: 10px; align-items: center; }
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .input-focus:focus-within { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+        /* Speed up mobile clicks */
+        button, input { touch-action: manipulation; }
+        input[type="number"] { font-size: 16px; } /* Prevents iOS auto-zoom */
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>⛽ Reben Calculator</h1>
-            <p>Enter one Product Reading at Once 91,95, D</p>
-        </div>
+<body class="pb-10">
 
-        <div class="content">
-            <div class="input-method">
-                <button class="method-btn manual" onclick="setInputMethod('manual')">✏️ Manual Entry</button>
-                <button class="method-btn camera" onclick="setInputMethod('camera')">📸 Camera Capture</button>
-            </div>
-
-            <div class="product-info">
-                <input type="text" id="productType" placeholder="Enter Product Type (91/95/Diesel)" value="91">
-            </div>
-
-            <table id="readingsTable">
-                <thead>
-                    <tr>
-                        <th>SI No.</th>
-                        <th>Initial Reading</th>
-                        <th>Final Reading</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                    <!-- Rows will be generated by JavaScript -->
-                </tbody>
-            </table>
-
-            <div class="calculation-section">
-                <div class="input-group">
-                    <label>Enter Fuel Price (SAR/Liter)</label>
-                    <input type="number" id="fuelPrice" step="0.01" min="0" value="2.18" placeholder="x.xx">
-                </div>
-
-                <div class="results">
-                    <div class="result-item">
-                        <span>Total Fuel Sales (LTR):</span>
-                        <span id="totalLiters">0.00</span>
-                    </div>
-                    <div class="result-item">
-                        <span>Total Sales Amount (SAR):</span>
-                        <span id="totalAmount">0.00</span>
-                    </div>
-                    <div class="result-item total">
-                        <span>Net Sales (SAR):</span>
-                        <span id="netSales">0.00</span>
-                    </div>
-                </div>
-
-                <button class="clear-btn" onclick="clearAll()">Clear for calculating Another Product</button>
-            </div>
+    <div class="bg-blue-700 text-white p-6 shadow-lg rounded-b-[2rem] mb-6">
+        <h1 class="text-3xl font-bold text-center italic tracking-tighter">REBEN CALCULATOR</h1>
+        <div class="flex justify-center gap-2 mt-3">
+            <select id="productType" class="bg-blue-800 border border-blue-400 rounded-full px-4 py-1 text-sm font-bold outline-none">
+                <option value="91">Product 91</option>
+                <option value="95">Product 95</option>
+                <option value="Diesel">Diesel</option>
+            </select>
         </div>
     </div>
 
-    <!-- Camera Modal -->
-    <div class="modal" id="cameraModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Capture Reading</h3>
-                <button class="close-btn" onclick="closeCamera()">&times;</button>
+    <div class="max-w-xl mx-auto px-4">
+        
+        <div class="glass p-5 rounded-3xl shadow-sm border border-white mb-6">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="text-center p-3 bg-blue-50 rounded-2xl">
+                    <p class="text-[10px] font-bold text-blue-400 uppercase">Total Liters</p>
+                    <p id="totalLtr" class="text-2xl font-black text-blue-900">0.000</p>
+                </div>
+                <div class="text-center p-3 bg-green-50 rounded-2xl">
+                    <p class="text-[10px] font-bold text-green-400 uppercase">Total SAR</p>
+                    <p id="totalSr" class="text-2xl font-black text-green-900">0.00</p>
+                </div>
             </div>
-            <video id="camera-feed" autoplay></video>
-            <canvas id="canvas" style="display: none;"></canvas>
-            <button class="capture-btn" onclick="captureImage()">📸 Capture Reading</button>
-            <div class="ocr-result" id="ocrResult">
-                <p>Detected Reading: <span id="detectedNumber">-</span></p>
-                <button onclick="useDetectedNumber()" style="margin-top: 10px; padding: 5px 10px;">Use This Reading</button>
+            
+            <div class="mt-4 flex items-center justify-between px-2">
+                <span class="text-sm font-bold text-gray-500 uppercase">Price per Liter</span>
+                <input type="number" id="fuelPrice" step="0.01" value="2.18" oninput="calculate()" 
+                    class="w-20 text-right font-bold text-blue-600 bg-transparent border-b-2 border-blue-200 focus:border-blue-500 outline-none">
             </div>
+        </div>
+
+        <div class="glass rounded-3xl shadow-md overflow-hidden border border-gray-100">
+            <div class="row-grid bg-gray-800 text-white p-3 text-[10px] font-bold uppercase text-center tracking-widest">
+                <div>#</div>
+                <div>Initial</div>
+                <div>Final</div>
+            </div>
+            
+            <div id="rowsContainer" class="p-3 space-y-4">
+                </div>
+        </div>
+
+        <div class="mt-8 space-y-3">
+            <button onclick="window.print()" class="w-full bg-white text-gray-700 font-bold py-4 rounded-2xl shadow-sm border border-gray-200 active:bg-gray-50 transition-all flex items-center justify-center gap-2">
+                <span>📋</span> Save / Print Report
+            </button>
+            <button onclick="resetData()" class="w-full bg-red-50 text-red-600 font-bold py-4 rounded-2xl active:bg-red-100 transition-all uppercase text-xs tracking-widest">
+                Clear all readings
+            </button>
         </div>
     </div>
 
-    <!-- Include Tesseract.js for OCR -->
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
-    
+    <input type="file" id="nativeCam" accept="image/*" capture="environment" class="hidden">
+
+    <div id="loader" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md hidden flex-col items-center justify-center z-50">
+        <div class="relative w-20 h-20">
+            <div class="absolute inset-0 border-4 border-blue-500/20 rounded-full"></div>
+            <div class="absolute inset-0 border-4 border-t-blue-500 rounded-full animate-spin"></div>
+        </div>
+        <p class="text-white font-bold mt-4 tracking-widest animate-pulse">AI ANALYZING METER...</p>
+    </div>
+
     <script>
-        let currentInputMethod = 'manual';
-        let currentRow = null;
-        let currentField = null;
-        let detectedNumber = '';
-        let stream = null;
+        let currentTarget = null;
+        const rowsContainer = document.getElementById('rowsContainer');
 
-        // Generate table rows
-        function generateTableRows() {
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = '';
-            
-            for (let i = 1; i <= 5; i++) {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${i}</td>
-                    <td>
-                        <input type="number" class="reading-input" id="initial-${i}" placeholder="Enter -" step="0.001" onchange="calculateTotal()">
-                        <button class="camera-btn" onclick="openCamera(this, 'initial', ${i})">📸</button>
-                    </td>
-                    <td>
-                        <input type="number" class="reading-input" id="final-${i}" placeholder="Enter -" step="0.001" onchange="calculateTotal()">
-                        <button class="camera-btn" onclick="openCamera(this, 'final', ${i})">📸</button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            }
+        // Initial setup for 5 rows
+        for (let i = 1; i <= 5; i++) {
+            rowsContainer.innerHTML += `
+                <div class="row-grid">
+                    <div class="text-center font-black text-gray-300">${i}</div>
+                    <div class="flex items-center bg-white border-2 border-gray-100 rounded-xl px-2 input-focus transition-all">
+                        <input type="number" id="init_${i}" oninput="calculate()" placeholder="0.00" class="w-full p-3 outline-none font-mono font-bold text-gray-700">
+                        <button onclick="startScan('init_${i}')" class="p-2 text-xl">📸</button>
+                    </div>
+                    <div class="flex items-center bg-white border-2 border-gray-100 rounded-xl px-2 input-focus transition-all">
+                        <input type="number" id="final_${i}" oninput="calculate()" placeholder="0.00" class="w-full p-3 outline-none font-mono font-bold text-gray-700">
+                        <button onclick="startScan('final_${i}')" class="p-2 text-xl">📸</button>
+                    </div>
+                </div>
+            `;
         }
 
-        // Set input method
-        function setInputMethod(method) {
-            currentInputMethod = method;
-            const manualBtns = document.querySelectorAll('.camera-btn');
-            
-            if (method === 'manual') {
-                manualBtns.forEach(btn => btn.style.display = 'none');
-            } else {
-                manualBtns.forEach(btn => btn.style.display = 'inline-block');
-            }
+        const nativeCam = document.getElementById('nativeCam');
+        const loader = document.getElementById('loader');
+
+        function startScan(id) {
+            currentTarget = id;
+            nativeCam.click(); // This opens the real phone camera
         }
 
-        // Open camera modal
-        async function openCamera(button, type, rowNum) {
-            currentRow = rowNum;
-            currentField = type;
-            
-            const modal = document.getElementById('cameraModal');
-            modal.style.display = 'flex';
+        nativeCam.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            loader.style.display = 'flex';
             
             try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-                const video = document.getElementById('camera-feed');
-                video.srcObject = stream;
-            } catch (err) {
-                alert('Error accessing camera: ' + err.message);
-            }
-        }
+                // OCR Processing with character whitelist for accuracy
+                const result = await Tesseract.recognize(file, 'eng', {
+                    logger: m => console.log(m.status),
+                    tessedit_char_whitelist: '0123456789.'
+                });
 
-        // Close camera
-        function closeCamera() {
-            const modal = document.getElementById('cameraModal');
-            modal.style.display = 'none';
-            
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-            }
-            
-            document.getElementById('detectedNumber').textContent = '-';
-            detectedNumber = '';
-        }
-
-        // Capture image and perform OCR
-        async function captureImage() {
-            const video = document.getElementById('camera-feed');
-            const canvas = document.getElementById('canvas');
-            const context = canvas.getContext('2d');
-            
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
-            try {
-                const { data: { text } } = await Tesseract.recognize(
-                    canvas.toDataURL('image/png'),
-                    'eng',
-                    { 
-                        logger: m => console.log(m),
-                        tessedit_char_whitelist: '0123456789.'
-                    }
-                );
+                // Extracting numbers from the text
+                const text = result.data.text.replace(/\s/g, '');
+                const matches = text.match(/\d+(\.\d+)?/);
                 
-                // Extract numbers from OCR result
-                const numbers = text.match(/\d+\.?\d*/g);
-                if (numbers && numbers.length > 0) {
-                    detectedNumber = numbers[0];
-                    document.getElementById('detectedNumber').textContent = detectedNumber;
+                if (matches) {
+                    document.getElementById(currentTarget).value = matches[0];
+                    calculate();
                 } else {
-                    alert('No numbers detected. Please try again.');
+                    alert("Could not detect clear numbers. Please ensure the meter is well-lit.");
                 }
             } catch (err) {
-                alert('OCR Error: ' + err.message);
+                alert("Scan Error. Please try manual entry.");
+            } finally {
+                loader.style.display = 'none';
+                nativeCam.value = ''; 
             }
-        }
+        });
 
-        // Use detected number in the appropriate field
-        function useDetectedNumber() {
-            if (detectedNumber && currentRow && currentField) {
-                const inputId = `${currentField}-${currentRow}`;
-                document.getElementById(inputId).value = detectedNumber;
-                closeCamera();
-                calculateTotal();
-            }
-        }
+        function calculate() {
+            let totalLtr = 0;
+            const price = parseFloat(document.getElementById('fuelPrice').value) || 0;
 
-        // Calculate totals
-        function calculateTotal() {
-            let totalLiters = 0;
-            
             for (let i = 1; i <= 5; i++) {
-                const initial = parseFloat(document.getElementById(`initial-${i}`).value) || 0;
-                const final = parseFloat(document.getElementById(`final-${i}`).value) || 0;
-                
-                if (final > initial) {
-                    totalLiters += (final - initial);
+                const init = parseFloat(document.getElementById(`init_${i}`).value) || 0;
+                const final = parseFloat(document.getElementById(`final_${i}`).value) || 0;
+                if (final >= init && init > 0) {
+                    totalLtr += (final - init);
                 }
             }
-            
-            const price = parseFloat(document.getElementById('fuelPrice').value) || 0;
-            const totalAmount = totalLiters * price;
-            
-            document.getElementById('totalLiters').textContent = totalLiters.toFixed(3);
-            document.getElementById('totalAmount').textContent = totalAmount.toFixed(2);
-            document.getElementById('netSales').textContent = totalAmount.toFixed(2);
+
+            document.getElementById('totalLtr').innerText = totalLtr.toFixed(3);
+            document.getElementById('totalSr').innerText = (totalLtr * price).toFixed(2);
         }
 
-        // Clear all inputs
-        function clearAll() {
-            for (let i = 1; i <= 5; i++) {
-                document.getElementById(`initial-${i}`).value = '';
-                document.getElementById(`final-${i}`).value = '';
+        function resetData() {
+            if(confirm("Are you sure? This will wipe all current rows.")) {
+                document.querySelectorAll('input[type="number"]').forEach(input => {
+                    if(input.id !== 'fuelPrice') input.value = '';
+                });
+                calculate();
             }
-            document.getElementById('fuelPrice').value = '2.18';
-            document.getElementById('productType').value = '91';
-            calculateTotal();
         }
-
-        // Initialize on page load
-        window.onload = function() {
-            generateTableRows();
-            setInputMethod('manual');
-            calculateTotal();
-        };
-
-        // Add event listeners for real-time calculation
-        document.getElementById('fuelPrice').addEventListener('input', calculateTotal);
     </script>
 </body>
 </html>
