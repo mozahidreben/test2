@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Reben Dispenser Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    <style>
+        .row-grid { display: grid; grid-template-columns: 40px 1fr 1fr; gap: 8px; align-items: center; }
+        /* Prevent zoom on input focus for iPhone */
+        input[type="number"] { font-size: 16px !important; }
+        .btn-active:active { transform: scale(0.95); transition: 0.1s; }
+    </style>
+</head>
+<body class="bg-gray-100 p-2 text-gray-800">
+
+    <div class="max-w-md mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-300">
+        <div class="bg-slate-800 p-4 text-center border-b-4 border-red-500">
+            <h1 class="text-2xl font-black text-white italic tracking-tighter">REBEN CALCULATOR</h1>
+            <p class="text-[10px] text-red-400 font-bold uppercase tracking-widest">Dispenser Reading System</p>
+        </div>
+
+        <div class="p-3">
+            <div class="row-grid text-center font-bold text-[10px] uppercase mb-2">
+                <div class="bg-gray-200 py-2 rounded-l">Sl</div>
+                <div class="bg-red-600 text-white py-2">Initial Reading</div>
+                <div class="bg-green-600 text-white py-2 rounded-r">Final Reading</div>
+            </div>
+
+            <div id="mainRows" class="space-y-3">
+                </div>
+
+            <div class="mt-6 bg-slate-50 p-4 rounded-xl border-2 border-slate-200">
+                <div class="flex justify-between items-center mb-4">
+                    <label class="font-black text-slate-600 text-sm italic">FUEL PRICE (SR)</label>
+                    <input type="number" id="fuelPrice" step="0.01" placeholder="0.00" oninput="doMath()" 
+                        class="w-24 text-right border-b-4 border-blue-500 bg-white p-2 font-mono font-bold text-lg rounded shadow-sm focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-white border-l-4 border-blue-500 p-3 shadow-sm rounded-r-lg">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase">Sales (LTR)</p>
+                        <p id="resLtr" class="text-xl font-mono font-black text-blue-700">0.000</p>
+                    </div>
+                    <div class="bg-white border-l-4 border-emerald-500 p-3 shadow-sm rounded-r-lg">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase">Total (SR)</p>
+                        <p id="resSr" class="text-xl font-mono font-black text-emerald-700">0.00</p>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="resetAll()" class="w-full mt-6 bg-orange-500 text-white font-black py-4 rounded-xl shadow-lg btn-active uppercase tracking-tighter">
+                Clear for Another Product
+            </button>
+        </div>
+    </div>
+
+    <input type="file" id="cameraInp" accept="image/*" capture="environment" class="hidden">
+
+    <div id="loader" class="fixed inset-0 bg-black/90 hidden flex-col items-center justify-center z-50 text-white">
+        <div class="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="font-black italic animate-pulse">SCANNING DIGITS...</p>
+    </div>
+
+    <script>
+        let targetId = null;
+        const rowsBox = document.getElementById('mainRows');
+
+        // Create 5 rows
+        for(let i=1; i<=5; i++) {
+            rowsBox.innerHTML += `
+                <div class="row-grid">
+                    <div class="text-center font-black text-slate-300 text-lg">${i}</div>
+                    <div class="relative flex bg-slate-100 border-2 border-slate-200 rounded-lg focus-within:border-red-400">
+                        <input type="number" id="i_${i}" oninput="doMath()" class="w-full p-3 bg-transparent font-mono font-bold text-sm focus:outline-none" placeholder="0">
+                        <button onclick="openCam('i_${i}')" class="p-2 bg-white border-l btn-active">📸</button>
+                    </div>
+                    <div class="relative flex bg-slate-100 border-2 border-slate-200 rounded-lg focus-within:border-green-400">
+                        <input type="number" id="f_${i}" oninput="doMath()" class="w-full p-3 bg-transparent font-mono font-bold text-sm focus:outline-none" placeholder="0">
+                        <button onclick="openCam('f_${i}')" class="p-2 bg-white border-l btn-active">📸</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function openCam(id) {
+            targetId = id;
+            // On a phone, this will trigger the Camera. On PC, it opens Folders.
+            document.getElementById('cameraInp').click();
+        }
+
+        document.getElementById('cameraInp').onchange = async (e) => {
+            const file = e.target.files[0];
+            if(!file) return;
+
+            document.getElementById('loader').style.display = 'flex';
+            
+            try {
+                const { data: { text } } = await Tesseract.recognize(file, 'eng');
+                const found = text.match(/\d+(\.\d+)?/);
+                if(found) {
+                    document.getElementById(targetId).value = found[0];
+                    doMath();
+                } else {
+                    alert("Could not see numbers. Please hold the phone closer to the dispenser screen.");
+                }
+            } catch (err) {
+                alert("Scan failed. Try typing manually.");
+            } finally {
+                document.getElementById('loader').style.display = 'none';
+                e.target.value = '';
+            }
+        };
+
+        function doMath() {
+            let ltrs = 0;
+            const price = parseFloat(document.getElementById('fuelPrice').value) || 0;
+            for(let i=1; i<=5; i++) {
+                const v1 = parseFloat(document.getElementById(`i_${i}`).value) || 0;
+                const v2 = parseFloat(document.getElementById(`f_${i}`).value) || 0;
+                if(v2 > v1) ltrs += (v2 - v1);
+            }
+            document.getElementById('resLtr').innerText = ltrs.toFixed(3);
+            document.getElementById('resSr').innerText = (ltrs * price).toFixed(2);
+        }
+
+        function resetAll() {
+            if(confirm("Reset all data?")) {
+                document.querySelectorAll('input').forEach(i => i.value = '');
+                doMath();
+            }
+        }
+    </script>
+</body>
+</html>
