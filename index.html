@@ -3,20 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Station Master - Professional</title>
+    <title>Station Master - Mandatory</title>
     <style>
-        :root { --primary: #000DFF; --bg: #f0f2f5; --91: #28a745; --95: #dc3545; --d: #495057; }
+        :root { --primary: #000DFF; --bg: #f0f2f5; --91: #28a745; --95: #dc3545; --d: #495057; --error: #ff3b30; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
         body { background: var(--bg); padding-bottom: 180px; }
         
         .top-nav { position: sticky; top: 0; z-index: 100; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .header { background: var(--primary); color: white; padding: 12px; text-align: center; }
-        .station-input { width: 90%; margin: 8px auto; display: block; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-weight: 800; text-align: center; font-size: 16px; }
+        
+        /* Mandatory Field Styling */
+        .required-box { border: 2px solid #ddd; transition: 0.3s; }
+        .invalid { border-color: var(--error) !important; background-color: #fff0f0 !important; }
+
+        .station-input { width: 90%; margin: 8px auto; display: block; padding: 12px; border-radius: 8px; font-weight: 800; text-align: center; font-size: 16px; outline: none; }
         
         .price-settings { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 10px; background: #fff; border-bottom: 2px solid #eee; }
         .p-input { display: flex; flex-direction: column; align-items: center; gap: 2px; }
         .p-input label { font-size: 9px; font-weight: bold; color: #666; }
-        .p-input input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 8px; text-align: center; font-weight: bold; font-size: 14px; background: #fdfdfd; }
+        .p-input input { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; text-align: center; font-weight: bold; font-size: 14px; outline: none; }
 
         .nozzle-list { padding: 10px; }
         .nozzle-row { background: white; border-radius: 20px; padding: 15px; margin-bottom: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 10px solid #ccc; }
@@ -51,12 +56,12 @@
 <body>
 
 <div class="top-nav">
-    <div class="header"><h1>REBEN MASTER PRO v9</h1></div>
-    <input type="text" id="station-name" class="station-input" placeholder="ENTER STATION NAME">
+    <div class="header"><h1>REBEN MASTER PRO v10</h1></div>
+    <input type="text" id="station-name" class="station-input required-box" placeholder="* STATION NAME REQUIRED">
     <div class="price-settings">
-        <div class="p-input"><label>PRICE 91</label><input type="number" id="global-p91" value="2.18" step="0.01" oninput="doMath()"></div>
-        <div class="p-input"><label>PRICE 95</label><input type="number" id="global-p95" value="2.33" step="0.01" oninput="doMath()"></div>
-        <div class="p-input"><label>DIESEL</label><input type="number" id="global-pd" value="1.15" step="0.01" oninput="doMath()"></div>
+        <div class="p-input"><label>PRICE 91</label><input type="number" id="global-p91" class="required-box" placeholder="0.00" step="0.01" oninput="doMath()"></div>
+        <div class="p-input"><label>PRICE 95</label><input type="number" id="global-p95" class="required-box" placeholder="0.00" step="0.01" oninput="doMath()"></div>
+        <div class="p-input"><label>DIESEL</label><input type="number" id="global-pd" class="required-box" placeholder="0.00" step="0.01" oninput="doMath()"></div>
     </div>
 </div>
 
@@ -71,7 +76,7 @@
     </div>
     <div class="btn-group">
         <button class="add-btn" onclick="addNewNozzle()">+ NOZZLE</button>
-        <button class="wa-btn" onclick="shareWA()">WHATSAPP REPORT</button>
+        <button class="wa-btn" onclick="shareWA()">SEND REPORT</button>
     </div>
 </div>
 
@@ -179,17 +184,35 @@
     }
 
     function shareWA() {
-        const station = document.getElementById('station-name').value || "STATION REPORT";
+        // Validation Check
+        const sName = document.getElementById('station-name');
+        const p91 = document.getElementById('global-p91');
+        const p95 = document.getElementById('global-p95');
+        const pd = document.getElementById('global-pd');
+        
+        let errors = [];
+        
+        // Reset styles
+        [sName, p91, p95, pd].forEach(el => el.classList.remove('invalid'));
+
+        if (!sName.value.trim()) { sName.classList.add('invalid'); errors.push("Station Name"); }
+        if (!parseFloat(p91.value)) { p91.classList.add('invalid'); errors.push("Price 91"); }
+        if (!parseFloat(p95.value)) { p95.classList.add('invalid'); errors.push("Price 95"); }
+        if (!parseFloat(pd.value)) { pd.classList.add('invalid'); errors.push("Price Diesel"); }
+
+        if (errors.length > 0) {
+            alert("⚠️ Missing Information:\n" + errors.join("\n"));
+            return;
+        }
+
         const gt = document.getElementById('grandTotal').innerText;
         const l91 = document.getElementById('sum91').innerText;
         const l95 = document.getElementById('sum95').innerText;
         const ld = document.getElementById('sumD').innerText;
         
-        let msg = `🏪 *${station.toUpperCase()}*%0A`;
-        msg += `--- SUMMARY ---%0A`;
-        msg += `🟢 *91 Total:* ${l91} L%0A🔴 *95 Total:* ${l95} L%0A🔵 *Diesel Total:* ${ld} L%0A`;
-        msg += `💰 *GRAND TOTAL:* ${gt} SAR%0A%0A`;
-        msg += `--- NOZZLE DETAILS ---%0A`;
+        let msg = `🏪 *${sName.value.toUpperCase()}*%0A`;
+        msg += `--- SUMMARY ---%0A🟢 *91:* ${l91} L%0A🔴 *95:* ${l95} L%0A🔵 *D:* ${ld} L%0A💰 *TOTAL:* ${gt} SAR%0A%0A`;
+        msg += `--- DETAILS ---%0A`;
         
         for (let i = 1; i <= nozzleCount; i++) {
             const name = document.getElementById(`name-${i}`).value;
