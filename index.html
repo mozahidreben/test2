@@ -15,7 +15,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
         body { background: var(--bg); padding-bottom: 180px; padding-top: 10px; }
         
-        /* CONDITIONAL FORMATTING */
         .invalid { border: 2px solid var(--error) !important; background-color: #fff0f0 !important; }
 
         .top-nav { position: sticky; top: 0; z-index: 100; background: white; margin: 0 10px 15px 10px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; }
@@ -56,7 +55,6 @@
         .btn-pdf { background: var(--reben-red); color: #fff; }
         .btn-wa { background: var(--wa); color: #fff; font-size: 24px; }
 
-        /* SCANNER UI */
         .modal { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; flex-direction: column; }
         .cam-view { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         video { width: 100%; height: 100%; object-fit: cover; }
@@ -113,17 +111,13 @@
     let nozzleCount = 0, activeId = null, stream = null, isScanning = false, worker = null;
     let isDayTime = true;
 
-    // OCR INITIALIZATION - Optimized Sensitivity
     async function initAI() {
         worker = await Tesseract.createWorker();
         await worker.loadLanguage('eng');
         await worker.initialize('eng');
-        // Whitelist restricted to digits and dot for high-speed matching
         await worker.setParameters({ 
             tessedit_char_whitelist: '0123456789.', 
-            tessedit_pageseg_mode: '7',
-            tessjs_create_hocr: '0',
-            tessjs_create_tsv: '0'
+            tessedit_pageseg_mode: '7'
         });
     }
     initAI();
@@ -135,7 +129,6 @@
             f.classList.remove('invalid');
             if(!f.value || f.value.trim() === "" || parseFloat(f.value) <= 0) { f.classList.add('invalid'); valid = false; }
         });
-        if(!valid) alert("Check Station Name & Prices!");
         return valid;
     }
 
@@ -177,10 +170,9 @@
     }
 
     function rotateShift() {
-        if(!confirm("Switching Shift: Final readings will become Initial readings. Continue?")) return;
+        if(!confirm("Start Next Shift?")) return;
         isDayTime = !isDayTime;
         document.getElementById('shift-text').innerText = isDayTime ? "DAY SHIFT (6AM-6PM)" : "NIGHT SHIFT (6PM-6AM)";
-        
         document.querySelectorAll('.nozzle-row').forEach(row => {
             const id = row.id.split('-')[1];
             document.getElementById(`i${id}`).value = document.getElementById(`f${id}`).value;
@@ -192,20 +184,15 @@
         saveMem();
     }
 
-    // --- ENHANCED OCR LOGIC ---
     async function startScan(id) { 
-        activeId = id; 
-        isScanning = true; 
+        activeId = id; isScanning = true; 
         document.getElementById('scanner').style.display = 'flex'; 
         try { 
-            stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } } 
-            }); 
+            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 } } }); 
             document.getElementById('v').srcObject = stream; 
-            requestAnimationFrame(tick); 
+            tick(); 
         } catch (e) { stopCam(); } 
     }
-
     function stopCam() { isScanning = false; if(stream) stream.getTracks().forEach(t => t.stop()); document.getElementById('scanner').style.display = 'none'; }
 
     async function tick() {
@@ -216,30 +203,21 @@
             const w = v.videoWidth * 0.7, h = 80 * ratio;
             const x = (v.videoWidth - w) / 2, y = (v.videoHeight - h) / 2;
             c.width = w; c.height = h;
-            
-            // Image enhancement for pump screens
-            ctx.filter = 'contrast(1.6) grayscale(1) brightness(1.1)';
+            ctx.filter = 'contrast(1.4) grayscale(1)';
             ctx.drawImage(v, x, y, w, h, 0, 0, w, h);
-            
             try {
                 const { data: { text, confidence } } = await worker.recognize(c);
                 const match = text.replace(/\s/g, '').match(/\d+\.\d{1,3}/) || text.replace(/\s/g, '').match(/\d{3,}/);
-                
                 if (match && confidence > 65) { 
-                    // Success!
                     document.getElementById('flash').classList.add('trigger-flash');
                     document.getElementById(activeId).value = match[0]; 
-                    doMath(); 
-                    saveMem();
-                    setTimeout(() => {
-                        document.getElementById('flash').classList.remove('trigger-flash');
-                        stopCam();
-                    }, 400);
+                    doMath(); saveMem();
+                    setTimeout(() => { document.getElementById('flash').classList.remove('trigger-flash'); stopCam(); }, 300);
                     return; 
                 }
             } catch (err) {}
         }
-        if (isScanning) setTimeout(() => requestAnimationFrame(tick), 100);
+        if (isScanning) setTimeout(tick, 100);
     }
 
     function doMath() {
@@ -258,32 +236,120 @@
         document.getElementById('sum91').innerText = q91.toFixed(2);
         document.getElementById('sum95').innerText = q95.toFixed(2);
         document.getElementById('sumD').innerText = qd.toFixed(2);
-        document.getElementById('grandTotal').innerText = total.toFixed(2).toLocaleString();
+        document.getElementById('grandTotal').innerText = total.toFixed(2);
+    }
+
+    function getNowStr() {
+        return new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-');
+    }
+
+    function shareWA() {
+        if(!validate()) { alert("Please complete Station Name and Prices"); return; }
+        const station = document.getElementById('sn').value.toUpperCase();
+        const shift = isDayTime ? "Day" : "Night";
+        
+        let msg = `🏪 *${station}*%0A`;
+        msg += `       Date ${getNowStr()}%0A`;
+        msg += `       Shift - ${shift}%0A%0A`;
+        msg += `🟢 *91 Total:* ${document.getElementById('sum91').innerText} L%0A`;
+        msg += `🔴 *95 Total:* ${document.getElementById('sum95').innerText} L%0A`;
+        msg += `🔵 *Diesel Total:* ${document.getElementById('sumD').innerText} L%0A`;
+        msg += `💰 *GRAND TOTAL:* ${document.getElementById('grandTotal').innerText} SAR%0A%0A`;
+        msg += `Fuel Price -%0A`;
+        msg += ` 91- ${document.getElementById('p91').value}%0A`;
+        msg += ` 95 - ${document.getElementById('p95').value}%0A`;
+        msg += ` D  - ${document.getElementById('pd').value}%0A%0A`;
+        msg += `--- NOZZLE DETAILS ---%0A`;
+        document.querySelectorAll('.nozzle-row').forEach(row => {
+            const id = row.id.split('-')[1];
+            msg += `📍 ${document.getElementById(`name-${id}`).value} (${document.getElementById(`type-${id}`).value}): ${document.getElementById(`i${id}`).value || "0"} -> ${document.getElementById(`f${id}`).value || "0"}%0A`;
+        });
+        window.open(`https://wa.me/?text=${msg}`, '_blank');
+    }
+
+    function exportExcel() {
+        if(!validate()) return;
+        const station = document.getElementById('sn').value.toUpperCase();
+        const headerInfo = [
+            ["STATION", station],
+            ["DATE", getNowStr()],
+            ["SHIFT", isDayTime ? "Day" : "Night"],
+            ["91 PRICE", document.getElementById('p91').value],
+            ["95 PRICE", document.getElementById('p95').value],
+            ["D PRICE", document.getElementById('pd').value],
+            ["GRAND TOTAL", document.getElementById('grandTotal').innerText + " SAR"],
+            [],
+            ["NOZZLE", "FUEL", "INITIAL", "FINAL", "LITERS"]
+        ];
+        
+        const nozzleData = [];
+        document.querySelectorAll('.nozzle-row').forEach(row => {
+            const id = row.id.split('-')[1];
+            const init = parseFloat(document.getElementById(`i${id}`).value) || 0;
+            const final = parseFloat(document.getElementById(`f${id}`).value) || 0;
+            nozzleData.push([
+                document.getElementById(`name-${id}`).value,
+                document.getElementById(`type-${id}`).value,
+                init,
+                final,
+                Math.max(0, final - init).toFixed(2)
+            ]);
+        });
+
+        const ws = XLSX.utils.aoa_to_sheet([...headerInfo, ...nozzleData]);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Report");
+        XLSX.writeFile(wb, `${station}_Report.xlsx`);
+    }
+
+    function exportPDF() {
+        if(!validate()) return;
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const station = document.getElementById('sn').value.toUpperCase();
+        const shift = isDayTime ? "Day" : "Night";
+
+        doc.setFontSize(18); doc.text(`STATION: ${station}`, 14, 20);
+        doc.setFontSize(10);
+        doc.text(`Date: ${getNowStr()} | Shift: ${shift}`, 14, 28);
+        doc.text(`Prices: 91 (${document.getElementById('p91').value}) | 95 (${document.getElementById('p95').value}) | D (${document.getElementById('pd').value})`, 14, 34);
+        
+        const summary = [
+            ["Fuel Type", "Total Liters", "Total SAR"],
+            ["Octane 91", document.getElementById('sum91').innerText, (parseFloat(document.getElementById('sum91').innerText) * parseFloat(document.getElementById('p91').value)).toFixed(2)],
+            ["Octane 95", document.getElementById('sum95').innerText, (parseFloat(document.getElementById('sum95').innerText) * parseFloat(document.getElementById('p95').value)).toFixed(2)],
+            ["Diesel", document.getElementById('sumD').innerText, (parseFloat(document.getElementById('sumD').innerText) * parseFloat(document.getElementById('pd').value)).toFixed(2)],
+            ["GRAND TOTAL", "", document.getElementById('grandTotal').innerText + " SAR"]
+        ];
+        doc.autoTable({ head: [summary[0]], body: summary.slice(1), startY: 40, theme: 'grid' });
+
+        const rows = [];
+        document.querySelectorAll('.nozzle-row').forEach(row => {
+            const id = row.id.split('-')[1];
+            rows.push([document.getElementById(`name-${id}`).value, document.getElementById(`type-${id}`).value, document.getElementById(`i${id}`).value || "0", document.getElementById(`f${id}`).value || "0"]);
+        });
+        doc.autoTable({ head: [["Nozzle", "Type", "Start", "End"]], body: rows, startY: doc.lastAutoTable.finalY + 10 });
+        doc.save(`${station}_Report.pdf`);
     }
 
     function saveMem() {
         const data = {
-            sn: document.getElementById('sn').value,
-            p91: document.getElementById('p91').value,
-            p95: document.getElementById('p95').value,
-            pd: document.getElementById('pd').value,
-            day: isDayTime,
-            nozzles: []
+            sn: document.getElementById('sn').value, p91: document.getElementById('p91').value,
+            p95: document.getElementById('p95').value, pd: document.getElementById('pd').value,
+            day: isDayTime, nozzles: []
         };
         document.querySelectorAll('.nozzle-row').forEach(row => {
             const id = row.id.split('-')[1];
             data.nozzles.push({
-                name: document.getElementById(`name-${id}`).value,
-                type: document.getElementById(`type-${id}`).value,
-                init: document.getElementById(`i${id}`).value,
-                final: document.getElementById(`f${id}`).value
+                name: document.getElementById(`name-${id}`).value, type: document.getElementById(`type-${id}`).value,
+                init: document.getElementById(`i${id}`).value, final: document.getElementById(`f${id}`).value
             });
         });
-        localStorage.setItem('reben_compact_final', JSON.stringify(data));
+        localStorage.setItem('reben_v3_detailed', JSON.stringify(data));
     }
 
     function loadMem() {
-        const stored = localStorage.getItem('reben_compact_final');
+        const stored = localStorage.getItem('reben_v3_detailed');
         if(stored) {
             const data = JSON.parse(stored);
             document.getElementById('sn').value = data.sn || "";
@@ -301,47 +367,6 @@
         const type = document.getElementById(`type-${id}`).value;
         document.getElementById(`card-${id}`).className = `nozzle-row row-${type.toLowerCase()}`;
         doMath();
-    }
-
-    function shareWA() {
-        if(!validate()) return;
-        const station = document.getElementById('sn').value.toUpperCase();
-        let msg = `🏪 *${station}*%0A📅 *${isDayTime?'DAY':'NIGHT'} SHIFT*%0A💰 *TOTAL:* ${document.getElementById('grandTotal').innerText} SAR%0A%0A`;
-        document.querySelectorAll('.nozzle-row').forEach(row => {
-            const id = row.id.split('-')[1];
-            msg += `📍 ${document.getElementById(`name-${id}`).value}: ${document.getElementById(`i${id}`).value} -> ${document.getElementById(`f${id}`).value}%0A`;
-        });
-        window.open(`https://wa.me/?text=${msg}`, '_blank');
-    }
-
-    function exportExcel() {
-        if(!validate()) return;
-        const data = [];
-        document.querySelectorAll('.nozzle-row').forEach(row => {
-            const id = row.id.split('-')[1];
-            data.push({ Nozzle: document.getElementById(`name-${id}`).value, Fuel: document.getElementById(`type-${id}`).value, Start: document.getElementById(`i${id}`).value, End: document.getElementById(`f${id}`).value });
-        });
-        const ws = XLSX.utils.json_to_sheet(data);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Report");
-        XLSX.writeFile(wb, `${document.getElementById('sn').value}_Report.xlsx`);
-    }
-
-    function exportPDF() {
-        if(!validate()) return;
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.setFontSize(18);
-        doc.text(`REBEN: ${document.getElementById('sn').value.toUpperCase()}`, 14, 20);
-        doc.setFontSize(10);
-        doc.text(`Shift: ${isDayTime?'Day (6AM-6PM)':'Night (6PM-6AM)'}`, 14, 28);
-        const rows = [];
-        document.querySelectorAll('.nozzle-row').forEach(row => {
-            const id = row.id.split('-')[1];
-            rows.push([document.getElementById(`name-${id}`).value, document.getElementById(`type-${id}`).value, document.getElementById(`i${id}`).value, document.getElementById(`f${id}`).value]);
-        });
-        doc.autoTable({ head: [["Nozzle", "Type", "Start", "End"]], body: rows, startY: 35, theme: 'grid' });
-        doc.save("Report.pdf");
     }
 
     window.onload = loadMem;
