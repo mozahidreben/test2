@@ -18,112 +18,139 @@
             --95: #d32f2f; 
             --d: #2c3e50; 
             --error: #ff3b30; 
-            --wa: #25D366;
+            --wa: #25D366; 
+            --glass: rgba(255, 255, 255, 0.95);
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg); color: #333; line-height: 1.6; padding-bottom: 240px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { background: var(--bg); padding-bottom: 200px; padding-top: 10px; color: #1a1a1a; }
         
-        .top-nav { position: sticky; top: 0; z-index: 100; background: white; margin: 10px 12px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.06); overflow: hidden; }
-        .station-input { width: 100%; padding: 15px; border: none; font-weight: 900; text-align: center; font-size: 18px; color: var(--reben-red); border-bottom: 1px solid #eee; outline: none; }
-        .price-settings { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; padding: 10px; background: #fff; }
-        .p-input { display: flex; flex-direction: column; align-items: center; background: #f8f9fa; padding: 5px; border-radius: 8px; }
-        .p-input label { font-size: 9px; font-weight: bold; color: #777; margin-bottom: 2px; }
-        .p-input input { width: 100%; border: none; background: transparent; text-align: center; font-weight: 900; font-size: 14px; outline: none; color: #333; }
+        .invalid { border: 2px solid var(--error) !important; background-color: #fff0f0 !important; }
 
-        .shift-indicator { background: #333; color: white; padding: 6px; text-align: center; font-size: 10px; font-weight: 900; letter-spacing: 1px; }
+        /* Modernized Header */
+        .top-nav { position: sticky; top: 0; z-index: 100; background: white; margin: 0 12px 15px 12px; border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); overflow: hidden; }
+        .station-input { width: 100%; padding: 15px; border: none; font-weight: 900; text-align: center; font-size: 18px; outline: none; color: var(--reben-red); text-transform: uppercase; border-bottom: 1px solid #f0f0f0; }
+        
+        .price-settings { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 12px; background: #fff; }
+        .p-input { display: flex; flex-direction: column; align-items: center; background: #f8f9fa; padding: 8px; border-radius: 12px; }
+        .p-input label { font-size: 10px; font-weight: 800; color: #777; margin-bottom: 4px; }
+        .p-input input { width: 100%; border: none; background: transparent; text-align: center; font-weight: 900; font-size: 15px; outline: none; color: #333; }
 
+        /* Enhanced Nozzle Cards */
         .nozzle-list { padding: 0 12px; }
-        .nozzle-row { background: white; border-radius: 15px; padding: 15px; margin-bottom: 10px; border-left: 8px solid #ccc; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .nozzle-row { background: white; border-radius: 20px; padding: 15px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border-left: 10px solid #ccc; transition: transform 0.2s; }
+        .nozzle-row:active { transform: scale(0.98); }
         .row-91 { border-left-color: var(--91); }
         .row-95 { border-left-color: var(--95); }
         .row-d { border-left-color: var(--d); }
 
-        .row-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .nozzle-num-input { border: none; font-weight: 900; font-size: 16px; width: 120px; outline: none; background: transparent; }
-        .fuel-select { font-size: 11px; font-weight: 800; border: 1px solid #eee; border-radius: 5px; padding: 3px 8px; background: #fff; }
+        .row-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .nozzle-num-input { border: none; font-weight: 900; color: #222; font-size: 1.1rem; width: 120px; outline: none; }
+        .fuel-select { padding: 6px 12px; border-radius: 10px; border: 1px solid #eee; background: #fff; font-weight: 800; font-size: 11px; color: #555; }
 
-        .input-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
-        .input-grp { position: relative; }
-        .input-grp label { font-size: 10px; font-weight: bold; color: #888; display: block; margin-bottom: 2px; }
-        .reading-input { width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 10px; font-weight: 900; font-size: 24px; outline: none; background: #fafafa; color: #000; }
-        .cam-btn { position: absolute; right: 5px; bottom: 5px; background: #333; color: white; border: none; width: 44px; height: 44px; border-radius: 8px; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-
-        .row-math { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #eee; }
-        .diff-box { font-weight: 900; color: #444; font-size: 14px; }
-
-        .footer { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px 15px 30px; border-radius: 20px 20px 0 0; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); z-index: 200; }
-        .grand-total { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .total-label { font-size: 11px; font-weight: 900; color: #999; }
-        .total-val { font-size: 32px; font-weight: 900; color: #000; }
+        .scan-grid { display: flex; flex-direction: column; gap: 12px; }
+        .input-grp { position: relative; width: 100%; display: flex; flex-direction: column; }
+        .input-grp label { font-size: 10px; color: #888; font-weight: 700; margin-bottom: 4px; padding-left: 2px; }
         
-        .action-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-        .btn { height: 50px; border: none; border-radius: 12px; font-weight: bold; font-size: 11px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
-        .btn-add { background: #000; color: #fff; grid-column: span 1; }
+        .reading-input { 
+            width: 100%; 
+            padding: 12px 50px 12px 15px; 
+            border: 1.5px solid #edf2f7; 
+            border-radius: 12px; 
+            font-weight: 900; 
+            font-size: 24px; 
+            background: #fcfcfc; 
+            outline: none;
+            color: #2d3436;
+        }
+        .cam-btn { position: absolute; bottom: 8px; right: 8px; background: #333; color: white; border: none; border-radius: 10px; width: 40px; height: 40px; font-size: 16px; cursor: pointer; }
+        
+        .diff-tag { margin-top: 10px; font-size: 12px; font-weight: 900; color: #444; text-align: right; }
+        .diff-error { color: var(--error) !important; animation: shake 0.3s ease-in-out; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+
+        /* Glass Footer */
+        .footer-tools { position: fixed; bottom: 0; left: 0; right: 0; background: var(--glass); backdrop-filter: blur(10px); padding: 15px 15px 30px 15px; border-radius: 30px 30px 0 0; z-index: 200; box-shadow: 0 -10px 25px rgba(0,0,0,0.1); }
+        .stats { display: flex; justify-content: space-between; margin-bottom: 18px; color: #222; align-items: flex-end; }
+        .total-val { color: #000; font-size: 34px; font-weight: 900; letter-spacing: -1px; }
+        .shift-label { font-size: 10px; color: #666; font-weight: 700; }
+
+        .action-row { display: grid; grid-template-columns: 1fr 1fr 1.2fr 1fr 0.8fr; gap: 8px; }
+        .tool-btn { border: none; border-radius: 16px; font-weight: 800; font-size: 10px; height: 54px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.2s; }
+        .tool-btn:active { transform: translateY(2px); }
+        
+        .btn-add { background: #000; color: #fff; }
         .btn-xl { background: #e8f5e9; color: #2e7d32; }
+        .btn-next { background: #fff3e0; color: #ef6c00; }
         .btn-pdf { background: #ffebee; color: #c62828; }
-        .btn-shift { background: #fff3e0; color: #ef6c00; }
-        .btn-wa { background: var(--wa); color: #fff; font-size: 20px; }
+        .btn-wa { background: var(--wa); color: #fff; font-size: 22px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3); }
 
-        /* Full Screen Scanner */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; flex-direction: column; }
-        #v { width: 100%; height: 100%; object-fit: cover; }
-        .guide-box { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 100px; border: 2px solid #fff; border-radius: 15px; box-shadow: 0 0 0 1000px rgba(0,0,0,0.7); z-index: 10; }
-        .guide-box::after { content: 'ALIGN NUMBERS HERE'; position: absolute; bottom: -25px; width: 100%; text-align: center; color: #fff; font-size: 10px; font-weight: bold; letter-spacing: 1px; }
+        /* Scanner Modal UI */
+        .modal { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; flex-direction: column; }
+        .cam-view { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; }
+        video { width: 100%; height: 100%; object-fit: cover; }
+        .guide { position: absolute; width: 80%; height: 80px; border: 2px solid white; border-radius: 12px; box-shadow: 0 0 0 4000px rgba(0,0,0,0.6); z-index: 5; }
+        .guide::after { content: 'ALIGN READING HERE'; position: absolute; top: -25px; left: 0; width: 100%; text-align: center; color: white; font-size: 10px; font-weight: bold; letter-spacing: 1px; }
         
-        .scan-controls { position: absolute; bottom: 40px; width: 100%; display: flex; justify-content: center; gap: 30px; z-index: 20; }
-        .scan-btn { width: 60px; height: 60px; border-radius: 50%; border: none; color: white; font-size: 24px; display: flex; align-items: center; justify-content: center; }
-        .btn-close { background: rgba(255,59,48,0.8); }
-        .btn-torch { background: rgba(255,255,255,0.2); }
+        .scan-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 40px 20px; z-index: 10; pointer-events: none; }
+        .scan-btn-row { pointer-events: auto; display: flex; justify-content: space-around; padding-bottom: 20px; }
+        
+        .flash-success { position: absolute; inset: 0; background: var(--wa); opacity: 0; z-index: 15; pointer-events: none; }
+        @keyframes flashAnim { 0% { opacity: 0.6; } 100% { opacity: 0; } }
+        .trigger-flash { animation: flashAnim 0.3s ease-out forwards; }
     </style>
 </head>
 <body>
 
 <div class="top-nav">
     <input type="text" id="sn" class="station-input" placeholder="STATION NAME" oninput="saveMem()">
-    <div id="shift-text" class="shift-indicator">DAY SHIFT (6AM-6PM)</div>
     <div class="price-settings">
-        <div class="p-input"><label>91</label><input type="number" id="p91" step="0.01" oninput="doMath();saveMem()"></div>
-        <div class="p-input"><label>95</label><input type="number" id="p95" step="0.01" oninput="doMath();saveMem()"></div>
-        <div class="p-input"><label>DIESEL</label><input type="number" id="pd" step="0.01" oninput="doMath();saveMem()"></div>
+        <div class="p-input"><label>OCTANE 91</label><input type="number" id="p91" step="0.01" oninput="doMath(); saveMem()"></div>
+        <div class="p-input"><label>OCTANE 95</label><input type="number" id="p95" step="0.01" oninput="doMath(); saveMem()"></div>
+        <div class="p-input"><label>DIESEL</label><input type="number" id="pd" step="0.01" oninput="doMath(); saveMem()"></div>
     </div>
 </div>
 
 <div class="nozzle-list" id="list"></div>
 
-<div class="footer">
-    <div class="grand-total">
-        <div class="total-label">GRAND TOTAL (SAR)</div>
+<div class="footer-tools">
+    <div class="stats">
+        <div class="shift-label">
+            <span id="shift-text">SHIFT DATA</span><br>
+            91: <span id="sum91" style="color:var(--91)">0</span> | 95: <span id="sum95" style="color:var(--95)">0</span> | D: <span id="sumD">0</span>
+        </div>
         <div class="total-val" id="grandTotal">0.00</div>
     </div>
     <div class="action-row">
-        <button class="btn btn-add" onclick="addNewNozzle()"><i class="fa-solid fa-plus"></i></button>
-        <button class="btn btn-xl" onclick="exportExcel()">XL</button>
-        <button class="btn btn-shift" onclick="rotateShift()">SHIFT</button>
-        <button class="btn btn-pdf" onclick="exportPDF()">PDF</button>
-        <button class="btn btn-wa" onclick="shareWA()"><i class="fa-brands fa-whatsapp"></i></button>
+        <button class="tool-btn btn-add" onclick="addNewNozzle()"><i class="fa-solid fa-plus"></i></button>
+        <button class="tool-btn btn-xl" onclick="exportExcel()"><b>EXCEL</b></button>
+        <button class="tool-btn btn-next" onclick="rotateShift()"><b>NEXT SHIFT</b></button>
+        <button class="tool-btn btn-pdf" onclick="exportPDF()"><b>PDF</b></button>
+        <button class="tool-btn btn-wa" onclick="shareWA()"><i class="fa-brands fa-whatsapp"></i></button>
     </div>
 </div>
 
 <div class="modal" id="scanner">
-    <video id="v" autoplay playsinline></video>
-    <div class="guide-box"></div>
-    <div class="scan-controls">
-        <button class="scan-btn btn-torch" onclick="toggleTorch()"><i class="fa-solid fa-bolt"></i></button>
-        <button class="scan-btn btn-close" onclick="stopCam()"><i class="fa-solid fa-xmark"></i></button>
+    <div class="cam-view">
+        <div id="flash" class="flash-success"></div>
+        <video id="v" autoplay playsinline></video>
+        <div class="guide"></div>
+        <div class="scan-overlay">
+            <div style="text-align: center; color: white; font-weight: bold; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 5px;">SCANNING...</div>
+            <div class="scan-btn-row">
+                <button onclick="toggleTorch()" id="torchBtn" style="background:rgba(255,255,255,0.2); border:none; color:white; width:60px; height:60px; border-radius:50%; font-size:20px;"><i class="fa-solid fa-bolt"></i></button>
+                <button onclick="stopCam()" style="background:rgba(255,0,0,0.4); border:none; color:white; width:60px; height:60px; border-radius:50%; font-size:20px;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
     </div>
     <canvas id="c" style="display:none"></canvas>
 </div>
 
 <script>
-    let nozzleCount = 0;
-    let activeId = null;
-    let stream = null;
-    let isScanning = false;
+    let nozzleCount = 0, activeId = null, stream = null, isScanning = false, worker = null;
     let isDayTime = true;
-    let worker = null;
     let torchOn = false;
 
-    // AUDIO BEEP LOGIC
+    // AUDIO BEEP
     function playBeep() {
         try {
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -144,71 +171,94 @@
         worker = await Tesseract.createWorker();
         await worker.loadLanguage('eng');
         await worker.initialize('eng');
-        // REPAIR: Whitelist includes S, O, I, B to capture 7-segment digital font variations
+        // REPAIR: Whitelist includes common 7-segment digital font variations (S=5, O=0, I=1, B=8)
         await worker.setParameters({ 
             tessedit_char_whitelist: '0123456789.SOIB', 
-            tessedit_pageseg_mode: '7' 
+            tessedit_pageseg_mode: '7'
         });
     }
     initAI();
+
+    function validate() {
+        const fields = [document.getElementById('sn'), document.getElementById('p91'), document.getElementById('p95'), document.getElementById('pd')];
+        let valid = true;
+        fields.forEach(f => {
+            f.classList.remove('invalid');
+            if(!f.value || f.value.trim() === "" || parseFloat(f.value) <= 0) { f.classList.add('invalid'); valid = false; }
+        });
+        return valid;
+    }
 
     function addNewNozzle(saved = null) {
         nozzleCount++;
         const id = nozzleCount;
         const div = document.createElement('div');
-        div.className = `nozzle-row row-${saved ? saved.type.toLowerCase() : '91'}`;
+        div.className = `nozzle-row row-${saved ? saved.type : '91'}`;
         div.id = `card-${id}`;
+        
+        const labelI = isDayTime ? "INITIAL (6 AM)" : "INITIAL (6 PM)";
+        const labelF = isDayTime ? "FINAL (6 PM)" : "FINAL (6 AM)";
+
         div.innerHTML = `
             <div class="row-top">
                 <input class="nozzle-num-input" value="${saved ? saved.name : 'Nozzle ' + id}" id="name-${id}" oninput="saveMem()">
                 <select class="fuel-select" id="type-${id}" onchange="updateRowColor(${id}); saveMem()">
-                    <option value="91" ${saved?.type=='91'?'selected':''}>91</option>
-                    <option value="95" ${saved?.type=='95'?'selected':''}>95</option>
+                    <option value="91" ${saved?.type=='91'?'selected':''}>OCTANE 91</option>
+                    <option value="95" ${saved?.type=='95'?'selected':''}>OCTANE 95</option>
                     <option value="D" ${saved?.type=='D'?'selected':''}>DIESEL</option>
                 </select>
-                <button onclick="removeNozzle(${id})" style="border:none;background:none;color:#ddd;font-size:16px;"><i class="fa-solid fa-times"></i></button>
+                <button onclick="this.parentElement.parentElement.remove(); doMath(); saveMem();" style="border:none; background:none; color:#ccc"><i class="fa-solid fa-trash-can"></i></button>
             </div>
-            <div class="input-grid">
+            <div class="scan-grid">
                 <div class="input-grp">
-                    <label>INITIAL</label>
-                    <input type="number" id="i${id}" class="reading-input" value="${saved?saved.init:''}" oninput="doMath();saveMem()">
+                    <label class="lbl-init">${labelI}</label>
+                    <input type="number" id="i${id}" class="reading-input" value="${saved?saved.init:''}" oninput="doMath(); saveMem()">
                     <button class="cam-btn" onclick="startScan('i${id}')"><i class="fa-solid fa-camera"></i></button>
                 </div>
                 <div class="input-grp">
-                    <label>FINAL</label>
-                    <input type="number" id="f${id}" class="reading-input" value="${saved?saved.final:''}" oninput="doMath();saveMem()">
+                    <label class="lbl-final">${labelF}</label>
+                    <input type="number" id="f${id}" class="reading-input" value="${saved?saved.final:''}" oninput="doMath(); saveMem()">
                     <button class="cam-btn" onclick="startScan('f${id}')"><i class="fa-solid fa-camera"></i></button>
                 </div>
             </div>
-            <div class="row-math">
-                <div class="diff-box" id="diff-${id}">0.00 L</div>
-                <div id="amt-${id}" style="font-weight:900;color:var(--reben-red)">0.00</div>
-            </div>
+            <div class="diff-tag" id="diff-${id}">Sales: 0.00 L</div>
         `;
         document.getElementById('list').appendChild(div);
         if(!saved) window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }
 
-    async function startScan(id) {
-        activeId = id;
-        isScanning = true;
-        document.getElementById('scanner').style.display = 'flex';
-        try {
-            stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: 'environment', width: { ideal: 1280 } } 
-            });
-            document.getElementById('v').srcObject = stream;
-            tick();
-        } catch(e) { 
-            alert("Camera Access Denied"); 
-            stopCam(); 
-        }
+    function rotateShift() {
+        if(!confirm("Start Next Shift? Final values will become Initial values.")) return;
+        isDayTime = !isDayTime;
+        document.getElementById('shift-text').innerText = isDayTime ? "DAY SHIFT (6AM-6PM)" : "NIGHT SHIFT (6PM-6AM)";
+        document.querySelectorAll('.nozzle-row').forEach(row => {
+            const id = row.id.split('-')[1];
+            document.getElementById(`i${id}`).value = document.getElementById(`f${id}`).value;
+            document.getElementById(`f${id}`).value = "";
+            row.querySelector('.lbl-init').innerText = isDayTime ? "INITIAL (6 AM)" : "INITIAL (6 PM)";
+            row.querySelector('.lbl-final').innerText = isDayTime ? "FINAL (6 PM)" : "FINAL (6 AM)";
+        });
+        doMath();
+        saveMem();
     }
 
-    function stopCam() {
-        isScanning = false;
-        if(stream) stream.getTracks().forEach(t => t.stop());
-        document.getElementById('scanner').style.display = 'none';
+    async function startScan(id) { 
+        activeId = id; isScanning = true; 
+        document.getElementById('scanner').style.display = 'flex'; 
+        try { 
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: 'environment', width: { ideal: 1280 } } 
+            }); 
+            document.getElementById('v').srcObject = stream; 
+            tick(); 
+        } catch (e) { stopCam(); } 
+    }
+
+    function stopCam() { 
+        isScanning = false; 
+        if(stream) stream.getTracks().forEach(t => t.stop()); 
+        document.getElementById('scanner').style.display = 'none'; 
+        torchOn = false;
     }
 
     async function toggleTorch() {
@@ -217,79 +267,191 @@
         try { await track.applyConstraints({ advanced: [{ torch: torchOn }] }); } catch (e) {}
     }
 
+    // REPAIR: Smooth Reader logic to handle digital dispenser fonts
+    function sanitizeOCR(text) {
+        return text.toUpperCase()
+            .replace(/S/g, '5')
+            .replace(/O/g, '0')
+            .replace(/[I|l]/g, '1')
+            .replace(/B/g, '8')
+            .replace(/Z/g, '2')
+            .replace(/[^0-9.]/g, ''); 
+    }
+
     async function tick() {
         if (!isScanning) return;
         const v = document.getElementById('v'), c = document.getElementById('c'), ctx = c.getContext('2d');
         if (v.readyState === v.HAVE_ENOUGH_DATA) {
             const ratio = v.videoWidth / v.clientWidth;
-            const w = v.videoWidth * 0.8, h = 100 * ratio;
+            const w = v.videoWidth * 0.8, h = 80 * ratio;
             const x = (v.videoWidth - w) / 2, y = (v.videoHeight - h) / 2;
             c.width = w; c.height = h;
-            
-            // REPAIR: Increased contrast filter for dispenser glass reflections
+            // REPAIR: Higher contrast to overcome glass glare
             ctx.filter = 'contrast(2.5) grayscale(1) brightness(1.1)';
             ctx.drawImage(v, x, y, w, h, 0, 0, w, h);
-            
-            const { data: { text, confidence } } = await worker.recognize(c);
-            
-            // REPAIR: Logic to convert look-alike letters from 7-segment displays to numbers
-            let clean = text.toUpperCase()
-                .replace(/S/g, '5')
-                .replace(/O/g, '0')
-                .replace(/I/g, '1')
-                .replace(/B/g, '8')
-                .replace(/[^0-9.]/g, '');
+            try {
+                let { data: { text, confidence } } = await worker.recognize(c);
+                
+                text = sanitizeOCR(text);
+                const match = text.match(/\d+\.\d{1,3}/) || text.match(/\d{3,}/);
 
-            if (clean.length > 2 && confidence > 60) {
-                playBeep();
-                document.getElementById(activeId).value = clean;
-                doMath();
-                saveMem();
-                stopCam();
-            }
+                if (match && confidence > 60) { 
+                    playBeep();
+                    document.getElementById('flash').classList.add('trigger-flash');
+                    document.getElementById(activeId).value = match[0]; 
+                    doMath(); saveMem();
+                    setTimeout(() => { document.getElementById('flash').classList.remove('trigger-flash'); stopCam(); }, 300);
+                    return; 
+                }
+            } catch (err) {}
         }
-        setTimeout(tick, 80);
+        if (isScanning) setTimeout(tick, 100);
     }
 
     function doMath() {
-        let grandTotal = 0;
-        const p = {
-            '91': parseFloat(document.getElementById('p91').value) || 0,
-            '95': parseFloat(document.getElementById('p95').value) || 0,
-            'D': parseFloat(document.getElementById('pd').value) || 0
-        };
+        let total = 0, q91 = 0, q95 = 0, qd = 0;
+        const pr91 = parseFloat(document.getElementById('p91').value) || 0;
+        const pr95 = parseFloat(document.getElementById('p95').value) || 0;
+        const prd = parseFloat(document.getElementById('pd').value) || 0;
+        
         document.querySelectorAll('.nozzle-row').forEach(row => {
             const id = row.id.split('-')[1];
             const type = document.getElementById(`type-${id}`).value;
-            const i = parseFloat(document.getElementById(`i${id}`).value) || 0;
-            const f = parseFloat(document.getElementById(`f${id}`).value) || 0;
-            const diff = Math.max(0, f - i);
-            const amt = diff * p[type];
-            document.getElementById(`diff-${id}`).innerText = `${diff.toFixed(2)} L`;
-            document.getElementById(`amt-${id}`).innerText = amt.toLocaleString(undefined, {minimumFractionDigits: 2});
-            grandTotal += amt;
+            const initVal = parseFloat(document.getElementById(`i${id}`).value) || 0;
+            const finalVal = parseFloat(document.getElementById(`f${id}`).value) || 0;
+            
+            const diffTag = document.getElementById(`diff-${id}`);
+            const diff = finalVal - initVal;
+
+            if (finalVal > 0 && diff < 0) {
+                diffTag.innerText = `Error: End < Start`;
+                diffTag.classList.add('diff-error');
+            } else {
+                const actualDiff = Math.max(0, diff);
+                diffTag.innerText = `Sales: ${actualDiff.toFixed(2)} L`;
+                diffTag.classList.remove('diff-error');
+                
+                if(type === '91') { q91 += actualDiff; total += actualDiff * pr91; }
+                else if(type === '95') { q95 += actualDiff; total += actualDiff * pr95; }
+                else { qd += actualDiff; total += actualDiff * prd; }
+            }
         });
-        document.getElementById('grandTotal').innerText = grandTotal.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('sum91').innerText = q91.toFixed(2);
+        document.getElementById('sum95').innerText = q95.toFixed(2);
+        document.getElementById('sumD').innerText = qd.toFixed(2);
+        document.getElementById('grandTotal').innerText = total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
     }
 
-    function removeNozzle(id) {
-        document.getElementById(`card-${id}`).remove();
-        doMath();
-        saveMem();
+    function getNowStr() {
+        return new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, ' - ');
     }
 
-    function rotateShift() {
-        isDayTime = !isDayTime;
-        document.getElementById('shift-text').innerText = isDayTime ? "DAY SHIFT (6AM-6PM)" : "NIGHT SHIFT (6PM-6AM)";
-        saveMem();
+    function shareWA() {
+        if(!validate()) { alert("Please complete Station Name and Prices"); return; }
+        const station = document.getElementById('sn').value.toUpperCase();
+        const shift = isDayTime ? "Day" : "Night";
+        const time = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
+        
+        let msg = `宵 *Station Report*%0A%0A`;
+        msg += `    *${station}*%0A`;
+        msg += `     Date ${getNowStr()}%0A`;
+        msg += `     Shift - ${shift}%0A`;
+        msg += `     Reporting Time - ${time}%0A%0A`;
+        msg += `---- SUMMARY ----%0A%0A`;
+        msg += `泙 *91 Total:* ${document.getElementById('sum91').innerText} L%0A`;
+        msg += `閥 *95 Total:* ${document.getElementById('sum95').innerText} L%0A`;
+        msg += `鳩 *Diesel Total:* ${document.getElementById('sumD').innerText} L%0A`;
+        msg += `腸 *Total Amount:* ${document.getElementById('grandTotal').innerText} SAR%0A%0A%0A%0A`;
+        msg += `*Designed by Mozahid*`;
+        
+        window.open(`https://wa.me/?text=${msg}`, '_blank');
+    }
+
+    function exportExcel() {
+        if(!validate()) return;
+        const station = document.getElementById('sn').value.toUpperCase();
+        const headerInfo = [
+            ["STATION", station],
+            ["DATE", getNowStr()],
+            ["SHIFT", isDayTime ? "Day" : "Night"],
+            ["91 PRICE", document.getElementById('p91').value],
+            ["95 PRICE", document.getElementById('p95').value],
+            ["D PRICE", document.getElementById('pd').value],
+            ["GRAND TOTAL", document.getElementById('grandTotal').innerText + " SAR"],
+            [],
+            ["NOZZLE", "FUEL", "INITIAL", "FINAL", "LITERS"]
+        ];
+        
+        const nozzleData = [];
+        document.querySelectorAll('.nozzle-row').forEach(row => {
+            const id = row.id.split('-')[1];
+            const init = parseFloat(document.getElementById(`i${id}`).value) || 0;
+            const final = parseFloat(document.getElementById(`f${id}`).value) || 0;
+            nozzleData.push([
+                document.getElementById(`name-${id}`).value,
+                document.getElementById(`type-${id}`).value,
+                init,
+                final,
+                Math.max(0, final - init).toFixed(2)
+            ]);
+        });
+
+        const ws = XLSX.utils.aoa_to_sheet([...headerInfo, ...nozzleData]);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Report");
+        XLSX.writeFile(wb, `${station}_Report.xlsx`);
+    }
+
+    function exportPDF() {
+        if(!validate()) return;
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const station = document.getElementById('sn').value.toUpperCase();
+        const shift = isDayTime ? "Day" : "Night";
+        const time = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+        doc.setFontSize(18); doc.text(`STATION: ${station}`, 14, 20);
+        doc.setFontSize(10);
+        doc.text(`Date: ${getNowStr()} | Shift: ${shift} | Time: ${time}`, 14, 28);
+        doc.text(`Prices: 91 (${document.getElementById('p91').value}) | 95 (${document.getElementById('p95').value}) | D (${document.getElementById('pd').value})`, 14, 34);
+        
+        const summary = [
+            ["Fuel Type", "Total Liters", "Total SAR"],
+            ["Octane 91", document.getElementById('sum91').innerText, (parseFloat(document.getElementById('sum91').innerText) * parseFloat(document.getElementById('p91').value)).toFixed(2)],
+            ["Octane 95", document.getElementById('sum95').innerText, (parseFloat(document.getElementById('sum95').innerText) * parseFloat(document.getElementById('p95').value)).toFixed(2)],
+            ["Diesel", document.getElementById('sumD').innerText, (parseFloat(document.getElementById('sumD').innerText) * parseFloat(document.getElementById('pd').value)).toFixed(2)],
+            ["GRAND TOTAL", "", document.getElementById('grandTotal').innerText + " SAR"]
+        ];
+        doc.autoTable({ head: [summary[0]], body: summary.slice(1), startY: 40, theme: 'grid' });
+
+        const rows = [];
+        document.querySelectorAll('.nozzle-row').forEach(row => {
+            const id = row.id.split('-')[1];
+            const init = parseFloat(document.getElementById(`i${id}`).value) || 0;
+            const final = parseFloat(document.getElementById(`f${id}`).value) || 0;
+            const diff = Math.max(0, final - init).toFixed(2);
+            rows.push([
+                document.getElementById(`name-${id}`).value, 
+                document.getElementById(`type-${id}`).value, 
+                init, 
+                final,
+                diff
+            ]);
+        });
+        doc.autoTable({ head: [["Nozzle", "Type", "Start", "End", "Difference"]], body: rows, startY: doc.lastAutoTable.finalY + 10 });
+        
+        const finalY = doc.lastAutoTable.finalY + 15;
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bold");
+        doc.text("Designed By - Mozahid", 14, finalY);
+
+        doc.save(`${station}_Report.pdf`);
     }
 
     function saveMem() {
         const data = {
-            sn: document.getElementById('sn').value,
-            p91: document.getElementById('p91').value,
-            p95: document.getElementById('p95').value,
-            pd: document.getElementById('pd').value,
+            sn: document.getElementById('sn').value, p91: document.getElementById('p91').value,
+            p95: document.getElementById('p95').value, pd: document.getElementById('pd').value,
             day: isDayTime, nozzles: []
         };
         document.querySelectorAll('.nozzle-row').forEach(row => {
@@ -302,7 +464,7 @@
         localStorage.setItem('reben_v3_premium', JSON.stringify(data));
     }
 
-    window.onload = () => {
+    function loadMem() {
         const stored = localStorage.getItem('reben_v3_premium');
         if(stored) {
             const data = JSON.parse(stored);
@@ -315,7 +477,7 @@
             data.nozzles.forEach(n => addNewNozzle(n));
             doMath();
         } else { addNewNozzle(); }
-    };
+    }
 
     function updateRowColor(id) {
         const type = document.getElementById(`type-${id}`).value;
@@ -323,56 +485,7 @@
         doMath();
     }
 
-    // PDF/Excel functions kept for UI consistency, using standard implementations
-    function exportExcel() {
-        const table = [["NOZZLE", "TYPE", "INITIAL", "FINAL", "LITERS", "AMOUNT"]];
-        document.querySelectorAll('.nozzle-row').forEach(row => {
-            const id = row.id.split('-')[1];
-            table.push([
-                document.getElementById(`name-${id}`).value,
-                document.getElementById(`type-${id}`).value,
-                document.getElementById(`i${id}`).value,
-                document.getElementById(`f${id}`).value,
-                document.getElementById(`diff-${id}`).innerText,
-                document.getElementById(`amt-${id}`).innerText
-            ]);
-        });
-        const ws = XLSX.utils.aoa_to_sheet(table);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Sales");
-        XLSX.writeFile(wb, `${document.getElementById('sn').value || 'Station'}_Report.xlsx`);
-    }
-
-    function exportPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.text(document.getElementById('sn').value || "REBEN STATION REPORT", 10, 10);
-        const data = [];
-        document.querySelectorAll('.nozzle-row').forEach(row => {
-            const id = row.id.split('-')[1];
-            data.push([
-                document.getElementById(`name-${id}`).value,
-                document.getElementById(`type-${id}`).value,
-                document.getElementById(`i${id}`).value,
-                document.getElementById(`f${id}`).value,
-                document.getElementById(`diff-${id}`).innerText,
-                document.getElementById(`amt-${id}`).innerText
-            ]);
-        });
-        doc.autoTable({ head: [["NOZZLE", "TYPE", "INITIAL", "FINAL", "LITERS", "AMOUNT"]], body: data });
-        doc.save("Report.pdf");
-    }
-
-    function shareWA() {
-        let msg = `*${document.getElementById('sn').value || 'STATION REPORT'}*\n`;
-        msg += `Shift: ${document.getElementById('shift-text').innerText}\n\n`;
-        document.querySelectorAll('.nozzle-row').forEach(row => {
-            const id = row.id.split('-')[1];
-            msg += `*${document.getElementById('name-${id}`).value}* (${document.getElementById(`type-${id}`).value}): ${document.getElementById(`diff-${id}`).innerText} -> ${document.getElementById(`amt-${id}`).innerText} SAR\n`;
-        });
-        msg += `\n*TOTAL: ${document.getElementById('grandTotal').innerText} SAR*`;
-        window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
-    }
+    window.onload = loadMem;
 </script>
 </body>
 </html>
