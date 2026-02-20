@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Reben Pro Max</title>
+    <title>Reben Pro Compact</title>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -11,94 +11,78 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
     <style>
-        :root { --reben-red: #E30613; --bg: #f4f7f9; --91: #28a745; --95: #dc3545; --d: #333; --wa: #25D366; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
-        body { background: var(--bg); padding-bottom: 220px; padding-top: 10px; }
+        :root { --reben-red: #E30613; --bg: #f8f9fa; --91: #28a745; --95: #dc3545; --d: #333; --error: #ff3b30; --wa: #25D366; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
+        body { background: var(--bg); padding-bottom: 180px; padding-top: 10px; }
         
+        .invalid { border: 2px solid var(--error) !important; background-color: #fff0f0 !important; }
+
         .top-nav { position: sticky; top: 0; z-index: 100; background: white; margin: 0 10px 15px 10px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; }
-        .station-input { width: 100%; padding: 15px; border: none; font-weight: 900; text-align: center; font-size: 18px; outline: none; color: var(--reben-red); text-transform: uppercase; }
+        .station-input { width: 100%; padding: 12px; border: 2px solid transparent; font-weight: 900; text-align: center; font-size: 16px; outline: none; color: var(--reben-red); text-transform: uppercase; }
         
-        .price-settings { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 10px; border-top: 1px solid #eee; }
+        .price-settings { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; padding: 5px 10px 10px 10px; border-top: 1px solid #f0f0f0; }
         .p-input { display: flex; flex-direction: column; align-items: center; }
-        .p-input label { font-size: 10px; font-weight: 800; color: #888; margin-bottom: 4px; }
-        .p-input input { width: 100%; padding: 10px; border: 1.5px solid #eee; border-radius: 10px; text-align: center; font-weight: 900; font-size: 14px; outline: none; background: #fafafa; }
+        .p-input label { font-size: 8px; font-weight: 800; color: #999; margin-bottom: 2px; }
+        .p-input input { width: 100%; padding: 6px; border: 1.5px solid #eee; border-radius: 8px; text-align: center; font-weight: 900; font-size: 13px; outline: none; }
 
         .nozzle-list { padding: 0 10px; }
-        .nozzle-row { background: white; border-radius: 20px; padding: 20px; margin-bottom: 15px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); border-left: 15px solid #ccc; position: relative; }
+        .nozzle-row { background: white; border-radius: 15px; padding: 10px 15px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 8px solid #ccc; }
         .row-91 { border-left-color: var(--91); }
         .row-95 { border-left-color: var(--95); }
         .row-d { border-left-color: var(--d); }
 
-        .row-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
-        .nozzle-name { border: none; font-weight: 900; color: #111; font-size: 1.2rem; width: 60%; outline: none; background: transparent; }
-        .fuel-select { padding: 8px 12px; border-radius: 12px; border: none; background: #f0f0f0; font-weight: 800; font-size: 12px; cursor: pointer; }
+        .row-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .nozzle-num-input { border: none; font-weight: 900; color: #222; font-size: 0.9rem; width: 100px; outline: none; background: transparent; }
+        .fuel-select { padding: 4px 8px; border-radius: 8px; border: none; background: #eee; font-weight: 800; font-size: 10px; }
 
-        /* SINGLE COLUMN STACK FOR FULL VISIBILITY */
-        .scan-stack { display: flex; flex-direction: column; gap: 15px; }
-        .input-grp { position: relative; width: 100%; }
-        .input-grp label { display: block; font-size: 11px; color: #777; font-weight: 800; margin-bottom: 6px; padding-left: 5px; }
+        /* ONE LARGE BOX GRID */
+        .scan-grid { display: flex; flex-direction: column; gap: 8px; }
+        .input-grp { position: relative; width: 100%; display: flex; flex-direction: column; }
+        .input-grp label { font-size: 9px; color: #888; font-weight: 900; margin-bottom: 2px; }
         
-        /* THE FULL WIDTH BOX */
+        /* LARGE DIGIT INPUT BOX */
         .reading-input { 
             width: 100%; 
-            padding: 18px 55px 18px 15px; /* Large padding for camera button */
-            border: 2.5px solid #f0f2f5; 
-            border-radius: 16px; 
+            padding: 12px 45px 12px 10px; 
+            border: 1.5px solid #f0f2f5; 
+            border-radius: 10px; 
             font-weight: 900; 
-            font-size: 22px; /* Large text */
+            font-size: 24px; 
             text-align: left; 
-            background: #fdfdfd; 
+            background: #fafafa; 
             outline: none;
-            overflow-x: auto; /* Allow horizontal scroll for long numbers */
-            color: #222;
+            letter-spacing: 1px;
         }
-        .reading-input:focus { border-color: #ddd; background: #fff; }
+        .cam-btn { position: absolute; bottom: 8px; right: 8px; background: #333; color: white; border: none; border-radius: 8px; width: 36px; height: 36px; font-size: 16px; cursor: pointer; }
 
-        .cam-btn { 
-            position: absolute; 
-            bottom: 10px; 
-            right: 10px; 
-            background: #111; 
-            color: white; 
-            border: none; 
-            border-radius: 12px; 
-            width: 44px; 
-            height: 44px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            font-size: 18px;
-            cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
+        .footer-tools { position: fixed; bottom: 0; left: 0; right: 0; background: #111; padding: 15px 15px 25px 15px; border-radius: 25px 25px 0 0; z-index: 200; }
+        .stats { display: flex; justify-content: space-between; margin-bottom: 15px; color: white; align-items: flex-end; }
+        .total-val { color: #fff; font-size: 30px; font-weight: 900; }
+        .shift-label { font-size: 9px; color: #aaa; line-height: 1.4; font-weight: bold; }
 
-        /* Footer */
-        .footer-tools { position: fixed; bottom: 0; left: 0; right: 0; background: #000; padding: 20px 20px 30px 20px; border-radius: 30px 30px 0 0; z-index: 200; box-shadow: 0 -10px 30px rgba(0,0,0,0.2); }
-        .stats { display: flex; justify-content: space-between; margin-bottom: 20px; color: white; align-items: center; }
-        .total-val { color: #fff; font-size: 32px; font-weight: 900; }
+        .action-row { display: grid; grid-template-columns: 1fr 1fr 1.2fr 1fr 0.8fr; gap: 6px; align-items: center; }
+        .tool-btn { border: none; border-radius: 14px; font-weight: 800; font-size: 10px; height: 50px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
         
-        .action-row { display: grid; grid-template-columns: 1fr 1.2fr 1fr 0.8fr; gap: 10px; }
-        .tool-btn { border: none; border-radius: 16px; font-weight: 800; font-size: 11px; height: 60px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.2s; }
-        .tool-btn:active { transform: scale(0.95); }
-        
-        .btn-add { background: #fff; color: #000; font-size: 22px; position: absolute; top: -30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; box-shadow: 0 8px 20px rgba(0,0,0,0.4); z-index: 210; border: 4px solid #000; }
+        .btn-add { background: #fff; color: #000; font-size: 22px; }
         .btn-xl { background: #1D6F42; color: #fff; }
         .btn-next { background: #FF9500; color: #fff; }
         .btn-pdf { background: var(--reben-red); color: #fff; }
         .btn-wa { background: var(--wa); color: #fff; font-size: 24px; }
 
-        /* Scanner */
         .modal { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; flex-direction: column; }
-        .cam-view { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; }
+        .cam-view { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         video { width: 100%; height: 100%; object-fit: cover; }
-        .guide { position: absolute; width: 92%; height: 110px; border: 4px solid var(--wa); border-radius: 20px; box-shadow: 0 0 0 4000px rgba(0,0,0,0.8); }
-        .scanner-info { position: absolute; top: 15%; width: 100%; text-align: center; color: white; font-weight: 900; font-size: 14px; text-shadow: 0 2px 4px #000; }
+        .guide { position: absolute; width: 85%; height: 80px; border: 3px solid var(--wa); border-radius: 15px; box-shadow: 0 0 0 4000px rgba(0,0,0,0.7); z-index: 5; }
+        .flash-success { position: absolute; inset: 0; background: var(--wa); opacity: 0; z-index: 10; pointer-events: none; }
+        
+        @keyframes flashAnim { 0% { opacity: 0.7; } 100% { opacity: 0; } }
+        .trigger-flash { animation: flashAnim 0.3s ease-out forwards; }
     </style>
 </head>
 <body>
 
 <div class="top-nav">
-    <input type="text" id="sn" class="station-input" placeholder="ENTER STATION NAME" oninput="saveMem()">
+    <input type="text" id="sn" class="station-input" placeholder="STATION NAME" oninput="saveMem()">
     <div class="price-settings">
         <div class="p-input"><label>PRICE 91</label><input type="number" id="p91" step="0.01" oninput="doMath(); saveMem()"></div>
         <div class="p-input"><label>PRICE 95</label><input type="number" id="p95" step="0.01" oninput="doMath(); saveMem()"></div>
@@ -109,41 +93,58 @@
 <div class="nozzle-list" id="list"></div>
 
 <div class="footer-tools">
-    <button class="tool-btn btn-add" onclick="addNewNozzle()"><i class="fa-solid fa-plus"></i></button>
     <div class="stats">
-        <div style="font-size: 11px; color: #bbb; font-weight: bold; line-height: 1.5">
-            <span id="shift-text" style="color:white; font-size: 12px">DAY SHIFT</span><br>
+        <div class="shift-label">
+            <span id="shift-text">SHIFT DATA</span><br>
             91: <span id="sum91" style="color:var(--91)">0</span> | 95: <span id="sum95" style="color:var(--95)">0</span> | D: <span id="sumD">0</span>
         </div>
         <div class="total-val" id="grandTotal">0.00</div>
     </div>
     <div class="action-row">
-        <button class="tool-btn btn-xl" onclick="exportExcel()">EXCEL</button>
-        <button class="tool-btn btn-next" onclick="rotateShift()">NEXT SHIFT</button>
-        <button class="tool-btn btn-pdf" onclick="exportPDF()">PDF</button>
+        <button class="tool-btn btn-add" onclick="addNewNozzle()"><i class="fa-solid fa-plus"></i></button>
+        <button class="tool-btn btn-xl" onclick="exportExcel()"><b>EXCEL</b></button>
+        <button class="tool-btn btn-next" onclick="rotateShift()"><b>NEXT<br>SHIFT</b></button>
+        <button class="tool-btn btn-pdf" onclick="exportPDF()"><b>PDF</b></button>
         <button class="tool-btn btn-wa" onclick="shareWA()"><i class="fa-brands fa-whatsapp"></i></button>
     </div>
 </div>
 
 <div class="modal" id="scanner">
-    <div class="scanner-info">CENTER METER READING IN BOX</div>
-    <div class="cam-view"><video id="v" autoplay playsinline></video><div class="guide"></div></div>
-    <div style="background:#000; padding:30px; text-align:center">
-        <button onclick="stopCam()" style="background:#444; color:white; border:none; padding:18px 60px; border-radius:40px; font-weight:bold; font-size: 16px;">CLOSE</button>
+    <div class="cam-view">
+        <div id="flash" class="flash-success"></div>
+        <video id="v" autoplay playsinline></video>
+        <div class="guide"></div>
+    </div>
+    <div style="background:#000; padding:25px; text-align:center">
+        <button onclick="stopCam()" style="background:#333; color:white; border:none; padding:15px 50px; border-radius:30px; font-weight:bold; font-size: 14px;">CLOSE SCANNER</button>
     </div>
     <canvas id="c" style="display:none"></canvas>
 </div>
 
 <script>
-    let nozzleCount = 0, activeId = null, stream = null, isScanning = false, worker = null, isDayTime = true;
+    let nozzleCount = 0, activeId = null, stream = null, isScanning = false, worker = null;
+    let isDayTime = true;
 
     async function initAI() {
         worker = await Tesseract.createWorker();
         await worker.loadLanguage('eng');
         await worker.initialize('eng');
-        await worker.setParameters({ tessedit_char_whitelist: '0123456789.', tessedit_pageseg_mode: '7' });
+        await worker.setParameters({ 
+            tessedit_char_whitelist: '0123456789.', 
+            tessedit_pageseg_mode: '7'
+        });
     }
     initAI();
+
+    function validate() {
+        const fields = [document.getElementById('sn'), document.getElementById('p91'), document.getElementById('p95'), document.getElementById('pd')];
+        let valid = true;
+        fields.forEach(f => {
+            f.classList.remove('invalid');
+            if(!f.value || f.value.trim() === "" || parseFloat(f.value) <= 0) { f.classList.add('invalid'); valid = false; }
+        });
+        return valid;
+    }
 
     function addNewNozzle(saved = null) {
         nozzleCount++;
@@ -152,23 +153,27 @@
         div.className = `nozzle-row row-${saved ? saved.type : '91'}`;
         div.id = `card-${id}`;
         
+        const labelI = isDayTime ? "INITIAL (6 AM)" : "INITIAL (6 PM)";
+        const labelF = isDayTime ? "FINAL (6 PM)" : "FINAL (6 AM)";
+
         div.innerHTML = `
             <div class="row-top">
-                <input class="nozzle-name" value="${saved ? saved.name : 'Nozzle ' + id}" id="name-${id}" oninput="saveMem()">
+                <input class="nozzle-num-input" value="${saved ? saved.name : 'Nozzle ' + id}" id="name-${id}" oninput="saveMem()">
                 <select class="fuel-select" id="type-${id}" onchange="updateRowColor(${id}); saveMem()">
                     <option value="91" ${saved?.type=='91'?'selected':''}>91</option>
                     <option value="95" ${saved?.type=='95'?'selected':''}>95</option>
                     <option value="D" ${saved?.type=='D'?'selected':''}>Diesel</option>
                 </select>
+                <button onclick="this.parentElement.parentElement.remove(); doMath(); saveMem();" style="border:none; background:none; color:#ddd"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="scan-stack">
+            <div class="scan-grid">
                 <div class="input-grp">
-                    <label>INITIAL READING</label>
+                    <label class="lbl-init">${labelI}</label>
                     <input type="number" id="i${id}" class="reading-input" value="${saved?saved.init:''}" oninput="doMath(); saveMem()">
                     <button class="cam-btn" onclick="startScan('i${id}')"><i class="fa-solid fa-camera"></i></button>
                 </div>
                 <div class="input-grp">
-                    <label>FINAL READING</label>
+                    <label class="lbl-final">${labelF}</label>
                     <input type="number" id="f${id}" class="reading-input" value="${saved?saved.final:''}" oninput="doMath(); saveMem()">
                     <button class="cam-btn" onclick="startScan('f${id}')"><i class="fa-solid fa-camera"></i></button>
                 </div>
@@ -178,10 +183,19 @@
         if(!saved) window.scrollTo(0, document.body.scrollHeight);
     }
 
-    function updateRowColor(id) {
-        const type = document.getElementById(`type-${id}`).value;
-        document.getElementById(`card-${id}`).className = `nozzle-row row-${type.toLowerCase()}`;
+    function rotateShift() {
+        if(!confirm("Start Next Shift?")) return;
+        isDayTime = !isDayTime;
+        document.getElementById('shift-text').innerText = isDayTime ? "DAY SHIFT (6AM-6PM)" : "NIGHT SHIFT (6PM-6AM)";
+        document.querySelectorAll('.nozzle-row').forEach(row => {
+            const id = row.id.split('-')[1];
+            document.getElementById(`i${id}`).value = document.getElementById(`f${id}`).value;
+            document.getElementById(`f${id}`).value = "";
+            row.querySelector('.lbl-init').innerText = isDayTime ? "INITIAL (6 AM)" : "INITIAL (6 PM)";
+            row.querySelector('.lbl-final').innerText = isDayTime ? "FINAL (6 PM)" : "FINAL (6 AM)";
+        });
         doMath();
+        saveMem();
     }
 
     async function startScan(id) { 
@@ -193,7 +207,6 @@
             tick(); 
         } catch (e) { stopCam(); } 
     }
-
     function stopCam() { isScanning = false; if(stream) stream.getTracks().forEach(t => t.stop()); document.getElementById('scanner').style.display = 'none'; }
 
     async function tick() {
@@ -201,22 +214,24 @@
         const v = document.getElementById('v'), c = document.getElementById('c'), ctx = c.getContext('2d');
         if (v.readyState === v.HAVE_ENOUGH_DATA) {
             const ratio = v.videoWidth / v.clientWidth;
-            const w = v.videoWidth * 0.9, h = 110 * ratio;
+            const w = v.videoWidth * 0.7, h = 80 * ratio;
             const x = (v.videoWidth - w) / 2, y = (v.videoHeight - h) / 2;
             c.width = w; c.height = h;
-            ctx.filter = 'grayscale(1) contrast(1.8) brightness(1.1)';
+            ctx.filter = 'contrast(1.4) grayscale(1)';
             ctx.drawImage(v, x, y, w, h, 0, 0, w, h);
             try {
                 const { data: { text, confidence } } = await worker.recognize(c);
-                const match = text.replace(/\s/g, '').match(/\d+\.\d{1,4}/) || text.replace(/\s/g, '').match(/\d{4,}/);
-                if (match && confidence > 60) { 
+                const match = text.replace(/\s/g, '').match(/\d+\.\d{1,3}/) || text.replace(/\s/g, '').match(/\d{3,}/);
+                if (match && confidence > 65) { 
+                    document.getElementById('flash').classList.add('trigger-flash');
                     document.getElementById(activeId).value = match[0]; 
-                    doMath(); saveMem(); stopCam(); 
+                    doMath(); saveMem();
+                    setTimeout(() => { document.getElementById('flash').classList.remove('trigger-flash'); stopCam(); }, 300);
                     return; 
                 }
             } catch (err) {}
         }
-        if (isScanning) setTimeout(tick, 150);
+        if (isScanning) setTimeout(tick, 100);
     }
 
     function doMath() {
@@ -235,19 +250,100 @@
         document.getElementById('sum91').innerText = q91.toFixed(2);
         document.getElementById('sum95').innerText = q95.toFixed(2);
         document.getElementById('sumD').innerText = qd.toFixed(2);
-        document.getElementById('grandTotal').innerText = total.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('grandTotal').innerText = total.toFixed(2);
     }
 
-    function rotateShift() {
-        if(!confirm("Transfer Final readings to Initial for next shift?")) return;
-        isDayTime = !isDayTime;
-        document.getElementById('shift-text').innerText = isDayTime ? "DAY SHIFT" : "NIGHT SHIFT";
+    function getNowStr() {
+        return new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-');
+    }
+
+    function shareWA() {
+        if(!validate()) { alert("Please complete Station Name and Prices"); return; }
+        const station = document.getElementById('sn').value.toUpperCase();
+        const shift = isDayTime ? "Day" : "Night";
+        
+        let msg = `🏪 *${station}*%0A`;
+        msg += `       Date ${getNowStr()}%0A`;
+        msg += `       Shift - ${shift}%0A%0A`;
+        msg += `⛽ *91 Total:* ${document.getElementById('sum91').innerText} L%0A`;
+        msg += `⛽ *95 Total:* ${document.getElementById('sum95').innerText} L%0A`;
+        msg += `⛽ *Diesel Total:* ${document.getElementById('sumD').innerText} L%0A`;
+        msg += `💰 *GRAND TOTAL:* ${document.getElementById('grandTotal').innerText} SAR%0A%0A`;
+        msg += `Fuel Price -%0A`;
+        msg += ` 91- ${document.getElementById('p91').value}%0A`;
+        msg += ` 95 - ${document.getElementById('p95').value}%0A`;
+        msg += ` D  - ${document.getElementById('pd').value}%0A%0A`;
+        msg += `--- NOZZLE DETAILS ---%0A`;
         document.querySelectorAll('.nozzle-row').forEach(row => {
             const id = row.id.split('-')[1];
-            document.getElementById(`i${id}`).value = document.getElementById(`f${id}`).value;
-            document.getElementById(`f${id}`).value = "";
+            msg += `📍 ${document.getElementById(`name-${id}`).value} (${document.getElementById(`type-${id}`).value}): ${document.getElementById(`i${id}`).value || "0"} -> ${document.getElementById(`f${id}`).value || "0"}%0A`;
         });
-        doMath(); saveMem();
+        window.open(`https://wa.me/?text=${msg}`, '_blank');
+    }
+
+    function exportExcel() {
+        if(!validate()) return;
+        const station = document.getElementById('sn').value.toUpperCase();
+        const headerInfo = [
+            ["STATION", station],
+            ["DATE", getNowStr()],
+            ["SHIFT", isDayTime ? "Day" : "Night"],
+            ["91 PRICE", document.getElementById('p91').value],
+            ["95 PRICE", document.getElementById('p95').value],
+            ["D PRICE", document.getElementById('pd').value],
+            ["GRAND TOTAL", document.getElementById('grandTotal').innerText + " SAR"],
+            [],
+            ["NOZZLE", "FUEL", "INITIAL", "FINAL", "LITERS"]
+        ];
+        
+        const nozzleData = [];
+        document.querySelectorAll('.nozzle-row').forEach(row => {
+            const id = row.id.split('-')[1];
+            const init = parseFloat(document.getElementById(`i${id}`).value) || 0;
+            const final = parseFloat(document.getElementById(`f${id}`).value) || 0;
+            nozzleData.push([
+                document.getElementById(`name-${id}`).value,
+                document.getElementById(`type-${id}`).value,
+                init,
+                final,
+                Math.max(0, final - init).toFixed(2)
+            ]);
+        });
+
+        const ws = XLSX.utils.aoa_to_sheet([...headerInfo, ...nozzleData]);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Report");
+        XLSX.writeFile(wb, `${station}_Report.xlsx`);
+    }
+
+    function exportPDF() {
+        if(!validate()) return;
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const station = document.getElementById('sn').value.toUpperCase();
+        const shift = isDayTime ? "Day" : "Night";
+
+        doc.setFontSize(18); doc.text(`STATION: ${station}`, 14, 20);
+        doc.setFontSize(10);
+        doc.text(`Date: ${getNowStr()} | Shift: ${shift}`, 14, 28);
+        doc.text(`Prices: 91 (${document.getElementById('p91').value}) | 95 (${document.getElementById('p95').value}) | D (${document.getElementById('pd').value})`, 14, 34);
+        
+        const summary = [
+            ["Fuel Type", "Total Liters", "Total SAR"],
+            ["Octane 91", document.getElementById('sum91').innerText, (parseFloat(document.getElementById('sum91').innerText) * parseFloat(document.getElementById('p91').value)).toFixed(2)],
+            ["Octane 95", document.getElementById('sum95').innerText, (parseFloat(document.getElementById('sum95').innerText) * parseFloat(document.getElementById('p95').value)).toFixed(2)],
+            ["Diesel", document.getElementById('sumD').innerText, (parseFloat(document.getElementById('sumD').innerText) * parseFloat(document.getElementById('pd').value)).toFixed(2)],
+            ["GRAND TOTAL", "", document.getElementById('grandTotal').innerText + " SAR"]
+        ];
+        doc.autoTable({ head: [summary[0]], body: summary.slice(1), startY: 40, theme: 'grid' });
+
+        const rows = [];
+        document.querySelectorAll('.nozzle-row').forEach(row => {
+            const id = row.id.split('-')[1];
+            rows.push([document.getElementById(`name-${id}`).value, document.getElementById(`type-${id}`).value, document.getElementById(`i${id}`).value || "0", document.getElementById(`f${id}`).value || "0"]);
+        });
+        doc.autoTable({ head: [["Nozzle", "Type", "Start", "End"]], body: rows, startY: doc.lastAutoTable.finalY + 10 });
+        doc.save(`${station}_Report.pdf`);
     }
 
     function saveMem() {
@@ -263,11 +359,11 @@
                 init: document.getElementById(`i${id}`).value, final: document.getElementById(`f${id}`).value
             });
         });
-        localStorage.setItem('reben_max_v1', JSON.stringify(data));
+        localStorage.setItem('reben_v3_detailed', JSON.stringify(data));
     }
 
     function loadMem() {
-        const stored = localStorage.getItem('reben_max_v1');
+        const stored = localStorage.getItem('reben_v3_detailed');
         if(stored) {
             const data = JSON.parse(stored);
             document.getElementById('sn').value = data.sn || "";
@@ -275,45 +371,16 @@
             document.getElementById('p95').value = data.p95 || "";
             document.getElementById('pd').value = data.pd || "";
             isDayTime = data.day;
-            document.getElementById('shift-text').innerText = isDayTime ? "DAY SHIFT" : "NIGHT SHIFT";
+            document.getElementById('shift-text').innerText = isDayTime ? "DAY SHIFT (6AM-6PM)" : "NIGHT SHIFT (6PM-6AM)";
             data.nozzles.forEach(n => addNewNozzle(n));
             doMath();
         } else { addNewNozzle(); }
     }
 
-    function shareWA() {
-        const station = document.getElementById('sn').value || "STATION";
-        let msg = `🏪 *${station.toUpperCase()}*%0A💰 *GRAND TOTAL:* ${document.getElementById('grandTotal').innerText} SAR%0A%0A`;
-        document.querySelectorAll('.nozzle-row').forEach(row => {
-            const id = row.id.split('-')[1];
-            msg += `📍 ${document.getElementById(`name-${id}`).value}: ${document.getElementById(`i${id}`).value || 0} -> ${document.getElementById(`f${id}`).value || 0}%0A`;
-        });
-        window.open(`https://wa.me/?text=${msg}`, '_blank');
-    }
-
-    function exportExcel() {
-        const data = [];
-        document.querySelectorAll('.nozzle-row').forEach(row => {
-            const id = row.id.split('-')[1];
-            data.push({ Nozzle: document.getElementById(`name-${id}`).value, Fuel: document.getElementById(`type-${id}`).value, Start: document.getElementById(`i${id}`).value, End: document.getElementById(`f${id}`).value });
-        });
-        const ws = XLSX.utils.json_to_sheet(data);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Report");
-        XLSX.writeFile(wb, `${document.getElementById('sn').value || 'Report'}.xlsx`);
-    }
-
-    function exportPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.text(`STATION: ${document.getElementById('sn').value.toUpperCase()}`, 14, 15);
-        const rows = [];
-        document.querySelectorAll('.nozzle-row').forEach(row => {
-            const id = row.id.split('-')[1];
-            rows.push([document.getElementById(`name-${id}`).value, document.getElementById(`type-${id}`).value, document.getElementById(`i${id}`).value, document.getElementById(`f${id}`).value]);
-        });
-        doc.autoTable({ head: [["Nozzle", "Type", "Start", "End"]], body: rows, startY: 25 });
-        doc.save("Report.pdf");
+    function updateRowColor(id) {
+        const type = document.getElementById(`type-${id}`).value;
+        document.getElementById(`card-${id}`).className = `nozzle-row row-${type.toLowerCase()}`;
+        doMath();
     }
 
     window.onload = loadMem;
