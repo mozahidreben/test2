@@ -16,7 +16,7 @@
             --bg: #f2f4f7; 
             --91: #1a9a4c; 
             --95: #d32f2f; 
-            --d: #2c3e50; 
+            --d: #fdf907; 
             --error: #ff3b30; 
             --wa: #25D366; 
             --glass: rgba(255, 255, 255, 0.95);
@@ -53,7 +53,28 @@
             transition: background-color 0.3s ease, color 0.3s ease;
         }
         
-        .invalid { border: 2px solid var(--error) !important; background-color: #fff0f0 !important; }
+        /* Error state styling - FIXED FOR VISIBILITY */
+        .invalid { 
+            border: 2px solid var(--error) !important; 
+            background-color: #fff0f0 !important; 
+            color: #000 !important; /* Force black text for error state */
+        }
+        
+        /* Dark mode error state - FIXED FOR VISIBILITY */
+        body.night-mode .invalid {
+            background-color: #4a1a1a !important; /* Dark red background for night mode */
+            border-color: #ff6b6b !important; /* Lighter red border for visibility */
+            color: #fff !important; /* White text for night mode error */
+        }
+        
+        /* Ensure price input text is visible in error state */
+        .p-input input.invalid {
+            color: #000 !important;
+        }
+        
+        body.night-mode .p-input input.invalid {
+            color: #fff !important;
+        }
 
         /* Modernized Header */
         .top-nav { 
@@ -551,7 +572,7 @@
         msg += `---- SUMMARY ----%0A%0A`;
         msg += `🟢 *91 Total:* ${document.getElementById('sum91').innerText} L%0A`;
         msg += `🔴 *95 Total:* ${document.getElementById('sum95').innerText} L%0A`;
-        msg += `🔵 *Diesel Total:* ${document.getElementById('sumD').innerText} L%0A`;
+        msg += `🟡 *D  Total:* ${document.getElementById('sumD').innerText} L%0A`;
         msg += `💰 *Total Amount:* ${document.getElementById('grandTotal').innerText} SAR%0A%0A%0A%0A`;
         msg += `*Designed by Mozahid*`;
         
