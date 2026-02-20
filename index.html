@@ -14,60 +14,78 @@
         :root { 
             --reben-red: #E30613; 
             --bg: #f2f4f7; 
+            --card-bg: #ffffff;
+            --text-main: #1a1a1a;
+            --text-sub: #777;
             --91: #1a9a4c; 
             --95: #d32f2f; 
             --d: #2c3e50; 
             --error: #ff3b30; 
             --wa: #25D366; 
             --glass: rgba(255, 255, 255, 0.95);
+            --input-bg: #f8f9fa;
+            --border: #f0f0f0;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-        body { background: var(--bg); padding-bottom: 200px; padding-top: 10px; color: #1a1a1a; }
+
+        /* Night Mode Styles */
+        body.night-mode {
+            --bg: #0f172a; 
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --glass: rgba(30, 41, 59, 0.95);
+            --input-bg: #334155;
+            --border: #334155;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; transition: background 0.3s ease, color 0.3s ease; }
+        body { background: var(--bg); padding-bottom: 200px; padding-top: 10px; color: var(--text-main); }
         
         .invalid { border: 2px solid var(--error) !important; background-color: #fff0f0 !important; }
 
-        .top-nav { position: sticky; top: 0; z-index: 100; background: white; margin: 0 12px 15px 12px; border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); overflow: hidden; }
-        .station-input { width: 100%; padding: 15px; border: none; font-weight: 900; text-align: center; font-size: 18px; outline: none; color: var(--reben-red); text-transform: uppercase; border-bottom: 1px solid #f0f0f0; }
+        .top-nav { position: sticky; top: 0; z-index: 100; background: var(--card-bg); margin: 0 12px 15px 12px; border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); overflow: hidden; }
+        .station-input { width: 100%; padding: 15px; border: none; font-weight: 900; text-align: center; font-size: 18px; outline: none; color: var(--reben-red); text-transform: uppercase; border-bottom: 1px solid var(--border); background: var(--card-bg); }
         
-        .price-settings { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 12px; background: #fff; }
-        .p-input { display: flex; flex-direction: column; align-items: center; background: #f8f9fa; padding: 8px; border-radius: 12px; }
-        .p-input label { font-size: 10px; font-weight: 800; color: #777; margin-bottom: 4px; }
-        .p-input input { width: 100%; border: none; background: transparent; text-align: center; font-weight: 900; font-size: 15px; outline: none; color: #333; }
+        .price-settings { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 12px; background: var(--card-bg); }
+        .p-input { display: flex; flex-direction: column; align-items: center; background: var(--input-bg); padding: 8px; border-radius: 12px; }
+        .p-input label { font-size: 10px; font-weight: 800; color: var(--text-sub); margin-bottom: 4px; }
+        .p-input input { width: 100%; border: none; background: transparent; text-align: center; font-weight: 900; font-size: 15px; outline: none; color: var(--text-main); }
 
         .nozzle-list { padding: 0 12px; }
-        .nozzle-row { background: white; border-radius: 20px; padding: 15px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border-left: 10px solid #ccc; transition: transform 0.2s; }
+        .nozzle-row { background: var(--card-bg); border-radius: 20px; padding: 15px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border-left: 10px solid #ccc; }
         .row-91 { border-left-color: var(--91); }
         .row-95 { border-left-color: var(--95); }
         .row-d { border-left-color: var(--d); }
 
         .row-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .nozzle-num-input { border: none; font-weight: 900; color: #222; font-size: 1.1rem; width: 120px; outline: none; }
-        .fuel-select { padding: 6px 12px; border-radius: 10px; border: 1px solid #eee; background: #fff; font-weight: 800; font-size: 11px; color: #555; }
+        .nozzle-num-input { border: none; font-weight: 900; color: var(--text-main); font-size: 1.1rem; width: 120px; outline: none; background: transparent; }
+        .fuel-select { padding: 6px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--input-bg); font-weight: 800; font-size: 11px; color: var(--text-sub); }
 
         .scan-grid { display: flex; flex-direction: column; gap: 12px; }
         .input-grp { position: relative; width: 100%; display: flex; flex-direction: column; }
-        .input-grp label { font-size: 10px; color: #888; font-weight: 700; margin-bottom: 4px; padding-left: 2px; }
+        .input-grp label { font-size: 10px; color: var(--text-sub); font-weight: 700; margin-bottom: 4px; padding-left: 2px; }
         
         .reading-input { 
-            width: 100%; padding: 12px 50px 12px 15px; border: 1.5px solid #edf2f7; 
-            border-radius: 12px; font-weight: 900; font-size: 24px; background: #fcfcfc; 
-            outline: none; color: #2d3436;
+            width: 100%; padding: 12px 50px 12px 15px; border: 1.5px solid var(--border); 
+            border-radius: 12px; font-weight: 900; font-size: 24px; background: var(--input-bg); 
+            outline: none; color: var(--text-main);
         }
         .cam-btn { position: absolute; bottom: 8px; right: 8px; background: #333; color: white; border: none; border-radius: 10px; width: 40px; height: 40px; font-size: 16px; cursor: pointer; }
         
-        .diff-tag { margin-top: 10px; font-size: 12px; font-weight: 900; color: #444; text-align: right; }
+        .diff-tag { margin-top: 10px; font-size: 12px; font-weight: 900; color: var(--text-sub); text-align: right; }
         .diff-error { color: var(--error) !important; animation: shake 0.3s ease-in-out; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 
         .footer-tools { position: fixed; bottom: 0; left: 0; right: 0; background: var(--glass); backdrop-filter: blur(10px); padding: 15px 15px 30px 15px; border-radius: 30px 30px 0 0; z-index: 200; box-shadow: 0 -10px 25px rgba(0,0,0,0.1); }
-        .stats { display: flex; justify-content: space-between; margin-bottom: 18px; color: #222; align-items: flex-end; }
-        .total-val { color: #000; font-size: 34px; font-weight: 900; letter-spacing: -1px; }
-        .shift-label { font-size: 10px; color: #666; font-weight: 700; }
+        .stats { display: flex; justify-content: space-between; margin-bottom: 18px; color: var(--text-main); align-items: flex-end; }
+        .total-val { color: var(--text-main); font-size: 34px; font-weight: 900; letter-spacing: -1px; }
+        .shift-label { font-size: 10px; color: var(--text-sub); font-weight: 700; }
 
         .action-row { display: grid; grid-template-columns: 1fr 1fr 1.2fr 1fr 0.8fr; gap: 8px; }
         .tool-btn { border: none; border-radius: 16px; font-weight: 800; font-size: 10px; height: 54px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         
         .btn-add { background: #000; color: #fff; }
+        .night-mode .btn-add { background: #f8fafc; color: #000; }
         .btn-xl { background: #e8f5e9; color: #2e7d32; }
         .btn-next { background: #fff3e0; color: #ef6c00; }
         .btn-pdf { background: #ffebee; color: #c62828; }
@@ -141,7 +159,6 @@
     }
     initAI();
 
-    // RESTORED STRICT VALIDATION
     function validate() {
         const fields = [document.getElementById('sn'), document.getElementById('p91'), document.getElementById('p95'), document.getElementById('pd')];
         let valid = true;
@@ -185,6 +202,28 @@
         document.getElementById('list').appendChild(div);
     }
 
+    // ONLY CHANGE: ADDED DARK MODE TOGGLE TO NEXT SHIFT
+    function rotateShift() {
+        if(!confirm("Start Next Shift? Final values will become Initial values.")) return;
+        isDayTime = !isDayTime;
+        
+        // Toggle Dark/Bright Mode Class
+        if (!isDayTime) {
+            document.body.classList.add('night-mode');
+            document.getElementById('shift-text').innerText = "NIGHT SHIFT (6PM-6AM)";
+        } else {
+            document.body.classList.remove('night-mode');
+            document.getElementById('shift-text').innerText = "DAY SHIFT (6AM-6PM)";
+        }
+
+        document.querySelectorAll('.nozzle-row').forEach(row => {
+            const id = row.id.split('-')[1];
+            document.getElementById(`i${id}`).value = document.getElementById(`f${id}`).value;
+            document.getElementById(`f${id}`).value = "";
+        });
+        doMath(); saveMem();
+    }
+
     async function startScan(id) { 
         activeId = id; isScanning = true; 
         document.getElementById('scanner').style.display = 'flex'; 
@@ -207,7 +246,6 @@
         try { await track.applyConstraints({ advanced: [{ torch: torchOn }] }); } catch (e) {}
     }
 
-    // IMPROVED BLUR/OCR HANDLING
     function sanitizeOCR(text) {
         return text.toUpperCase()
             .replace(/S/g, '5').replace(/O/g, '0').replace(/[I|l]/g, '1')
@@ -223,7 +261,6 @@
             const w = v.videoWidth * 0.8, h = 90 * ratio;
             const x = (v.videoWidth - w) / 2, y = (v.videoHeight - h) / 2;
             c.width = w; c.height = h;
-            // STRONGER FILTERS FOR BLUR
             ctx.filter = 'contrast(3.5) grayscale(1) brightness(1.2)';
             ctx.drawImage(v, x, y, w, h, 0, 0, w, h);
             try {
@@ -328,6 +365,13 @@
             document.getElementById('p91').value = data.p91 || "";
             document.getElementById('p95').value = data.p95 || "";
             document.getElementById('pd').value = data.pd || "";
+            isDayTime = data.day;
+            
+            if (!isDayTime) {
+                document.body.classList.add('night-mode');
+                document.getElementById('shift-text').innerText = "NIGHT SHIFT (6PM-6AM)";
+            }
+            
             data.nozzles.forEach(n => addNewNozzle(n));
             doMath();
         } else { addNewNozzle(); }
