@@ -35,12 +35,10 @@
         .nozzle-num-input { border: none; font-weight: 900; color: #222; font-size: 0.9rem; width: 100px; outline: none; background: transparent; }
         .fuel-select { padding: 4px 8px; border-radius: 8px; border: none; background: #eee; font-weight: 800; font-size: 10px; }
 
-        /* ONE LARGE BOX GRID */
         .scan-grid { display: flex; flex-direction: column; gap: 8px; }
         .input-grp { position: relative; width: 100%; display: flex; flex-direction: column; }
         .input-grp label { font-size: 9px; color: #888; font-weight: 900; margin-bottom: 2px; }
         
-        /* LARGE DIGIT INPUT BOX */
         .reading-input { 
             width: 100%; 
             padding: 12px 45px 12px 10px; 
@@ -340,9 +338,18 @@
         const rows = [];
         document.querySelectorAll('.nozzle-row').forEach(row => {
             const id = row.id.split('-')[1];
-            rows.push([document.getElementById(`name-${id}`).value, document.getElementById(`type-${id}`).value, document.getElementById(`i${id}`).value || "0", document.getElementById(`f${id}`).value || "0"]);
+            const init = parseFloat(document.getElementById(`i${id}`).value) || 0;
+            const final = parseFloat(document.getElementById(`f${id}`).value) || 0;
+            const diff = Math.max(0, final - init).toFixed(2);
+            rows.push([
+                document.getElementById(`name-${id}`).value, 
+                document.getElementById(`type-${id}`).value, 
+                init, 
+                final,
+                diff
+            ]);
         });
-        doc.autoTable({ head: [["Nozzle", "Type", "Start", "End"]], body: rows, startY: doc.lastAutoTable.finalY + 10 });
+        doc.autoTable({ head: [["Nozzle", "Type", "Start", "End", "Difference"]], body: rows, startY: doc.lastAutoTable.finalY + 10 });
         doc.save(`${station}_Report.pdf`);
     }
 
