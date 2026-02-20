@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Reben Pro - Audio Smooth</title>
+    <title>Reben Pro Compact</title>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -11,54 +11,76 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
     <style>
-        :root { --reben-red: #E30613; --bg: #f2f4f7; --91: #1a9a4c; --95: #d32f2f; --d: #2c3e50; --wa: #25D366; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); padding-bottom: 240px; }
+        :root { 
+            --reben-red: #E30613; 
+            --bg: #f2f4f7; 
+            --91: #1a9a4c; 
+            --95: #d32f2f; 
+            --d: #2c3e50; 
+            --error: #ff3b30; 
+            --wa: #25D366;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg); color: #333; line-height: 1.6; padding-bottom: 240px; }
         
-        /* Header */
-        .top-nav { position: sticky; top: 0; z-index: 100; background: white; margin: 10px 12px; border-radius: 18px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); overflow: hidden; }
-        .station-input { width: 100%; padding: 18px; border: none; font-weight: 900; text-align: center; font-size: 18px; color: var(--reben-red); border-bottom: 1px solid #f0f0f0; outline: none; }
-        .price-settings { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 12px; }
-        .p-input { background: #f8f9fa; padding: 10px; border-radius: 12px; text-align: center; }
-        .p-input label { font-size: 10px; font-weight: 800; color: #888; display: block; margin-bottom: 3px; }
-        .p-input input { width: 100%; border: none; background: transparent; text-align: center; font-weight: 900; font-size: 15px; outline: none; color: #333; }
+        .top-nav { position: sticky; top: 0; z-index: 100; background: white; margin: 10px 12px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.06); overflow: hidden; }
+        .station-input { width: 100%; padding: 15px; border: none; font-weight: 900; text-align: center; font-size: 18px; color: var(--reben-red); border-bottom: 1px solid #eee; outline: none; }
+        .price-settings { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; padding: 10px; background: #fff; }
+        .p-input { display: flex; flex-direction: column; align-items: center; background: #f8f9fa; padding: 5px; border-radius: 8px; }
+        .p-input label { font-size: 9px; font-weight: bold; color: #777; margin-bottom: 2px; }
+        .p-input input { width: 100%; border: none; background: transparent; text-align: center; font-weight: 900; font-size: 14px; outline: none; color: #333; }
 
-        /* Nozzle Cards */
+        .shift-indicator { background: #333; color: white; padding: 6px; text-align: center; font-size: 10px; font-weight: 900; letter-spacing: 1px; }
+
         .nozzle-list { padding: 0 12px; }
-        .nozzle-row { background: white; border-radius: 20px; padding: 20px; margin-bottom: 12px; border-left: 10px solid #ccc; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .nozzle-row { background: white; border-radius: 15px; padding: 15px; margin-bottom: 10px; border-left: 8px solid #ccc; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .row-91 { border-left-color: var(--91); }
         .row-95 { border-left-color: var(--95); }
         .row-d { border-left-color: var(--d); }
 
-        .row-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .nozzle-num-input { border: none; font-weight: 900; font-size: 18px; width: 130px; outline: none; background: transparent; }
-        .fuel-select { font-size: 11px; font-weight: 800; border: 1.5px solid #eee; border-radius: 8px; padding: 5px 10px; background: #fff; }
+        .row-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .nozzle-num-input { border: none; font-weight: 900; font-size: 16px; width: 120px; outline: none; background: transparent; }
+        .fuel-select { font-size: 11px; font-weight: 800; border: 1px solid #eee; border-radius: 5px; padding: 3px 8px; background: #fff; }
 
-        .input-grp { position: relative; margin-top: 12px; }
-        .input-grp label { font-size: 10px; font-weight: 900; color: #aaa; margin-left: 5px; }
-        .reading-input { width: 100%; padding: 15px; border: 1.5px solid #eee; border-radius: 14px; font-weight: 900; font-size: 26px; outline: none; background: #fafafa; color: #222; }
-        .cam-btn { position: absolute; right: 6px; bottom: 6px; background: #222; color: white; border: none; width: 50px; height: 50px; border-radius: 12px; font-size: 22px; cursor: pointer; }
+        .input-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        .input-grp { position: relative; }
+        .input-grp label { font-size: 10px; font-weight: bold; color: #888; display: block; margin-bottom: 2px; }
+        .reading-input { width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 10px; font-weight: 900; font-size: 24px; outline: none; background: #fafafa; color: #000; }
+        .cam-btn { position: absolute; right: 5px; bottom: 5px; background: #333; color: white; border: none; width: 44px; height: 44px; border-radius: 8px; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
-        /* Scanner Modal */
-        .modal { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; flex-direction: column; }
-        video { width: 100%; height: 100%; object-fit: cover; }
-        .guide-box { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; height: 90px; border: 3px solid #fff; border-radius: 15px; box-shadow: 0 0 0 1000px rgba(0,0,0,0.75); z-index: 10; }
-        .guide-box::before { content: "SCANNING..."; position: absolute; top: -35px; width: 100%; text-align: center; color: #25D366; font-weight: 900; font-size: 12px; letter-spacing: 1px; }
+        .row-math { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #eee; }
+        .diff-box { font-weight: 900; color: #444; font-size: 14px; }
 
-        /* Footer */
-        .footer { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px 15px 35px; border-radius: 25px 25px 0 0; box-shadow: 0 -8px 25px rgba(0,0,0,0.1); z-index: 200; }
-        .total-display { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .total-val { font-size: 34px; font-weight: 900; color: #000; }
-        .action-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
-        .btn { height: 55px; border: none; border-radius: 15px; font-weight: 800; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .btn-add { background: #000; color: #fff; }
-        .btn-wa { background: var(--wa); color: #fff; font-size: 24px; }
+        .footer { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px 15px 30px; border-radius: 20px 20px 0 0; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); z-index: 200; }
+        .grand-total { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .total-label { font-size: 11px; font-weight: 900; color: #999; }
+        .total-val { font-size: 32px; font-weight: 900; color: #000; }
+        
+        .action-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+        .btn { height: 50px; border: none; border-radius: 12px; font-weight: bold; font-size: 11px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+        .btn-add { background: #000; color: #fff; grid-column: span 1; }
+        .btn-xl { background: #e8f5e9; color: #2e7d32; }
+        .btn-pdf { background: #ffebee; color: #c62828; }
+        .btn-shift { background: #fff3e0; color: #ef6c00; }
+        .btn-wa { background: var(--wa); color: #fff; font-size: 20px; }
+
+        /* Full Screen Scanner */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; flex-direction: column; }
+        #v { width: 100%; height: 100%; object-fit: cover; }
+        .guide-box { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 100px; border: 2px solid #fff; border-radius: 15px; box-shadow: 0 0 0 1000px rgba(0,0,0,0.7); z-index: 10; }
+        .guide-box::after { content: 'ALIGN NUMBERS HERE'; position: absolute; bottom: -25px; width: 100%; text-align: center; color: #fff; font-size: 10px; font-weight: bold; letter-spacing: 1px; }
+        
+        .scan-controls { position: absolute; bottom: 40px; width: 100%; display: flex; justify-content: center; gap: 30px; z-index: 20; }
+        .scan-btn { width: 60px; height: 60px; border-radius: 50%; border: none; color: white; font-size: 24px; display: flex; align-items: center; justify-content: center; }
+        .btn-close { background: rgba(255,59,48,0.8); }
+        .btn-torch { background: rgba(255,255,255,0.2); }
     </style>
 </head>
 <body>
 
 <div class="top-nav">
     <input type="text" id="sn" class="station-input" placeholder="STATION NAME" oninput="saveMem()">
+    <div id="shift-text" class="shift-indicator">DAY SHIFT (6AM-6PM)</div>
     <div class="price-settings">
         <div class="p-input"><label>91</label><input type="number" id="p91" step="0.01" oninput="doMath();saveMem()"></div>
         <div class="p-input"><label>95</label><input type="number" id="p95" step="0.01" oninput="doMath();saveMem()"></div>
@@ -69,15 +91,15 @@
 <div class="nozzle-list" id="list"></div>
 
 <div class="footer">
-    <div class="total-display">
-        <div style="font-size: 11px; font-weight: 900; color: #999;">TOTAL SALES</div>
+    <div class="grand-total">
+        <div class="total-label">GRAND TOTAL (SAR)</div>
         <div class="total-val" id="grandTotal">0.00</div>
     </div>
     <div class="action-row">
         <button class="btn btn-add" onclick="addNewNozzle()"><i class="fa-solid fa-plus"></i></button>
-        <button class="btn" onclick="exportExcel()" style="background:#e8f5e9;color:#1b5e20">XL</button>
-        <button class="btn" onclick="rotateShift()" style="background:#fff3e0;color:#e65100">SHIFT</button>
-        <button class="btn" onclick="exportPDF()" style="background:#ffebee;color:#b71c1c">PDF</button>
+        <button class="btn btn-xl" onclick="exportExcel()">XL</button>
+        <button class="btn btn-shift" onclick="rotateShift()">SHIFT</button>
+        <button class="btn btn-pdf" onclick="exportPDF()">PDF</button>
         <button class="btn btn-wa" onclick="shareWA()"><i class="fa-brands fa-whatsapp"></i></button>
     </div>
 </div>
@@ -85,31 +107,34 @@
 <div class="modal" id="scanner">
     <video id="v" autoplay playsinline></video>
     <div class="guide-box"></div>
-    <div style="position:absolute; bottom:50px; width:100%; display:flex; justify-content:center; gap:40px; z-index:20;">
-        <button onclick="toggleTorch()" style="width:70px; height:70px; border-radius:50%; background:rgba(255,255,255,0.2); color:white; border:none; font-size:28px;"><i class="fa-solid fa-bolt"></i></button>
-        <button onclick="stopCam()" style="width:70px; height:70px; border-radius:50%; background:rgba(255,59,48,0.7); color:white; border:none; font-size:28px;"><i class="fa-solid fa-xmark"></i></button>
+    <div class="scan-controls">
+        <button class="scan-btn btn-torch" onclick="toggleTorch()"><i class="fa-solid fa-bolt"></i></button>
+        <button class="scan-btn btn-close" onclick="stopCam()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <canvas id="c" style="display:none"></canvas>
 </div>
 
 <script>
-    let nozzleCount = 0, activeId = null, stream = null, isScanning = false, worker = null, torchOn = false;
+    let nozzleCount = 0;
+    let activeId = null;
+    let stream = null;
+    let isScanning = false;
+    let isDayTime = true;
+    let worker = null;
+    let torchOn = false;
 
-    // Beep sound function using Web Audio API
+    // AUDIO BEEP LOGIC
     function playBeep() {
         try {
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const oscillator = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
-
             oscillator.connect(gainNode);
             gainNode.connect(audioCtx.destination);
-
             oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // High pitch beep
+            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
             gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-
             oscillator.start();
             oscillator.stop(audioCtx.currentTime + 0.1);
         } catch (e) { console.log("Audio play blocked"); }
@@ -119,6 +144,7 @@
         worker = await Tesseract.createWorker();
         await worker.loadLanguage('eng');
         await worker.initialize('eng');
+        // REPAIR: Whitelist includes S, O, I, B to capture 7-segment digital font variations
         await worker.setParameters({ 
             tessedit_char_whitelist: '0123456789.SOIB', 
             tessedit_pageseg_mode: '7' 
@@ -130,7 +156,7 @@
         nozzleCount++;
         const id = nozzleCount;
         const div = document.createElement('div');
-        div.className = `nozzle-row row-${saved ? saved.type : '91'}`;
+        div.className = `nozzle-row row-${saved ? saved.type.toLowerCase() : '91'}`;
         div.id = `card-${id}`;
         div.innerHTML = `
             <div class="row-top">
@@ -140,37 +166,49 @@
                     <option value="95" ${saved?.type=='95'?'selected':''}>95</option>
                     <option value="D" ${saved?.type=='D'?'selected':''}>DIESEL</option>
                 </select>
-                <button onclick="this.parentElement.parentElement.remove(); doMath();" style="border:none;background:none;color:#ddd;padding:5px;"><i class="fa-solid fa-trash"></i></button>
+                <button onclick="removeNozzle(${id})" style="border:none;background:none;color:#ddd;font-size:16px;"><i class="fa-solid fa-times"></i></button>
             </div>
-            <div class="input-grp">
-                <label>INITIAL READING</label>
-                <input type="number" id="i${id}" class="reading-input" value="${saved?saved.init:''}" oninput="doMath();saveMem()">
-                <button class="cam-btn" onclick="startScan('i${id}')"><i class="fa-solid fa-camera"></i></button>
+            <div class="input-grid">
+                <div class="input-grp">
+                    <label>INITIAL</label>
+                    <input type="number" id="i${id}" class="reading-input" value="${saved?saved.init:''}" oninput="doMath();saveMem()">
+                    <button class="cam-btn" onclick="startScan('i${id}')"><i class="fa-solid fa-camera"></i></button>
+                </div>
+                <div class="input-grp">
+                    <label>FINAL</label>
+                    <input type="number" id="f${id}" class="reading-input" value="${saved?saved.final:''}" oninput="doMath();saveMem()">
+                    <button class="cam-btn" onclick="startScan('f${id}')"><i class="fa-solid fa-camera"></i></button>
+                </div>
             </div>
-            <div class="input-grp">
-                <label>FINAL READING</label>
-                <input type="number" id="f${id}" class="reading-input" value="${saved?saved.final:''}" oninput="doMath();saveMem()">
-                <button class="cam-btn" onclick="startScan('f${id}')"><i class="fa-solid fa-camera"></i></button>
+            <div class="row-math">
+                <div class="diff-box" id="diff-${id}">0.00 L</div>
+                <div id="amt-${id}" style="font-weight:900;color:var(--reben-red)">0.00</div>
             </div>
-            <div id="diff-${id}" style="text-align:right; font-weight:900; color:#555; margin-top:10px; font-size:14px;">0.00 L</div>
         `;
         document.getElementById('list').appendChild(div);
+        if(!saved) window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }
 
-    async function startScan(id) { 
-        activeId = id; isScanning = true; 
-        document.getElementById('scanner').style.display = 'flex'; 
+    async function startScan(id) {
+        activeId = id;
+        isScanning = true;
+        document.getElementById('scanner').style.display = 'flex';
         try {
-            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 } } }); 
-            document.getElementById('v').srcObject = stream; 
-            tick(); 
-        } catch(e) { alert("Enable camera permissions"); stopCam(); }
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: 'environment', width: { ideal: 1280 } } 
+            });
+            document.getElementById('v').srcObject = stream;
+            tick();
+        } catch(e) { 
+            alert("Camera Access Denied"); 
+            stopCam(); 
+        }
     }
 
-    function stopCam() { 
-        isScanning = false; 
-        if(stream) stream.getTracks().forEach(t => t.stop()); 
-        document.getElementById('scanner').style.display = 'none'; 
+    function stopCam() {
+        isScanning = false;
+        if(stream) stream.getTracks().forEach(t => t.stop());
+        document.getElementById('scanner').style.display = 'none';
     }
 
     async function toggleTorch() {
@@ -184,69 +222,156 @@
         const v = document.getElementById('v'), c = document.getElementById('c'), ctx = c.getContext('2d');
         if (v.readyState === v.HAVE_ENOUGH_DATA) {
             const ratio = v.videoWidth / v.clientWidth;
-            const w = v.videoWidth * 0.8, h = 90 * ratio;
+            const w = v.videoWidth * 0.8, h = 100 * ratio;
             const x = (v.videoWidth - w) / 2, y = (v.videoHeight - h) / 2;
             c.width = w; c.height = h;
             
-            // Ultra-Smooth Filter
+            // REPAIR: Increased contrast filter for dispenser glass reflections
             ctx.filter = 'contrast(2.5) grayscale(1) brightness(1.1)';
             ctx.drawImage(v, x, y, w, h, 0, 0, w, h);
             
             const { data: { text, confidence } } = await worker.recognize(c);
             
-            // Auto-Correction
+            // REPAIR: Logic to convert look-alike letters from 7-segment displays to numbers
             let clean = text.toUpperCase()
-                .replace(/S/g, '5').replace(/O/g, '0').replace(/I/g, '1').replace(/B/g, '8')
+                .replace(/S/g, '5')
+                .replace(/O/g, '0')
+                .replace(/I/g, '1')
+                .replace(/B/g, '8')
                 .replace(/[^0-9.]/g, '');
 
-            if (clean.length > 2 && confidence > 60) { 
-                playBeep(); // Trigger the audio feedback
-                document.getElementById(activeId).value = clean; 
-                doMath(); saveMem(); stopCam();
+            if (clean.length > 2 && confidence > 60) {
+                playBeep();
+                document.getElementById(activeId).value = clean;
+                doMath();
+                saveMem();
+                stopCam();
             }
         }
-        setTimeout(tick, 100);
+        setTimeout(tick, 80);
     }
 
     function doMath() {
-        let total = 0;
-        const p = { '91': parseFloat(document.getElementById('p91').value)||0, '95': parseFloat(document.getElementById('p95').value)||0, 'D': parseFloat(document.getElementById('pd').value)||0 };
+        let grandTotal = 0;
+        const p = {
+            '91': parseFloat(document.getElementById('p91').value) || 0,
+            '95': parseFloat(document.getElementById('p95').value) || 0,
+            'D': parseFloat(document.getElementById('pd').value) || 0
+        };
         document.querySelectorAll('.nozzle-row').forEach(row => {
             const id = row.id.split('-')[1];
             const type = document.getElementById(`type-${id}`).value;
-            const i = parseFloat(document.getElementById(`i${id}`).value)||0;
-            const f = parseFloat(document.getElementById(`f${id}`).value)||0;
+            const i = parseFloat(document.getElementById(`i${id}`).value) || 0;
+            const f = parseFloat(document.getElementById(`f${id}`).value) || 0;
             const diff = Math.max(0, f - i);
+            const amt = diff * p[type];
             document.getElementById(`diff-${id}`).innerText = `${diff.toFixed(2)} L`;
-            total += diff * p[type];
+            document.getElementById(`amt-${id}`).innerText = amt.toLocaleString(undefined, {minimumFractionDigits: 2});
+            grandTotal += amt;
         });
-        document.getElementById('grandTotal').innerText = total.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('grandTotal').innerText = grandTotal.toLocaleString(undefined, {minimumFractionDigits: 2});
+    }
+
+    function removeNozzle(id) {
+        document.getElementById(`card-${id}`).remove();
+        doMath();
+        saveMem();
+    }
+
+    function rotateShift() {
+        isDayTime = !isDayTime;
+        document.getElementById('shift-text').innerText = isDayTime ? "DAY SHIFT (6AM-6PM)" : "NIGHT SHIFT (6PM-6AM)";
+        saveMem();
     }
 
     function saveMem() {
-        const nozzles = [];
+        const data = {
+            sn: document.getElementById('sn').value,
+            p91: document.getElementById('p91').value,
+            p95: document.getElementById('p95').value,
+            pd: document.getElementById('pd').value,
+            day: isDayTime, nozzles: []
+        };
         document.querySelectorAll('.nozzle-row').forEach(row => {
             const id = row.id.split('-')[1];
-            nozzles.push({ name: document.getElementById(`name-${id}`).value, type: document.getElementById(`type-${id}`).value, init: document.getElementById(`i${id}`).value, final: document.getElementById(`f${id}`).value });
+            data.nozzles.push({
+                name: document.getElementById(`name-${id}`).value, type: document.getElementById(`type-${id}`).value,
+                init: document.getElementById(`i${id}`).value, final: document.getElementById(`f${id}`).value
+            });
         });
-        localStorage.setItem('reben_audio_v10', JSON.stringify({ sn: document.getElementById('sn').value, p91: document.getElementById('p91').value, p95: document.getElementById('p95').value, pd: document.getElementById('pd').value, nozzles }));
+        localStorage.setItem('reben_v3_premium', JSON.stringify(data));
     }
 
     window.onload = () => {
-        const d = JSON.parse(localStorage.getItem('reben_audio_v10') || '{}');
-        if(d.sn) {
-            document.getElementById('sn').value = d.sn;
-            document.getElementById('p91').value = d.p91;
-            document.getElementById('p95').value = d.p95;
-            document.getElementById('pd').value = d.pd;
-            d.nozzles.forEach(n => addNewNozzle(n));
+        const stored = localStorage.getItem('reben_v3_premium');
+        if(stored) {
+            const data = JSON.parse(stored);
+            document.getElementById('sn').value = data.sn || "";
+            document.getElementById('p91').value = data.p91 || "";
+            document.getElementById('p95').value = data.p95 || "";
+            document.getElementById('pd').value = data.pd || "";
+            isDayTime = data.day;
+            document.getElementById('shift-text').innerText = isDayTime ? "DAY SHIFT (6AM-6PM)" : "NIGHT SHIFT (6PM-6AM)";
+            data.nozzles.forEach(n => addNewNozzle(n));
             doMath();
         } else { addNewNozzle(); }
     };
-    
+
     function updateRowColor(id) {
-        document.getElementById(`card-${id}`).className = `nozzle-row row-${document.getElementById(`type-${id}`).value}`;
+        const type = document.getElementById(`type-${id}`).value;
+        document.getElementById(`card-${id}`).className = `nozzle-row row-${type.toLowerCase()}`;
         doMath();
+    }
+
+    // PDF/Excel functions kept for UI consistency, using standard implementations
+    function exportExcel() {
+        const table = [["NOZZLE", "TYPE", "INITIAL", "FINAL", "LITERS", "AMOUNT"]];
+        document.querySelectorAll('.nozzle-row').forEach(row => {
+            const id = row.id.split('-')[1];
+            table.push([
+                document.getElementById(`name-${id}`).value,
+                document.getElementById(`type-${id}`).value,
+                document.getElementById(`i${id}`).value,
+                document.getElementById(`f${id}`).value,
+                document.getElementById(`diff-${id}`).innerText,
+                document.getElementById(`amt-${id}`).innerText
+            ]);
+        });
+        const ws = XLSX.utils.aoa_to_sheet(table);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Sales");
+        XLSX.writeFile(wb, `${document.getElementById('sn').value || 'Station'}_Report.xlsx`);
+    }
+
+    function exportPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.text(document.getElementById('sn').value || "REBEN STATION REPORT", 10, 10);
+        const data = [];
+        document.querySelectorAll('.nozzle-row').forEach(row => {
+            const id = row.id.split('-')[1];
+            data.push([
+                document.getElementById(`name-${id}`).value,
+                document.getElementById(`type-${id}`).value,
+                document.getElementById(`i${id}`).value,
+                document.getElementById(`f${id}`).value,
+                document.getElementById(`diff-${id}`).innerText,
+                document.getElementById(`amt-${id}`).innerText
+            ]);
+        });
+        doc.autoTable({ head: [["NOZZLE", "TYPE", "INITIAL", "FINAL", "LITERS", "AMOUNT"]], body: data });
+        doc.save("Report.pdf");
+    }
+
+    function shareWA() {
+        let msg = `*${document.getElementById('sn').value || 'STATION REPORT'}*\n`;
+        msg += `Shift: ${document.getElementById('shift-text').innerText}\n\n`;
+        document.querySelectorAll('.nozzle-row').forEach(row => {
+            const id = row.id.split('-')[1];
+            msg += `*${document.getElementById('name-${id}`).value}* (${document.getElementById(`type-${id}`).value}): ${document.getElementById(`diff-${id}`).innerText} -> ${document.getElementById(`amt-${id}`).innerText} SAR\n`;
+        });
+        msg += `\n*TOTAL: ${document.getElementById('grandTotal').innerText} SAR*`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
     }
 </script>
 </body>
