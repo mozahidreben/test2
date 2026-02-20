@@ -564,7 +564,7 @@
         const shift = isDayTime ? "Day" : "Night";
         const time = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
         
-        let msg = `🏪 *Station Report⛽*%0A%0A`;
+        let msg = `⛽ *Station Report*%0A%0A`;
         msg += `    *${station}*%0A`;
         msg += `     Date ${getNowStr()}%0A`;
         msg += `     Shift - ${shift}%0A`;
@@ -572,7 +572,7 @@
         msg += `---- SUMMARY ----%0A%0A`;
         msg += `🟢 *91 Total:* ${document.getElementById('sum91').innerText} L%0A`;
         msg += `🔴 *95 Total:* ${document.getElementById('sum95').innerText} L%0A`;
-        msg += `🟡 *D  Total:* ${document.getElementById('sumD').innerText} L%0A`;
+        msg += `🟡 *D   Total:* ${document.getElementById('sumD').innerText} L%0A`;
         msg += `💰 *Total Amount:* ${document.getElementById('grandTotal').innerText} SAR%0A%0A%0A%0A`;
         msg += `*Designed by Mozahid*`;
         
