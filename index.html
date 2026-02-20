@@ -3,75 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Reben Pro - Ultra Scanner</title>
+    <title>Reben Pro - Wide Input Edition</title>
     <style>
-        :root { --primary: #000DFF; --success: #28a745; --bg: #f4f7f6; }
+        :root { --primary: #000DFF; --success: #28a745; --bg: #f0f4f8; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
         body { background: var(--bg); padding: 10px; }
         
-        .container { max-width: 500px; margin: auto; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); overflow: hidden; }
-        .header { background: var(--primary); color: white; padding: 20px; text-align: center; }
-        .header h1 { font-size: 1.2rem; text-transform: uppercase; letter-spacing: 2px; }
+        .container { max-width: 600px; margin: auto; background: white; border-radius: 25px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.1); }
+        .header { background: var(--primary); color: white; padding: 25px; text-align: center; }
+        .header h1 { font-size: 1.6rem; font-weight: 800; text-transform: uppercase; }
 
-        .content { padding: 15px; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th { font-size: 11px; color: #999; text-transform: uppercase; padding: 10px; background: #fafafa; }
-        td { padding: 10px 5px; border-bottom: 1px solid #f0f0f0; text-align: center; }
-
-        .reading-input { width: 85px; padding: 12px; border: 2px solid #eee; border-radius: 10px; font-weight: bold; font-size: 15px; text-align: center; outline: none; transition: 0.2s; }
-        .reading-input:focus { border-color: var(--primary); background: #f9faff; }
+        .content { padding: 10px; }
         
-        .cam-btn { width: 42px; height: 42px; background: var(--primary); color: white; border: none; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: auto; box-shadow: 0 4px 10px rgba(0,13,255,0.2); }
+        /* Table & Wide Input Styling */
+        table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+        th { font-size: 11px; color: #888; text-transform: uppercase; padding-bottom: 5px; }
+        td { padding: 10px 5px; vertical-align: middle; text-align: center; background: #fff; }
+
+        /* LARGE INPUT BOXES */
+        .reading-input { 
+            width: 120px; /* Increased Width */
+            padding: 15px 5px; /* Increased Padding */
+            border: 2px solid #e0e6ed; 
+            border-radius: 12px; 
+            font-weight: 900; 
+            font-size: 18px; /* Increased Font Size */
+            text-align: center; 
+            outline: none; 
+            background: #f9fafb;
+            color: #333;
+            transition: 0.3s;
+        }
+        .reading-input:focus { border-color: var(--primary); background: #fff; box-shadow: 0 4px 12px rgba(0,13,255,0.1); }
+        
+        .cam-btn { 
+            width: 48px; 
+            height: 48px; 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 15px; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            margin: 5px auto; 
+            font-size: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
         .cam-btn:active { transform: scale(0.9); }
 
-        .calc-box { background: #1a1a1a; color: white; padding: 20px; border-radius: 15px; }
-        .res-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
-        .res-val { font-weight: 800; font-size: 18px; color: var(--success); }
-        .price-input { background: #333; border: 1px solid #444; color: white; padding: 5px 10px; border-radius: 5px; width: 70px; text-align: right; }
+        /* Calculation Section */
+        .calc-box { background: #111; color: white; padding: 25px; border-radius: 20px; margin-top: 10px; }
+        .res-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .res-val { font-weight: 900; font-size: 22px; color: var(--success); }
+        .price-tag { background: #222; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 10px; width: 80px; text-align: center; font-size: 16px; }
 
-        /* Pro Scanner UI */
+        /* Pro Scanner View */
         .modal { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; flex-direction: column; }
-        .cam-view { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; }
+        .cam-view { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         video { width: 100%; height: 100%; object-fit: cover; }
         
-        .guide-container { position: absolute; width: 85%; height: 80px; border: 2px solid #00ff00; border-radius: 12px; box-shadow: 0 0 0 2000px rgba(0,0,0,0.7); z-index: 10; }
-        .guide-container::after { content: "ALIGN NUMBERS"; position: absolute; top: -30px; width: 100%; text-align: center; color: #00ff00; font-weight: bold; font-size: 12px; }
+        .guide { 
+            position: absolute; width: 80%; height: 90px; 
+            border: 3px solid #00ff00; border-radius: 15px; 
+            box-shadow: 0 0 0 3000px rgba(0,0,0,0.7); z-index: 10; 
+        }
+        .scan-line { position: absolute; width: 100%; height: 2px; background: #00ff00; box-shadow: 0 0 15px #00ff00; animation: scan 2s infinite ease-in-out; }
+        @keyframes scan { 0%, 100% { top: 0; } 50% { top: 100%; } }
 
-        .scan-bar { position: absolute; width: 100%; height: 2px; background: #00ff00; box-shadow: 0 0 15px #00ff00; animation: move 2s infinite linear; }
-        @keyframes move { 0% { top: 0; } 100% { top: 100%; } }
-
-        .ui-panel { background: #000; padding: 30px; text-align: center; }
-        .status { color: #00ff00; font-size: 14px; font-weight: bold; margin-bottom: 20px; text-transform: uppercase; }
-        .cancel-btn { background: #ff3b30; color: white; border: none; padding: 15px 40px; border-radius: 30px; font-weight: bold; cursor: pointer; }
+        .ui-panel { background: #000; padding: 40px 20px; text-align: center; }
+        .status { color: #00ff00; font-weight: bold; margin-bottom: 20px; letter-spacing: 1px; }
+        .close-btn { background: #ff3b30; color: white; border: none; padding: 18px 60px; border-radius: 40px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header"><h1>Reben Pro v4.0</h1></div>
+    <div class="header"><h1>REBEN PRO v6</h1></div>
     <div class="content">
         <table>
-            <thead><tr><th>#</th><th>Initial</th><th>Final</th></tr></thead>
+            <thead><tr><th>#</th><th>Initial Reading</th><th>Final Reading</th></tr></thead>
             <tbody id="rows"></tbody>
         </table>
 
         <div class="calc-box">
-            <div class="res-row"><span>Price (SAR)</span> <input type="number" id="price" value="2.18" step="0.01" class="price-input" oninput="doMath()"></div>
-            <div class="res-row"><span>Total Liters</span> <span id="dispLtrs" class="res-val" style="color:#fff">0.000</span></div>
-            <div class="res-row" style="border-top: 1px solid #333; padding-top: 10px;"><span>Total SAR</span> <span id="dispAmt" class="res-val" style="font-size: 24px;">0.00</span></div>
-            <button onclick="if(confirm('Clear all?')) location.reload()" style="width:100%; padding:10px; background:none; border:none; color:#666; font-size:12px; cursor:pointer">RESET DATA</button>
+            <div class="res-row">
+                <span>Unit Price (SAR)</span>
+                <input type="number" id="price" value="2.18" step="0.01" class="price-tag" oninput="doMath()">
+            </div>
+            <div class="res-row">
+                <span style="color:#aaa">Total Liters</span>
+                <span id="dispLtrs" class="res-val" style="color:#fff">0.000</span>
+            </div>
+            <div class="res-row" style="border-top: 1px solid #222; padding-top: 15px;">
+                <span style="font-weight:bold">TOTAL SAR</span>
+                <span id="dispAmt" class="res-val" style="font-size: 30px;">0.00</span>
+            </div>
+            <button onclick="if(confirm('Clear Data?')) location.reload()" style="width:100%; background:none; border:none; color:#555; font-size:12px; cursor:pointer; margin-top:10px">RESET ALL FIELDS</button>
         </div>
     </div>
 </div>
 
-<div class="modal" id="scannerModal">
+<div class="modal" id="scanner">
     <div class="cam-view">
         <video id="v" autoplay playsinline></video>
-        <div class="guide-container"><div class="scan-bar"></div></div>
+        <div class="guide"><div class="scan-line"></div></div>
     </div>
     <div class="ui-panel">
-        <div class="status" id="statusMsg">Engine Initializing...</div>
-        <button class="cancel-btn" onclick="closeCam()">CANCEL</button>
+        <div class="status" id="stat">WAITING FOR AI...</div>
+        <button class="close-btn" onclick="stopCam()">CANCEL SCAN</button>
     </div>
     <canvas id="c" style="display:none"></canvas>
 </div>
@@ -83,60 +124,59 @@
     let isScanning = false;
     let worker = null;
 
-    // 1. Initialize Persistent Worker immediately
+    // Load AI Engine on Startup
     async function initAI() {
         worker = await Tesseract.createWorker();
         await worker.loadLanguage('eng');
         await worker.initialize('eng');
         await worker.setParameters({
             tessedit_char_whitelist: '0123456789.',
-            tessedit_pageseg_mode: '7', // Optimized for single line (much more accurate)
+            tessedit_pageseg_mode: '7' // Single line optimization
         });
-        console.log("AI Ready");
+        document.getElementById('stat').innerText = "AI READY";
     }
     initAI();
 
-    // Generate Table Rows
+    // Generate Rows
     const tbody = document.getElementById('rows');
     for(let i=1; i<=5; i++) {
         tbody.innerHTML += `<tr>
-            <td style="font-weight:bold; color:#ccc">${i}</td>
+            <td style="color:#ccc; font-weight:bold">${i}</td>
             <td>
                 <input type="number" id="i${i}" class="reading-input" placeholder="0.00" oninput="doMath()">
-                <button class="cam-btn" onclick="openCam('i${i}')" style="margin-top:5px">📸</button>
+                <button class="cam-btn" onclick="startScan('i${i}')">📸</button>
             </td>
             <td>
                 <input type="number" id="f${i}" class="reading-input" placeholder="0.00" oninput="doMath()">
-                <button class="cam-btn" onclick="openCam('f${i}')" style="margin-top:5px">📸</button>
+                <button class="cam-btn" onclick="startScan('f${i}')">📸</button>
             </td>
         </tr>`;
     }
 
-    async function openCam(id) {
+    async function startScan(id) {
         activeId = id;
         isScanning = true;
-        document.getElementById('scannerModal').style.display = 'flex';
-        document.getElementById('statusMsg').innerText = "SEARCHING...";
-
+        document.getElementById('scanner').style.display = 'flex';
+        
         try {
             stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'environment', width: { ideal: 1280 }, focusMode: 'continuous' }
+                video: { facingMode: 'environment', width: { ideal: 1280 } }
             });
             document.getElementById('v').srcObject = stream;
-            processFrame();
-        } catch (err) {
-            alert("Camera Error: Please grant permissions.");
-            closeCam();
+            requestAnimationFrame(processLoop);
+        } catch (e) {
+            alert("Camera Error");
+            stopCam();
         }
     }
 
-    function closeCam() {
+    function stopCam() {
         isScanning = false;
         if(stream) stream.getTracks().forEach(t => t.stop());
-        document.getElementById('scannerModal').style.display = 'none';
+        document.getElementById('scanner').style.display = 'none';
     }
 
-    async function processFrame() {
+    async function processLoop() {
         if (!isScanning) return;
 
         const v = document.getElementById('v');
@@ -144,43 +184,37 @@
         const ctx = c.getContext('2d');
 
         if (v.readyState === v.HAVE_ENOUGH_DATA) {
-            // Precise cropping for the green box
             const scale = v.videoWidth / v.clientWidth;
-            const w = v.videoWidth * 0.75;
-            const h = 80 * scale;
+            const w = v.videoWidth * 0.8;
+            const h = 90 * scale; 
             const x = (v.videoWidth - w) / 2;
             const y = (v.videoHeight - h) / 2;
 
             c.width = w; 
             c.height = h;
 
-            // Advanced image preprocessing for 100% accuracy
+            // OCR Pre-processing
             ctx.filter = 'grayscale(1) contrast(2) brightness(1.2)';
             ctx.drawImage(v, x, y, w, h, 0, 0, w, h);
 
             try {
-                // Use the persistent worker (super fast)
                 const { data: { text, confidence } } = await worker.recognize(c);
-                const cleanText = text.replace(/\s/g, '');
-                
-                // Regex for Decimal or Whole number (3+ digits)
-                const match = cleanText.match(/\d+\.\d{1,3}/) || cleanText.match(/\d{3,}/);
+                const clean = text.replace(/\s/g, '');
+                const match = clean.match(/\d+\.\d{1,3}/) || clean.match(/\d{3,}/);
 
-                if (match && confidence > 60) {
+                if (match && confidence > 50) {
                     document.getElementById(activeId).value = match[0];
-                    document.getElementById('statusMsg').innerText = "SUCCESS!";
+                    document.getElementById('stat').innerText = "SUCCESS!";
                     
                     setTimeout(() => {
                         doMath();
-                        closeCam();
+                        stopCam();
                     }, 300);
                     return;
                 }
-            } catch (e) { console.log(e); }
+            } catch (err) {}
         }
-
-        // Loop every 500ms to keep it smooth without overheating
-        if (isScanning) setTimeout(processFrame, 500);
+        if (isScanning) setTimeout(processLoop, 500);
     }
 
     function doMath() {
