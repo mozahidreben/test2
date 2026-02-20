@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Station Master - Mandatory</title>
+    <title>Station Master - Export Pro</title>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    
     <style>
         :root { --primary: #000DFF; --bg: #f0f2f5; --91: #28a745; --95: #dc3545; --d: #495057; --error: #ff3b30; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
-        body { background: var(--bg); padding-bottom: 180px; }
+        body { background: var(--bg); padding-bottom: 220px; }
         
         .top-nav { position: sticky; top: 0; z-index: 100; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .header { background: var(--primary); color: white; padding: 12px; text-align: center; }
-        
-        /* Mandatory Field Styling */
-        .required-box { border: 2px solid #ddd; transition: 0.3s; }
+        .station-input { width: 90%; margin: 8px auto; display: block; padding: 12px; border-radius: 8px; font-weight: 800; text-align: center; font-size: 16px; outline: none; border: 2px solid #ddd; }
         .invalid { border-color: var(--error) !important; background-color: #fff0f0 !important; }
 
-        .station-input { width: 90%; margin: 8px auto; display: block; padding: 12px; border-radius: 8px; font-weight: 800; text-align: center; font-size: 16px; outline: none; }
-        
         .price-settings { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 10px; background: #fff; border-bottom: 2px solid #eee; }
         .p-input { display: flex; flex-direction: column; align-items: center; gap: 2px; }
         .p-input label { font-size: 9px; font-weight: bold; color: #666; }
@@ -39,13 +40,15 @@
         .reading-input { width: 100%; padding: 12px 5px; border: 2px solid #f0f2f5; border-radius: 12px; font-weight: 900; font-size: 18px; text-align: center; background: #f8f9fa; }
         .cam-btn { width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 18px; cursor: pointer; }
 
-        .footer-tools { position: fixed; bottom: 0; left: 0; right: 0; background: #111; padding: 20px; border-radius: 25px 25px 0 0; z-index: 200; }
+        .footer-tools { position: fixed; bottom: 0; left: 0; right: 0; background: #111; padding: 15px; border-radius: 25px 25px 0 0; z-index: 200; }
         .stats { display: flex; justify-content: space-between; margin-bottom: 12px; color: white; font-weight: bold; font-size: 14px; border-bottom: 1px solid #333; padding-bottom: 10px; }
         .total-val { color: var(--91); font-size: 24px; font-weight: 900; }
         
-        .btn-group { display: flex; gap: 10px; }
-        .add-btn { flex: 1; padding: 15px; background: white; color: black; border-radius: 15px; font-weight: 900; border: none; }
-        .wa-btn { flex: 2; padding: 15px; background: #25D366; color: white; border-radius: 15px; font-weight: 900; border: none; }
+        .btn-group { display: flex; flex-direction: column; gap: 8px; }
+        .row-btns { display: flex; gap: 8px; }
+        .add-btn { flex: 1; padding: 12px; background: white; color: black; border-radius: 12px; font-weight: 900; border: none; }
+        .wa-btn { flex: 2; padding: 12px; background: #25D366; color: white; border-radius: 12px; font-weight: 900; border: none; }
+        .dl-btn { flex: 1; padding: 10px; background: #555; color: white; border-radius: 10px; font-weight: bold; border: none; font-size: 12px; }
 
         .modal { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; flex-direction: column; }
         .cam-view { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; }
@@ -56,12 +59,12 @@
 <body>
 
 <div class="top-nav">
-    <div class="header"><h1>REBEN MASTER PRO v10</h1></div>
-    <input type="text" id="station-name" class="station-input required-box" placeholder="* STATION NAME REQUIRED">
+    <div class="header"><h1>REBEN STATION PRO v11</h1></div>
+    <input type="text" id="station-name" class="station-input" placeholder="* STATION NAME REQUIRED">
     <div class="price-settings">
-        <div class="p-input"><label>PRICE 91</label><input type="number" id="global-p91" class="required-box" placeholder="0.00" step="0.01" oninput="doMath()"></div>
-        <div class="p-input"><label>PRICE 95</label><input type="number" id="global-p95" class="required-box" placeholder="0.00" step="0.01" oninput="doMath()"></div>
-        <div class="p-input"><label>DIESEL</label><input type="number" id="global-pd" class="required-box" placeholder="0.00" step="0.01" oninput="doMath()"></div>
+        <div class="p-input"><label>PRICE 91</label><input type="number" id="global-p91" placeholder="0.00" step="0.01" oninput="doMath()"></div>
+        <div class="p-input"><label>PRICE 95</label><input type="number" id="global-p95" placeholder="0.00" step="0.01" oninput="doMath()"></div>
+        <div class="p-input"><label>DIESEL</label><input type="number" id="global-pd" placeholder="0.00" step="0.01" oninput="doMath()"></div>
     </div>
 </div>
 
@@ -75,8 +78,14 @@
         <div class="total-val" id="grandTotal">0.00</div>
     </div>
     <div class="btn-group">
-        <button class="add-btn" onclick="addNewNozzle()">+ NOZZLE</button>
-        <button class="wa-btn" onclick="shareWA()">SEND REPORT</button>
+        <div class="row-btns">
+            <button class="add-btn" onclick="addNewNozzle()">+ NOZZLE</button>
+            <button class="wa-btn" onclick="shareWA()">WHATSAPP</button>
+        </div>
+        <div class="row-btns">
+            <button class="dl-btn" style="background:#007bff" onclick="exportExcel()">EXCEL (.xlsx)</button>
+            <button class="dl-btn" style="background:#dc3545" onclick="exportPDF()">PDF (.pdf)</button>
+        </div>
     </div>
 </div>
 
@@ -86,7 +95,6 @@
     <canvas id="c" style="display:none"></canvas>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 <script>
     let nozzleCount = 0, activeId = null, stream = null, isScanning = false, worker = null;
 
@@ -167,7 +175,6 @@
         const p91 = parseFloat(document.getElementById('global-p91').value) || 0;
         const p95 = parseFloat(document.getElementById('global-p95').value) || 0;
         const pd = parseFloat(document.getElementById('global-pd').value) || 0;
-
         for (let i = 1; i <= nozzleCount; i++) {
             const type = document.getElementById(`type-${i}`).value;
             const init = parseFloat(document.getElementById(`i${i}`).value) || 0;
@@ -183,45 +190,79 @@
         document.getElementById('grandTotal').innerText = gt.toFixed(2);
     }
 
-    function shareWA() {
-        // Validation Check
+    function validate() {
         const sName = document.getElementById('station-name');
-        const p91 = document.getElementById('global-p91');
-        const p95 = document.getElementById('global-p95');
-        const pd = document.getElementById('global-pd');
-        
-        let errors = [];
-        
-        // Reset styles
+        const p91 = document.getElementById('global-p91'), p95 = document.getElementById('global-p95'), pd = document.getElementById('global-pd');
         [sName, p91, p95, pd].forEach(el => el.classList.remove('invalid'));
-
-        if (!sName.value.trim()) { sName.classList.add('invalid'); errors.push("Station Name"); }
-        if (!parseFloat(p91.value)) { p91.classList.add('invalid'); errors.push("Price 91"); }
-        if (!parseFloat(p95.value)) { p95.classList.add('invalid'); errors.push("Price 95"); }
-        if (!parseFloat(pd.value)) { pd.classList.add('invalid'); errors.push("Price Diesel"); }
-
-        if (errors.length > 0) {
-            alert("⚠️ Missing Information:\n" + errors.join("\n"));
-            return;
+        if(!sName.value.trim() || !parseFloat(p91.value) || !parseFloat(p95.value) || !parseFloat(pd.value)) {
+            if(!sName.value.trim()) sName.classList.add('invalid');
+            if(!parseFloat(p91.value)) p91.classList.add('invalid');
+            if(!parseFloat(p95.value)) p95.classList.add('invalid');
+            if(!parseFloat(pd.value)) pd.classList.add('invalid');
+            alert("⚠️ Please fill Station Name and all Prices!");
+            return false;
         }
+        return true;
+    }
 
-        const gt = document.getElementById('grandTotal').innerText;
-        const l91 = document.getElementById('sum91').innerText;
-        const l95 = document.getElementById('sum95').innerText;
-        const ld = document.getElementById('sumD').innerText;
-        
-        let msg = `🏪 *${sName.value.toUpperCase()}*%0A`;
-        msg += `--- SUMMARY ---%0A🟢 *91:* ${l91} L%0A🔴 *95:* ${l95} L%0A🔵 *D:* ${ld} L%0A💰 *TOTAL:* ${gt} SAR%0A%0A`;
-        msg += `--- DETAILS ---%0A`;
-        
+    function getReportData() {
+        const p91 = parseFloat(document.getElementById('global-p91').value);
+        const p95 = parseFloat(document.getElementById('global-p95').value);
+        const pd = parseFloat(document.getElementById('global-pd').value);
+        const data = [];
         for (let i = 1; i <= nozzleCount; i++) {
             const name = document.getElementById(`name-${i}`).value;
             const type = document.getElementById(`type-${i}`).value;
-            const init = document.getElementById(`i${i}`).value || '0';
-            const final = document.getElementById(`f${i}`).value || '0';
-            msg += `📍 ${name} (${type}): ${init} -> ${final}%0A`;
+            const init = parseFloat(document.getElementById(`i${i}`).value) || 0;
+            const final = parseFloat(document.getElementById(`f${i}`).value) || 0;
+            const price = type === "91" ? p91 : type === "95" ? p95 : pd;
+            const ltrs = final > init ? final - init : 0;
+            data.push({ Nozzle: name, Fuel: type, Initial: init, Final: final, Liters: ltrs.toFixed(2), Total_SAR: (ltrs * price).toFixed(2) });
         }
+        return data;
+    }
+
+    function shareWA() {
+        if(!validate()) return;
+        const station = document.getElementById('station-name').value;
+        const gt = document.getElementById('grandTotal').innerText;
+        let msg = `🏪 *${station.toUpperCase()}*%0A💰 *TOTAL:* ${gt} SAR%0A%0A`;
+        getReportData().forEach(r => { msg += `📍 ${r.Nozzle} (${r.Fuel}): ${r.Initial} -> ${r.Final}%0A`; });
         window.open(`https://wa.me/?text=${msg}`, '_blank');
+    }
+
+    function exportExcel() {
+        if(!validate()) return;
+        const data = getReportData();
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Station Report");
+        XLSX.writeFile(wb, `${document.getElementById('station-name').value}_Report.xlsx`);
+    }
+
+    function exportPDF() {
+        if(!validate()) return;
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const station = document.getElementById('station-name').value.toUpperCase();
+        
+        doc.setFontSize(18); doc.text(station, 14, 20);
+        doc.setFontSize(10); doc.text(`Date: ${new Date().toLocaleString()}`, 14, 28);
+        
+        const summary = [
+            ["Fuel Type", "Total Liters", "Price", "Subtotal SAR"],
+            ["Octane 91", document.getElementById('sum91').innerText, document.getElementById('global-p91').value, (parseFloat(document.getElementById('sum91').innerText) * parseFloat(document.getElementById('global-p91').value)).toFixed(2)],
+            ["Octane 95", document.getElementById('sum95').innerText, document.getElementById('global-p95').value, (parseFloat(document.getElementById('sum95').innerText) * parseFloat(document.getElementById('global-p95').value)).toFixed(2)],
+            ["Diesel", document.getElementById('sumD').innerText, document.getElementById('global-pd').value, (parseFloat(document.getElementById('sumD').innerText) * parseFloat(document.getElementById('global-pd').value)).toFixed(2)],
+            [{content: "GRAND TOTAL", colSpan: 3, styles: {halign: 'right', fontStyle: 'bold'}}, {content: document.getElementById('grandTotal').innerText + " SAR", styles: {fontStyle: 'bold'}}]
+        ];
+
+        doc.autoTable({ head: [summary[0]], body: summary.slice(1, 5), startY: 35, theme: 'striped' });
+        
+        const details = getReportData().map(r => [r.Nozzle, r.Fuel, r.Initial, r.Final, r.Liters, r.Total_SAR]);
+        doc.autoTable({ head: [["Nozzle", "Type", "Initial", "Final", "Liters", "SAR"]], body: details, startY: doc.lastAutoTable.finalY + 10 });
+        
+        doc.save(`${station}_Report.pdf`);
     }
 
     addNewNozzle(); addNewNozzle();
