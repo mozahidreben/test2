@@ -3,139 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Reben Pro Gold - AI Scanner</title>
+    <title>Station Master - Professional</title>
     <style>
-        :root { --primary: #000DFF; --success: #28a745; --bg: #f4f7f9; --whatsapp: #25D366; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, system-ui, sans-serif; }
-        body { background: var(--bg); padding: 10px; }
+        :root { --primary: #000DFF; --bg: #f0f2f5; --91: #28a745; --95: #dc3545; --d: #495057; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
+        body { background: var(--bg); padding-bottom: 180px; }
         
-        .container { max-width: 500px; margin: auto; background: white; border-radius: 25px; overflow: hidden; box-shadow: 0 15px 45px rgba(0,0,0,0.1); }
-        .header { background: var(--primary); color: white; padding: 20px; text-align: center; border-bottom: 4px solid rgba(0,0,0,0.1); }
-        .header h1 { font-size: 1.4rem; font-weight: 800; letter-spacing: 1px; }
-
-        .content { padding: 10px; }
+        .top-nav { position: sticky; top: 0; z-index: 100; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .header { background: var(--primary); color: white; padding: 12px; text-align: center; }
+        .station-input { width: 90%; margin: 8px auto; display: block; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-weight: 800; text-align: center; font-size: 16px; }
         
-        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
-        th { font-size: 10px; color: #999; text-transform: uppercase; padding: 5px; }
-        td { padding: 5px; vertical-align: middle; text-align: center; }
+        .price-settings { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 10px; background: #fff; border-bottom: 2px solid #eee; }
+        .p-input { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        .p-input label { font-size: 9px; font-weight: bold; color: #666; }
+        .p-input input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 8px; text-align: center; font-weight: bold; font-size: 14px; background: #fdfdfd; }
 
-        .reading-input { 
-            width: 125px; padding: 14px 5px; border: 2px solid #e0e6ed; border-radius: 12px; 
-            font-weight: 900; font-size: 18px; text-align: center; outline: none; background: #fdfdfd; transition: 0.2s;
-        }
-        .reading-input:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 12px rgba(0,13,255,0.1); }
+        .nozzle-list { padding: 10px; }
+        .nozzle-row { background: white; border-radius: 20px; padding: 15px; margin-bottom: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 10px solid #ccc; }
+        .row-91 { border-left-color: var(--91); }
+        .row-95 { border-left-color: var(--95); }
+        .row-d { border-left-color: var(--d); }
+
+        .row-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .nozzle-num-input { border: none; font-weight: 900; color: #333; font-size: 1.1rem; width: 110px; outline: none; }
+        .fuel-select { padding: 8px; border-radius: 8px; border: 1px solid #ddd; font-weight: bold; font-size: 13px; }
+
+        .scan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .input-grp { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .input-grp label { font-size: 10px; color: #999; font-weight: 800; }
+        .reading-input { width: 100%; padding: 12px 5px; border: 2px solid #f0f2f5; border-radius: 12px; font-weight: 900; font-size: 18px; text-align: center; background: #f8f9fa; }
+        .cam-btn { width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 18px; cursor: pointer; }
+
+        .footer-tools { position: fixed; bottom: 0; left: 0; right: 0; background: #111; padding: 20px; border-radius: 25px 25px 0 0; z-index: 200; }
+        .stats { display: flex; justify-content: space-between; margin-bottom: 12px; color: white; font-weight: bold; font-size: 14px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .total-val { color: var(--91); font-size: 24px; font-weight: 900; }
         
-        .cam-btn { 
-            width: 44px; height: 44px; background: var(--primary); color: white; 
-            border: none; border-radius: 12px; cursor: pointer; display: flex; 
-            align-items: center; justify-content: center; margin: 6px auto; font-size: 18px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
+        .btn-group { display: flex; gap: 10px; }
+        .add-btn { flex: 1; padding: 15px; background: white; color: black; border-radius: 15px; font-weight: 900; border: none; }
+        .wa-btn { flex: 2; padding: 15px; background: #25D366; color: white; border-radius: 15px; font-weight: 900; border: none; }
 
-        .calc-box { background: #111; color: white; padding: 20px; border-radius: 20px; margin-top: 5px; }
-        .res-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .res-val { font-weight: 900; font-size: 20px; color: var(--success); }
-        
-        .price-input { background: #222; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 10px; width: 80px; text-align: right; font-size: 16px; font-weight: bold; }
-
-        .share-btn { 
-            width: 100%; padding: 15px; background: var(--whatsapp); color: white; border: none; 
-            border-radius: 15px; font-weight: 800; font-size: 16px; cursor: pointer; margin-top: 10px;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-        }
-
-        /* AI Scanner UI */
         .modal { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; flex-direction: column; }
-        .cam-view { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .cam-view { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; }
         video { width: 100%; height: 100%; object-fit: cover; }
-        .guide { position: absolute; width: 85%; height: 95px; border: 3px solid #00ff00; border-radius: 18px; box-shadow: 0 0 0 3000px rgba(0,0,0,0.75); z-index: 10; }
-        .scan-line { position: absolute; width: 100%; height: 2px; background: #00ff00; box-shadow: 0 0 15px #00ff00; animation: scan 2s infinite linear; }
-        @keyframes scan { 0%, 100% { top: 0; } 50% { top: 100%; } }
-
-        .ui-panel { background: #000; padding: 30px 20px; text-align: center; }
-        .status { color: #00ff00; font-weight: bold; margin-bottom: 20px; font-size: 13px; text-transform: uppercase; }
-        .close-btn { background: #ff3b30; color: white; border: none; padding: 15px; border-radius: 40px; font-weight: bold; cursor: pointer; width: 70%; }
+        .guide { position: absolute; width: 85%; height: 95px; border: 3px solid #0f0; border-radius: 18px; box-shadow: 0 0 0 3000px rgba(0,0,0,0.7); }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header"><h1>REBEN GOLD AI</h1></div>
-    <div class="content">
-        <table>
-            <thead><tr><th>#</th><th>Initial</th><th>Final</th></tr></thead>
-            <tbody id="rows"></tbody>
-        </table>
+<div class="top-nav">
+    <div class="header"><h1>REBEN MASTER PRO v9</h1></div>
+    <input type="text" id="station-name" class="station-input" placeholder="ENTER STATION NAME">
+    <div class="price-settings">
+        <div class="p-input"><label>PRICE 91</label><input type="number" id="global-p91" value="2.18" step="0.01" oninput="doMath()"></div>
+        <div class="p-input"><label>PRICE 95</label><input type="number" id="global-p95" value="2.33" step="0.01" oninput="doMath()"></div>
+        <div class="p-input"><label>DIESEL</label><input type="number" id="global-pd" value="1.15" step="0.01" oninput="doMath()"></div>
+    </div>
+</div>
 
-        <div class="calc-box">
-            <div class="res-row">
-                <span style="color:#888">Price (SAR)</span>
-                <input type="number" id="price" value="2.18" step="0.01" class="price-input" oninput="doMath()">
-            </div>
-            <div class="res-row">
-                <span style="color:#888">Total Liters</span>
-                <span id="dispLtrs" class="res-val" style="color:#fff">0.000</span>
-            </div>
-            <div class="res-row" style="border-top: 1px solid #222; padding-top: 10px;">
-                <span style="font-weight:bold">TOTAL SAR</span>
-                <span id="dispAmt" class="res-val" style="font-size: 32px;">0.00</span>
-            </div>
-            
-            <button class="share-btn" onclick="shareWhatsApp()">
-                <span>SEND TO WHATSAPP</span>
-            </button>
-            
-            <button onclick="clearAll()" style="width:100%; background:none; border:none; color:#444; font-size:11px; margin-top:15px; cursor:pointer">RESET EVERYTHING</button>
+<div class="nozzle-list" id="list"></div>
+
+<div class="footer-tools">
+    <div class="stats">
+        <div id="summary-text" style="font-size: 11px; line-height: 1.4;">
+            91: <span id="sum91">0</span>L | 95: <span id="sum95">0</span>L | D: <span id="sumD">0</span>L
         </div>
+        <div class="total-val" id="grandTotal">0.00</div>
+    </div>
+    <div class="btn-group">
+        <button class="add-btn" onclick="addNewNozzle()">+ NOZZLE</button>
+        <button class="wa-btn" onclick="shareWA()">WHATSAPP REPORT</button>
     </div>
 </div>
 
 <div class="modal" id="scanner">
-    <div class="cam-view">
-        <video id="v" autoplay playsinline></video>
-        <div class="guide" id="guide"><div class="scan-line"></div></div>
-    </div>
-    <div class="ui-panel">
-        <div class="status" id="stat">AI INITIALIZING...</div>
-        <button class="close-btn" onclick="stopCam()">CANCEL</button>
-    </div>
+    <div class="cam-view"><video id="v" autoplay playsinline></video><div class="guide"></div></div>
+    <div style="background:#000; padding:30px; text-align:center"><button onclick="stopCam()" style="background:#ff3b30; color:white; border:none; padding:15px 40px; border-radius:30px; font-weight:bold">CANCEL</button></div>
     <canvas id="c" style="display:none"></canvas>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 <script>
-    let activeId = null, stream = null, isScanning = false, worker = null;
+    let nozzleCount = 0, activeId = null, stream = null, isScanning = false, worker = null;
 
     async function initAI() {
         worker = await Tesseract.createWorker();
         await worker.loadLanguage('eng');
         await worker.initialize('eng');
         await worker.setParameters({ tessedit_char_whitelist: '0123456789.', tessedit_pageseg_mode: '7' });
-        document.getElementById('stat').innerText = "AI READY";
     }
     initAI();
 
-    // Create Rows & Load Saved Data
-    const tbody = document.getElementById('rows');
-    for(let i=1; i<=5; i++) {
-        tbody.innerHTML += `<tr>
-            <td style="color:#ccc; font-weight:bold">${i}</td>
-            <td><input type="number" id="i${i}" class="reading-input" placeholder="0.0" oninput="doMath()">
-                <button class="cam-btn" onclick="startScan('i${i}')">📸</button></td>
-            <td><input type="number" id="f${i}" class="reading-input" placeholder="0.0" oninput="doMath()">
-                <button class="cam-btn" onclick="startScan('f${i}')">📸</button></td>
-        </tr>`;
+    function addNewNozzle() {
+        nozzleCount++;
+        const id = nozzleCount;
+        const div = document.createElement('div');
+        div.className = `nozzle-row row-91`;
+        div.id = `card-${id}`;
+        div.innerHTML = `
+            <div class="row-top">
+                <input class="nozzle-num-input" value="Nozzle ${id}" id="name-${id}">
+                <select class="fuel-select" id="type-${id}" onchange="updateRowColor(${id})">
+                    <option value="91">91</option>
+                    <option value="95">95</option>
+                    <option value="D">Diesel</option>
+                </select>
+            </div>
+            <div class="scan-grid">
+                <div class="input-grp"><label>INITIAL</label><input type="number" id="i${id}" class="reading-input" placeholder="0.0" oninput="doMath()"><button class="cam-btn" onclick="startScan('i${id}')">📸</button></div>
+                <div class="input-grp"><label>FINAL</label><input type="number" id="f${id}" class="reading-input" placeholder="0.0" oninput="doMath()"><button class="cam-btn" onclick="startScan('f${id}')">📸</button></div>
+            </div>
+        `;
+        document.getElementById('list').appendChild(div);
+        window.scrollTo(0, document.body.scrollHeight);
     }
 
-    // Auto-load data on startup
-    window.onload = () => {
-        for(let i=1; i<=5; i++){
-            document.getElementById('i'+i).value = localStorage.getItem('i'+i) || '';
-            document.getElementById('f'+i).value = localStorage.getItem('f'+i) || '';
-        }
-        document.getElementById('price').value = localStorage.getItem('price') || '2.18';
+    function updateRowColor(id) {
+        document.getElementById(`card-${id}`).className = `nozzle-row row-${document.getElementById(`type-${id}`).value.toLowerCase()}`;
         doMath();
-    };
+    }
 
     async function startScan(id) {
         activeId = id; isScanning = true;
@@ -143,8 +128,8 @@
         try {
             stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 } } });
             document.getElementById('v').srcObject = stream;
-            processLoop();
-        } catch (e) { alert("Camera error"); stopCam(); }
+            tick();
+        } catch (e) { stopCam(); }
     }
 
     function stopCam() {
@@ -153,7 +138,7 @@
         document.getElementById('scanner').style.display = 'none';
     }
 
-    async function processLoop() {
+    async function tick() {
         if (!isScanning) return;
         const v = document.getElementById('v'), c = document.getElementById('c'), ctx = c.getContext('2d');
         if (v.readyState === v.HAVE_ENOUGH_DATA) {
@@ -166,42 +151,57 @@
             try {
                 const { data: { text, confidence } } = await worker.recognize(c);
                 const match = text.replace(/\s/g, '').match(/\d+\.\d{1,3}/) || text.replace(/\s/g, '').match(/\d{3,}/);
-                if (match && confidence > 50) {
-                    document.getElementById(activeId).value = match[0];
-                    doMath(); stopCam(); return;
-                }
+                if (match && confidence > 50) { document.getElementById(activeId).value = match[0]; doMath(); stopCam(); return; }
             } catch (err) {}
         }
-        if (isScanning) setTimeout(processLoop, 500);
+        if (isScanning) setTimeout(tick, 500);
     }
 
     function doMath() {
-        let ltrs = 0;
-        const p = parseFloat(document.getElementById('price').value) || 0;
-        localStorage.setItem('price', p);
-        for(let i=1; i<=5; i++) {
-            const s = parseFloat(document.getElementById('i'+i).value) || 0;
-            const f = parseFloat(document.getElementById('f'+i).value) || 0;
-            localStorage.setItem('i'+i, s || '');
-            localStorage.setItem('f'+i, f || '');
-            if(f > s) ltrs += (f - s);
+        let gt = 0, l91 = 0, l95 = 0, ld = 0;
+        const p91 = parseFloat(document.getElementById('global-p91').value) || 0;
+        const p95 = parseFloat(document.getElementById('global-p95').value) || 0;
+        const pd = parseFloat(document.getElementById('global-pd').value) || 0;
+
+        for (let i = 1; i <= nozzleCount; i++) {
+            const type = document.getElementById(`type-${i}`).value;
+            const init = parseFloat(document.getElementById(`i${i}`).value) || 0;
+            const final = parseFloat(document.getElementById(`f${i}`).value) || 0;
+            let diff = final > init ? final - init : 0;
+            if (type === "91") { l91 += diff; gt += diff * p91; }
+            if (type === "95") { l95 += diff; gt += diff * p95; }
+            if (type === "D") { ld += diff; gt += diff * pd; }
         }
-        document.getElementById('dispLtrs').innerText = ltrs.toFixed(3);
-        document.getElementById('dispAmt').innerText = (ltrs * p).toFixed(2);
+        document.getElementById('sum91').innerText = l91.toFixed(2);
+        document.getElementById('sum95').innerText = l95.toFixed(2);
+        document.getElementById('sumD').innerText = ld.toFixed(2);
+        document.getElementById('grandTotal').innerText = gt.toFixed(2);
     }
 
-    function shareWhatsApp() {
-        const ltrs = document.getElementById('dispLtrs').innerText;
-        const total = document.getElementById('dispAmt').innerText;
-        const price = document.getElementById('price').value;
-        const text = `⛽ *FUEL REPORT*%0A------------------%0A*Total Liters:* ${ltrs} L%0A*Price/Unit:* ${price} SAR%0A------------------%0A*TOTAL AMOUNT:* ${total} SAR`;
-        window.open(`https://wa.me/?text=${text}`, '_blank');
+    function shareWA() {
+        const station = document.getElementById('station-name').value || "STATION REPORT";
+        const gt = document.getElementById('grandTotal').innerText;
+        const l91 = document.getElementById('sum91').innerText;
+        const l95 = document.getElementById('sum95').innerText;
+        const ld = document.getElementById('sumD').innerText;
+        
+        let msg = `🏪 *${station.toUpperCase()}*%0A`;
+        msg += `--- SUMMARY ---%0A`;
+        msg += `🟢 *91 Total:* ${l91} L%0A🔴 *95 Total:* ${l95} L%0A🔵 *Diesel Total:* ${ld} L%0A`;
+        msg += `💰 *GRAND TOTAL:* ${gt} SAR%0A%0A`;
+        msg += `--- NOZZLE DETAILS ---%0A`;
+        
+        for (let i = 1; i <= nozzleCount; i++) {
+            const name = document.getElementById(`name-${i}`).value;
+            const type = document.getElementById(`type-${i}`).value;
+            const init = document.getElementById(`i${i}`).value || '0';
+            const final = document.getElementById(`f${i}`).value || '0';
+            msg += `📍 ${name} (${type}): ${init} -> ${final}%0A`;
+        }
+        window.open(`https://wa.me/?text=${msg}`, '_blank');
     }
 
-    function clearAll() {
-        if(confirm('Clear all data?')) { localStorage.clear(); location.reload(); }
-    }
+    addNewNozzle(); addNewNozzle();
 </script>
-
 </body>
 </html>
