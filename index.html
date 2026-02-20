@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Station Master Pro</title>
+    <title>Reben Pro Max</title>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -11,86 +11,88 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
     <style>
-        :root { --reben-red: #E30613; --bg: #f2f4f7; --91: #28a745; --95: #dc3545; --d: #333; --wa: #25D366; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
-        body { background: var(--bg); padding-bottom: 200px; padding-top: 10px; }
+        :root { --reben-red: #E30613; --bg: #f4f7f9; --91: #28a745; --95: #dc3545; --d: #333; --wa: #25D366; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+        body { background: var(--bg); padding-bottom: 220px; padding-top: 10px; }
         
-        /* Fixed Header */
         .top-nav { position: sticky; top: 0; z-index: 100; background: white; margin: 0 10px 15px 10px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; }
-        .station-input { width: 100%; padding: 12px; border: none; font-weight: 900; text-align: center; font-size: 16px; outline: none; color: var(--reben-red); text-transform: uppercase; }
+        .station-input { width: 100%; padding: 15px; border: none; font-weight: 900; text-align: center; font-size: 18px; outline: none; color: var(--reben-red); text-transform: uppercase; }
         
-        .price-settings { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; padding: 10px; border-top: 1px solid #f0f0f0; }
+        .price-settings { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 10px; border-top: 1px solid #eee; }
         .p-input { display: flex; flex-direction: column; align-items: center; }
-        .p-input label { font-size: 9px; font-weight: 800; color: #999; margin-bottom: 3px; }
-        .p-input input { width: 100%; padding: 8px; border: 1.5px solid #eee; border-radius: 10px; text-align: center; font-weight: 900; font-size: 14px; outline: none; }
+        .p-input label { font-size: 10px; font-weight: 800; color: #888; margin-bottom: 4px; }
+        .p-input input { width: 100%; padding: 10px; border: 1.5px solid #eee; border-radius: 10px; text-align: center; font-weight: 900; font-size: 14px; outline: none; background: #fafafa; }
 
-        /* Nozzle Cards */
         .nozzle-list { padding: 0 10px; }
-        .nozzle-row { background: white; border-radius: 20px; padding: 18px; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.06); border-left: 12px solid #ccc; }
+        .nozzle-row { background: white; border-radius: 20px; padding: 20px; margin-bottom: 15px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); border-left: 15px solid #ccc; position: relative; }
         .row-91 { border-left-color: var(--91); }
         .row-95 { border-left-color: var(--95); }
         .row-d { border-left-color: var(--d); }
 
-        .row-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .nozzle-name { border: none; font-weight: 900; color: #222; font-size: 1.1rem; width: 130px; outline: none; background: transparent; }
-        .fuel-select { padding: 6px 12px; border-radius: 10px; border: none; background: #f0f0f0; font-weight: 800; font-size: 12px; }
+        .row-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+        .nozzle-name { border: none; font-weight: 900; color: #111; font-size: 1.2rem; width: 60%; outline: none; background: transparent; }
+        .fuel-select { padding: 8px 12px; border-radius: 12px; border: none; background: #f0f0f0; font-weight: 800; font-size: 12px; cursor: pointer; }
 
-        /* WIDE SCAN GRID FOR LONG NUMBERS */
-        .scan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        /* SINGLE COLUMN STACK FOR FULL VISIBILITY */
+        .scan-stack { display: flex; flex-direction: column; gap: 15px; }
         .input-grp { position: relative; width: 100%; }
-        .input-grp label { display: block; text-align: center; font-size: 10px; color: #888; font-weight: 900; margin-bottom: 6px; text-transform: uppercase; }
+        .input-grp label { display: block; font-size: 11px; color: #777; font-weight: 800; margin-bottom: 6px; padding-left: 5px; }
         
-        /* THE FIXED BOX - WIDER AND HORIZONTAL SCROLL ENABLED */
+        /* THE FULL WIDTH BOX */
         .reading-input { 
             width: 100%; 
-            padding: 16px 35px 16px 8px; 
-            border: 2px solid #edf0f5; 
-            border-radius: 14px; 
+            padding: 18px 55px 18px 15px; /* Large padding for camera button */
+            border: 2.5px solid #f0f2f5; 
+            border-radius: 16px; 
             font-weight: 900; 
-            font-size: 18px; 
-            text-align: left; /* Alignment allows better visibility of long values */
-            background: #fafafa; 
+            font-size: 22px; /* Large text */
+            text-align: left; 
+            background: #fdfdfd; 
             outline: none;
-            overflow-x: auto;
-            letter-spacing: -0.5px;
+            overflow-x: auto; /* Allow horizontal scroll for long numbers */
+            color: #222;
         }
+        .reading-input:focus { border-color: #ddd; background: #fff; }
 
         .cam-btn { 
             position: absolute; 
             bottom: 10px; 
-            right: 8px; 
-            background: #222; 
+            right: 10px; 
+            background: #111; 
             color: white; 
             border: none; 
-            border-radius: 8px; 
-            width: 30px; 
-            height: 30px; 
+            border-radius: 12px; 
+            width: 44px; 
+            height: 44px; 
             display: flex; 
             align-items: center; 
             justify-content: center;
+            font-size: 18px;
             cursor: pointer;
-            z-index: 5;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
-        /* Footer Controls */
-        .footer-tools { position: fixed; bottom: 0; left: 0; right: 0; background: #111; padding: 20px; border-radius: 25px 25px 0 0; z-index: 200; }
-        .stats { display: flex; justify-content: space-between; margin-bottom: 15px; color: white; align-items: center; }
-        .total-val { color: #fff; font-size: 28px; font-weight: 900; }
+        /* Footer */
+        .footer-tools { position: fixed; bottom: 0; left: 0; right: 0; background: #000; padding: 20px 20px 30px 20px; border-radius: 30px 30px 0 0; z-index: 200; box-shadow: 0 -10px 30px rgba(0,0,0,0.2); }
+        .stats { display: flex; justify-content: space-between; margin-bottom: 20px; color: white; align-items: center; }
+        .total-val { color: #fff; font-size: 32px; font-weight: 900; }
         
-        .action-row { display: grid; grid-template-columns: 1fr 1.2fr 1fr 0.8fr; gap: 8px; }
-        .tool-btn { border: none; border-radius: 14px; font-weight: 800; font-size: 11px; height: 55px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .action-row { display: grid; grid-template-columns: 1fr 1.2fr 1fr 0.8fr; gap: 10px; }
+        .tool-btn { border: none; border-radius: 16px; font-weight: 800; font-size: 11px; height: 60px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.2s; }
+        .tool-btn:active { transform: scale(0.95); }
         
-        .btn-add { background: #fff; color: #000; font-size: 20px; position: absolute; top: -25px; right: 25px; width: 50px; height: 50px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .btn-add { background: #fff; color: #000; font-size: 22px; position: absolute; top: -30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; box-shadow: 0 8px 20px rgba(0,0,0,0.4); z-index: 210; border: 4px solid #000; }
         .btn-xl { background: #1D6F42; color: #fff; }
         .btn-next { background: #FF9500; color: #fff; }
         .btn-pdf { background: var(--reben-red); color: #fff; }
-        .btn-wa { background: var(--wa); color: #fff; font-size: 22px; }
+        .btn-wa { background: var(--wa); color: #fff; font-size: 24px; }
 
-        /* Scanner Overlay */
+        /* Scanner */
         .modal { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; flex-direction: column; }
         .cam-view { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; }
         video { width: 100%; height: 100%; object-fit: cover; }
-        .guide { position: absolute; width: 90%; height: 100px; border: 4px solid var(--wa); border-radius: 15px; box-shadow: 0 0 0 4000px rgba(0,0,0,0.8); }
+        .guide { position: absolute; width: 92%; height: 110px; border: 4px solid var(--wa); border-radius: 20px; box-shadow: 0 0 0 4000px rgba(0,0,0,0.8); }
+        .scanner-info { position: absolute; top: 15%; width: 100%; text-align: center; color: white; font-weight: 900; font-size: 14px; text-shadow: 0 2px 4px #000; }
     </style>
 </head>
 <body>
@@ -109,8 +111,8 @@
 <div class="footer-tools">
     <button class="tool-btn btn-add" onclick="addNewNozzle()"><i class="fa-solid fa-plus"></i></button>
     <div class="stats">
-        <div style="font-size: 10px; color: #aaa; font-weight: bold;">
-            <span id="shift-text">DAY SHIFT</span><br>
+        <div style="font-size: 11px; color: #bbb; font-weight: bold; line-height: 1.5">
+            <span id="shift-text" style="color:white; font-size: 12px">DAY SHIFT</span><br>
             91: <span id="sum91" style="color:var(--91)">0</span> | 95: <span id="sum95" style="color:var(--95)">0</span> | D: <span id="sumD">0</span>
         </div>
         <div class="total-val" id="grandTotal">0.00</div>
@@ -124,9 +126,10 @@
 </div>
 
 <div class="modal" id="scanner">
+    <div class="scanner-info">CENTER METER READING IN BOX</div>
     <div class="cam-view"><video id="v" autoplay playsinline></video><div class="guide"></div></div>
-    <div style="background:#000; padding:25px; text-align:center">
-        <button onclick="stopCam()" style="background:#333; color:white; border:none; padding:15px 45px; border-radius:30px; font-weight:bold">CANCEL SCAN</button>
+    <div style="background:#000; padding:30px; text-align:center">
+        <button onclick="stopCam()" style="background:#444; color:white; border:none; padding:18px 60px; border-radius:40px; font-weight:bold; font-size: 16px;">CLOSE</button>
     </div>
     <canvas id="c" style="display:none"></canvas>
 </div>
@@ -158,14 +161,14 @@
                     <option value="D" ${saved?.type=='D'?'selected':''}>Diesel</option>
                 </select>
             </div>
-            <div class="scan-grid">
+            <div class="scan-stack">
                 <div class="input-grp">
-                    <label class="lbl-init">INITIAL</label>
+                    <label>INITIAL READING</label>
                     <input type="number" id="i${id}" class="reading-input" value="${saved?saved.init:''}" oninput="doMath(); saveMem()">
                     <button class="cam-btn" onclick="startScan('i${id}')"><i class="fa-solid fa-camera"></i></button>
                 </div>
                 <div class="input-grp">
-                    <label class="lbl-final">FINAL</label>
+                    <label>FINAL READING</label>
                     <input type="number" id="f${id}" class="reading-input" value="${saved?saved.final:''}" oninput="doMath(); saveMem()">
                     <button class="cam-btn" onclick="startScan('f${id}')"><i class="fa-solid fa-camera"></i></button>
                 </div>
@@ -198,10 +201,10 @@
         const v = document.getElementById('v'), c = document.getElementById('c'), ctx = c.getContext('2d');
         if (v.readyState === v.HAVE_ENOUGH_DATA) {
             const ratio = v.videoWidth / v.clientWidth;
-            const w = v.videoWidth * 0.9, h = 100 * ratio;
+            const w = v.videoWidth * 0.9, h = 110 * ratio;
             const x = (v.videoWidth - w) / 2, y = (v.videoHeight - h) / 2;
             c.width = w; c.height = h;
-            ctx.filter = 'grayscale(1) contrast(1.5)';
+            ctx.filter = 'grayscale(1) contrast(1.8) brightness(1.1)';
             ctx.drawImage(v, x, y, w, h, 0, 0, w, h);
             try {
                 const { data: { text, confidence } } = await worker.recognize(c);
@@ -213,7 +216,7 @@
                 }
             } catch (err) {}
         }
-        if (isScanning) setTimeout(tick, 200);
+        if (isScanning) setTimeout(tick, 150);
     }
 
     function doMath() {
@@ -236,7 +239,7 @@
     }
 
     function rotateShift() {
-        if(!confirm("Move Final to Initial for next shift?")) return;
+        if(!confirm("Transfer Final readings to Initial for next shift?")) return;
         isDayTime = !isDayTime;
         document.getElementById('shift-text').innerText = isDayTime ? "DAY SHIFT" : "NIGHT SHIFT";
         document.querySelectorAll('.nozzle-row').forEach(row => {
@@ -260,11 +263,11 @@
                 init: document.getElementById(`i${id}`).value, final: document.getElementById(`f${id}`).value
             });
         });
-        localStorage.setItem('station_master_wide_v1', JSON.stringify(data));
+        localStorage.setItem('reben_max_v1', JSON.stringify(data));
     }
 
     function loadMem() {
-        const stored = localStorage.getItem('station_master_wide_v1');
+        const stored = localStorage.getItem('reben_max_v1');
         if(stored) {
             const data = JSON.parse(stored);
             document.getElementById('sn').value = data.sn || "";
@@ -280,7 +283,7 @@
 
     function shareWA() {
         const station = document.getElementById('sn').value || "STATION";
-        let msg = `🏪 *${station.toUpperCase()}*%0A💰 *TOTAL:* ${document.getElementById('grandTotal').innerText} SAR%0A%0A`;
+        let msg = `🏪 *${station.toUpperCase()}*%0A💰 *GRAND TOTAL:* ${document.getElementById('grandTotal').innerText} SAR%0A%0A`;
         document.querySelectorAll('.nozzle-row').forEach(row => {
             const id = row.id.split('-')[1];
             msg += `📍 ${document.getElementById(`name-${id}`).value}: ${document.getElementById(`i${id}`).value || 0} -> ${document.getElementById(`f${id}`).value || 0}%0A`;
@@ -297,13 +300,13 @@
         const ws = XLSX.utils.json_to_sheet(data);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Report");
-        XLSX.writeFile(wb, "Station_Report.xlsx");
+        XLSX.writeFile(wb, `${document.getElementById('sn').value || 'Report'}.xlsx`);
     }
 
     function exportPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        doc.text("STATION REPORT", 14, 15);
+        doc.text(`STATION: ${document.getElementById('sn').value.toUpperCase()}`, 14, 15);
         const rows = [];
         document.querySelectorAll('.nozzle-row').forEach(row => {
             const id = row.id.split('-')[1];
