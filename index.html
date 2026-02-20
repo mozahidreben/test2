@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#E30613">
     <title>Reben Pro Compact</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -21,15 +25,18 @@
             --wa: #25D366; 
             --glass: rgba(255, 255, 255, 0.95);
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-        body { background: var(--bg); padding-bottom: 200px; padding-top: 10px; color: #1a1a1a; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); padding-bottom: 220px; padding-top: 10px; color: #1a1a1a; }
         
         .invalid { border: 2px solid var(--error) !important; background-color: #fff0f0 !important; }
 
         /* Modernized Header */
         .top-nav { position: sticky; top: 0; z-index: 100; background: white; margin: 0 12px 15px 12px; border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); overflow: hidden; }
+        .station-header { position: relative; }
         .station-input { width: 100%; padding: 15px; border: none; font-weight: 900; text-align: center; font-size: 18px; outline: none; color: var(--reben-red); text-transform: uppercase; border-bottom: 1px solid #f0f0f0; }
         
+        .reset-btn { position: absolute; right: 15px; top: 15px; color: #ccc; border: none; background: none; font-size: 18px; cursor: pointer; }
+
         .price-settings { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 12px; background: #fff; }
         .p-input { display: flex; flex-direction: column; align-items: center; background: #f8f9fa; padding: 8px; border-radius: 12px; }
         .p-input label { font-size: 10px; font-weight: 800; color: #777; margin-bottom: 4px; }
@@ -38,13 +45,13 @@
         /* Enhanced Nozzle Cards */
         .nozzle-list { padding: 0 12px; }
         .nozzle-row { background: white; border-radius: 20px; padding: 15px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border-left: 10px solid #ccc; transition: transform 0.2s; }
-        .nozzle-row:active { transform: scale(0.98); }
+        .nozzle-row:active { transform: scale(0.99); }
         .row-91 { border-left-color: var(--91); }
         .row-95 { border-left-color: var(--95); }
         .row-d { border-left-color: var(--d); }
 
         .row-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .nozzle-num-input { border: none; font-weight: 900; color: #222; font-size: 1.1rem; width: 120px; outline: none; }
+        .nozzle-num-input { border: none; font-weight: 900; color: #222; font-size: 1.1rem; width: 120px; outline: none; background: transparent; }
         .fuel-select { padding: 6px 12px; border-radius: 10px; border: 1px solid #eee; background: #fff; font-weight: 800; font-size: 11px; color: #555; }
 
         .scan-grid { display: flex; flex-direction: column; gap: 12px; }
@@ -64,20 +71,19 @@
         }
         .cam-btn { position: absolute; bottom: 8px; right: 8px; background: #333; color: white; border: none; border-radius: 10px; width: 40px; height: 40px; font-size: 16px; cursor: pointer; }
         
-        /* Point 4 CSS: Error color class */
         .diff-tag { margin-top: 10px; font-size: 12px; font-weight: 900; color: #444; text-align: right; }
         .diff-error { color: var(--error) !important; animation: shake 0.3s ease-in-out; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 
         /* Glass Footer */
-        .footer-tools { position: fixed; bottom: 0; left: 0; right: 0; background: var(--glass); backdrop-filter: blur(10px); padding: 15px 15px 30px 15px; border-radius: 30px 30px 0 0; z-index: 200; box-shadow: 0 -10px 25px rgba(0,0,0,0.1); }
+        .footer-tools { position: fixed; bottom: 0; left: 0; right: 0; background: var(--glass); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); padding: 15px 15px 35px 15px; border-radius: 30px 30px 0 0; z-index: 200; box-shadow: 0 -10px 25px rgba(0,0,0,0.1); }
         .stats { display: flex; justify-content: space-between; margin-bottom: 18px; color: #222; align-items: flex-end; }
         .total-val { color: #000; font-size: 34px; font-weight: 900; letter-spacing: -1px; }
-        .shift-label { font-size: 10px; color: #666; font-weight: 700; }
+        .shift-label { font-size: 10px; color: #666; font-weight: 700; line-height: 1.4; }
 
         .action-row { display: grid; grid-template-columns: 1fr 1fr 1.2fr 1fr 0.8fr; gap: 8px; }
         .tool-btn { border: none; border-radius: 16px; font-weight: 800; font-size: 10px; height: 54px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.2s; }
-        .tool-btn:active { transform: translateY(2px); }
+        .tool-btn:active { transform: translateY(2px); filter: brightness(0.9); }
         
         .btn-add { background: #000; color: #fff; }
         .btn-xl { background: #e8f5e9; color: #2e7d32; }
@@ -89,8 +95,8 @@
         .modal { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; flex-direction: column; }
         .cam-view { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; }
         video { width: 100%; height: 100%; object-fit: cover; }
-        .guide { position: absolute; width: 80%; height: 80px; border: 2px solid white; border-radius: 12px; box-shadow: 0 0 0 4000px rgba(0,0,0,0.6); z-index: 5; }
-        .guide::after { content: 'ALIGN READING HERE'; position: absolute; top: -25px; left: 0; width: 100%; text-align: center; color: white; font-size: 10px; font-weight: bold; letter-spacing: 1px; }
+        .guide { position: absolute; width: 85%; height: 90px; border: 2px solid white; border-radius: 12px; box-shadow: 0 0 0 4000px rgba(0,0,0,0.6); z-index: 5; }
+        .guide::after { content: 'ALIGN READING'; position: absolute; top: -25px; left: 0; width: 100%; text-align: center; color: white; font-size: 10px; font-weight: bold; letter-spacing: 2px; }
         
         .scan-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 40px 20px; z-index: 10; pointer-events: none; }
         .scan-btn-row { pointer-events: auto; display: flex; justify-content: space-around; padding-bottom: 20px; }
@@ -103,7 +109,10 @@
 <body>
 
 <div class="top-nav">
-    <input type="text" id="sn" class="station-input" placeholder="STATION NAME" oninput="saveMem()">
+    <div class="station-header">
+        <input type="text" id="sn" class="station-input" placeholder="STATION NAME" oninput="saveMem()">
+        <button class="reset-btn" onclick="hardReset()"><i class="fa-solid fa-rotate"></i></button>
+    </div>
     <div class="price-settings">
         <div class="p-input"><label>OCTANE 91</label><input type="number" id="p91" step="0.01" oninput="doMath(); saveMem()"></div>
         <div class="p-input"><label>OCTANE 95</label><input type="number" id="p95" step="0.01" oninput="doMath(); saveMem()"></div>
@@ -116,7 +125,7 @@
 <div class="footer-tools">
     <div class="stats">
         <div class="shift-label">
-            <span id="shift-text">SHIFT DATA</span><br>
+            <span id="shift-text" style="font-weight: 900; color: #000;">DAY SHIFT (6AM-6PM)</span><br>
             91: <span id="sum91" style="color:var(--91)">0</span> | 95: <span id="sum95" style="color:var(--95)">0</span> | D: <span id="sumD">0</span>
         </div>
         <div class="total-val" id="grandTotal">0.00</div>
@@ -150,6 +159,11 @@
     let nozzleCount = 0, activeId = null, stream = null, isScanning = false, worker = null;
     let isDayTime = true;
     let torchOn = false;
+
+    // Safety: Prevent accidental data loss on refresh
+    window.onbeforeunload = function() {
+        return "Are you sure you want to leave? Any unsaved data might be lost.";
+    };
 
     async function initAI() {
         worker = await Tesseract.createWorker();
@@ -190,7 +204,7 @@
                     <option value="95" ${saved?.type=='95'?'selected':''}>OCTANE 95</option>
                     <option value="D" ${saved?.type=='D'?'selected':''}>DIESEL</option>
                 </select>
-                <button onclick="this.parentElement.parentElement.remove(); doMath(); saveMem();" style="border:none; background:none; color:#ccc"><i class="fa-solid fa-trash-can"></i></button>
+                <button onclick="if(confirm('Delete?')) { this.parentElement.parentElement.remove(); doMath(); saveMem(); }" style="border:none; background:none; color:#ddd; padding: 5px;"><i class="fa-solid fa-trash-can"></i></button>
             </div>
             <div class="scan-grid">
                 <div class="input-grp">
@@ -225,6 +239,13 @@
         saveMem();
     }
 
+    function hardReset() {
+        if(confirm("DANGER: Clear everything and start fresh?")) {
+            localStorage.removeItem('reben_v3_premium');
+            location.reload();
+        }
+    }
+
     async function startScan(id) { 
         activeId = id; isScanning = true; 
         document.getElementById('scanner').style.display = 'flex'; 
@@ -250,7 +271,6 @@
         try { await track.applyConstraints({ advanced: [{ torch: torchOn }] }); } catch (e) {}
     }
 
-    // Point 2: OCR Sanitizer
     function sanitizeOCR(text) {
         return text
             .replace(/[S]/g, '5')
@@ -258,7 +278,7 @@
             .replace(/[I|l]/g, '1')
             .replace(/[B]/g, '8')
             .replace(/[Z]/g, '2')
-            .replace(/[^0-9.]/g, ''); // Remove everything except numbers and dots
+            .replace(/[^0-9.]/g, '');
     }
 
     async function tick() {
@@ -266,19 +286,17 @@
         const v = document.getElementById('v'), c = document.getElementById('c'), ctx = c.getContext('2d');
         if (v.readyState === v.HAVE_ENOUGH_DATA) {
             const ratio = v.videoWidth / v.clientWidth;
-            const w = v.videoWidth * 0.8, h = 80 * ratio;
+            const w = v.videoWidth * 0.8, h = 90 * ratio;
             const x = (v.videoWidth - w) / 2, y = (v.videoHeight - h) / 2;
             c.width = w; c.height = h;
-            ctx.filter = 'contrast(1.5) grayscale(1) brightness(1.1)';
+            ctx.filter = 'contrast(1.6) grayscale(1) brightness(1.2)';
             ctx.drawImage(v, x, y, w, h, 0, 0, w, h);
             try {
                 let { data: { text, confidence } } = await worker.recognize(c);
-                
-                // Point 2 logic: Clean the OCR text
                 text = sanitizeOCR(text);
                 const match = text.match(/\d+\.\d{1,3}/) || text.match(/\d{3,}/);
 
-                if (match && confidence > 70) { 
+                if (match && confidence > 75) { 
                     document.getElementById('flash').classList.add('trigger-flash');
                     document.getElementById(activeId).value = match[0]; 
                     doMath(); saveMem();
@@ -287,7 +305,7 @@
                 }
             } catch (err) {}
         }
-        if (isScanning) setTimeout(tick, 150);
+        if (isScanning) setTimeout(tick, 100);
     }
 
     function doMath() {
@@ -302,7 +320,6 @@
             const initVal = parseFloat(document.getElementById(`i${id}`).value) || 0;
             const finalVal = parseFloat(document.getElementById(`f${id}`).value) || 0;
             
-            // Point 4: Error Handling Logic
             const diffTag = document.getElementById(`diff-${id}`);
             const diff = finalVal - initVal;
 
@@ -335,17 +352,17 @@
         const shift = isDayTime ? "Day" : "Night";
         const time = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
         
-        let msg = `🏪 *Station Report*%0A%0A`;
-        msg += `    *${station}*%0A`;
-        msg += `     Date ${getNowStr()}%0A`;
-        msg += `     Shift - ${shift}%0A`;
-        msg += `     Reporting Time - ${time}%0A%0A`;
-        msg += `---- SUMMARY ----%0A%0A`;
+        let msg = `🏪 *STATION REPORT*%0A%0A`;
+        msg += `*${station}*%0A`;
+        msg += `📅 Date: ${getNowStr()}%0A`;
+        msg += `🕒 Shift: ${shift}%0A`;
+        msg += `⏰ Time: ${time}%0A%0A`;
+        msg += `---- SUMMARY ----%0A`;
         msg += `🟢 *91 Total:* ${document.getElementById('sum91').innerText} L%0A`;
         msg += `🔴 *95 Total:* ${document.getElementById('sum95').innerText} L%0A`;
-        msg += `🔵 *Diesel Total:* ${document.getElementById('sumD').innerText} L%0A`;
-        msg += `💰 *Total Amount:* ${document.getElementById('grandTotal').innerText} SAR%0A%0A%0A%0A`;
-        msg += `*Designed by Mozahid*`;
+        msg += `🔵 *Diesel Total:* ${document.getElementById('sumD').innerText} L%0A%0A`;
+        msg += `💰 *TOTAL AMOUNT:* ${document.getElementById('grandTotal').innerText} SAR%0A%0A`;
+        msg += `*Generated by Reben Pro*`;
         
         window.open(`https://wa.me/?text=${msg}`, '_blank');
     }
@@ -391,42 +408,40 @@
         const doc = new jsPDF();
         const station = document.getElementById('sn').value.toUpperCase();
         const shift = isDayTime ? "Day" : "Night";
-        const time = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const time = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
 
-        doc.setFontSize(18); doc.text(`STATION: ${station}`, 14, 20);
-        doc.setFontSize(10);
-        doc.text(`Date: ${getNowStr()} | Shift: ${shift} | Time: ${time}`, 14, 28);
-        doc.text(`Prices: 91 (${document.getElementById('p91').value}) | 95 (${document.getElementById('p95').value}) | D (${document.getElementById('pd').value})`, 14, 34);
+        doc.setFontSize(22); doc.setTextColor(227, 6, 19);
+        doc.text(station, 14, 20);
+        
+        doc.setFontSize(10); doc.setTextColor(100);
+        doc.text(`Date: ${getNowStr()} | Shift: ${shift} | Report Time: ${time}`, 14, 28);
         
         const summary = [
-            ["Fuel Type", "Total Liters", "Total SAR"],
-            ["Octane 91", document.getElementById('sum91').innerText, (parseFloat(document.getElementById('sum91').innerText) * parseFloat(document.getElementById('p91').value)).toFixed(2)],
-            ["Octane 95", document.getElementById('sum95').innerText, (parseFloat(document.getElementById('sum95').innerText) * parseFloat(document.getElementById('p95').value)).toFixed(2)],
-            ["Diesel", document.getElementById('sumD').innerText, (parseFloat(document.getElementById('sumD').innerText) * parseFloat(document.getElementById('pd').value)).toFixed(2)],
-            ["GRAND TOTAL", "", document.getElementById('grandTotal').innerText + " SAR"]
+            ["Fuel Type", "Total Liters", "Price (SAR)", "Subtotal"],
+            ["Octane 91", document.getElementById('sum91').innerText, document.getElementById('p91').value, (parseFloat(document.getElementById('sum91').innerText) * parseFloat(document.getElementById('p91').value)).toFixed(2)],
+            ["Octane 95", document.getElementById('sum95').innerText, document.getElementById('p95').value, (parseFloat(document.getElementById('sum95').innerText) * parseFloat(document.getElementById('p95').value)).toFixed(2)],
+            ["Diesel", document.getElementById('sumD').innerText, document.getElementById('pd').value, (parseFloat(document.getElementById('sumD').innerText) * parseFloat(document.getElementById('pd').value)).toFixed(2)],
+            ["GRAND TOTAL", "", "", document.getElementById('grandTotal').innerText + " SAR"]
         ];
-        doc.autoTable({ head: [summary[0]], body: summary.slice(1), startY: 40, theme: 'grid' });
+        doc.autoTable({ head: [summary[0]], body: summary.slice(1), startY: 35, theme: 'striped', headStyles: {fillColor: [0,0,0]} });
 
         const rows = [];
         document.querySelectorAll('.nozzle-row').forEach(row => {
             const id = row.id.split('-')[1];
             const init = parseFloat(document.getElementById(`i${id}`).value) || 0;
             const final = parseFloat(document.getElementById(`f${id}`).value) || 0;
-            const diff = Math.max(0, final - init).toFixed(2);
             rows.push([
                 document.getElementById(`name-${id}`).value, 
                 document.getElementById(`type-${id}`).value, 
                 init, 
                 final,
-                diff
+                Math.max(0, final - init).toFixed(2)
             ]);
         });
-        doc.autoTable({ head: [["Nozzle", "Type", "Start", "End", "Difference"]], body: rows, startY: doc.lastAutoTable.finalY + 10 });
+        doc.autoTable({ head: [["Nozzle", "Type", "Start", "End", "Liters"]], body: rows, startY: doc.lastAutoTable.finalY + 10 });
         
-        const finalY = doc.lastAutoTable.finalY + 15;
-        doc.setFontSize(12);
-        doc.setFont("helvetica", "bold");
-        doc.text("Designed By - Mozahid", 14, finalY);
+        doc.setFontSize(10); doc.setTextColor(150);
+        doc.text("Generated by Reben Pro Compact System", 14, doc.lastAutoTable.finalY + 15);
 
         doc.save(`${station}_Report.pdf`);
     }
