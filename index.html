@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Reben Pro - Ultra Scanner</title>
+    <title>Reben Pro Gold - AI Scanner</title>
     <style>
-        :root { --primary: #000DFF; --success: #28a745; --bg: #f4f7f9; }
+        :root { --primary: #000DFF; --success: #28a745; --bg: #f4f7f9; --whatsapp: #25D366; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, system-ui, sans-serif; }
         body { background: var(--bg); padding: 10px; }
         
@@ -15,67 +15,52 @@
 
         .content { padding: 10px; }
         
-        /* Table Layout */
         table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
         th { font-size: 10px; color: #999; text-transform: uppercase; padding: 5px; }
         td { padding: 5px; vertical-align: middle; text-align: center; }
 
-        /* WIDE & LARGE INPUTS */
         .reading-input { 
-            width: 125px; 
-            padding: 14px 5px; 
-            border: 2px solid #e0e6ed; 
-            border-radius: 12px; 
-            font-weight: 900; 
-            font-size: 18px; 
-            text-align: center; 
-            outline: none; 
-            background: #fdfdfd;
-            transition: 0.2s;
+            width: 125px; padding: 14px 5px; border: 2px solid #e0e6ed; border-radius: 12px; 
+            font-weight: 900; font-size: 18px; text-align: center; outline: none; background: #fdfdfd; transition: 0.2s;
         }
         .reading-input:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 12px rgba(0,13,255,0.1); }
         
         .cam-btn { 
-            width: 44px; height: 44px; 
-            background: var(--primary); color: white; 
-            border: none; border-radius: 12px; 
-            cursor: pointer; display: flex; 
-            align-items: center; justify-content: center; 
-            margin: 6px auto; font-size: 18px;
+            width: 44px; height: 44px; background: var(--primary); color: white; 
+            border: none; border-radius: 12px; cursor: pointer; display: flex; 
+            align-items: center; justify-content: center; margin: 6px auto; font-size: 18px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-        .cam-btn:active { transform: scale(0.9); }
 
-        /* Calculation Section */
-        .calc-box { background: #111; color: white; padding: 25px; border-radius: 20px; margin-top: 5px; }
+        .calc-box { background: #111; color: white; padding: 20px; border-radius: 20px; margin-top: 5px; }
         .res-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .res-val { font-weight: 900; font-size: 20px; color: var(--success); }
+        
         .price-input { background: #222; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 10px; width: 80px; text-align: right; font-size: 16px; font-weight: bold; }
+
+        .share-btn { 
+            width: 100%; padding: 15px; background: var(--whatsapp); color: white; border: none; 
+            border-radius: 15px; font-weight: 800; font-size: 16px; cursor: pointer; margin-top: 10px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
 
         /* AI Scanner UI */
         .modal { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; flex-direction: column; }
         .cam-view { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         video { width: 100%; height: 100%; object-fit: cover; }
-        
-        .guide { 
-            position: absolute; width: 85%; height: 95px; 
-            border: 3px solid #00ff00; border-radius: 18px; 
-            box-shadow: 0 0 0 3000px rgba(0,0,0,0.75); z-index: 10; 
-        }
-        .guide.found { border-color: #fff; box-shadow: 0 0 30px #00ff00, 0 0 0 3000px rgba(0,0,0,0.75); transition: 0.2s; }
-
+        .guide { position: absolute; width: 85%; height: 95px; border: 3px solid #00ff00; border-radius: 18px; box-shadow: 0 0 0 3000px rgba(0,0,0,0.75); z-index: 10; }
         .scan-line { position: absolute; width: 100%; height: 2px; background: #00ff00; box-shadow: 0 0 15px #00ff00; animation: scan 2s infinite linear; }
         @keyframes scan { 0%, 100% { top: 0; } 50% { top: 100%; } }
 
-        .ui-panel { background: #000; padding: 35px 20px; text-align: center; }
+        .ui-panel { background: #000; padding: 30px 20px; text-align: center; }
         .status { color: #00ff00; font-weight: bold; margin-bottom: 20px; font-size: 13px; text-transform: uppercase; }
-        .close-btn { background: #ff3b30; color: white; border: none; padding: 18px 50px; border-radius: 40px; font-weight: bold; cursor: pointer; width: 80%; }
+        .close-btn { background: #ff3b30; color: white; border: none; padding: 15px; border-radius: 40px; font-weight: bold; cursor: pointer; width: 70%; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header"><h1>REBEN PRO AI</h1></div>
+    <div class="header"><h1>REBEN GOLD AI</h1></div>
     <div class="content">
         <table>
             <thead><tr><th>#</th><th>Initial</th><th>Final</th></tr></thead>
@@ -88,14 +73,19 @@
                 <input type="number" id="price" value="2.18" step="0.01" class="price-input" oninput="doMath()">
             </div>
             <div class="res-row">
-                <span style="color:#888">Liters</span>
+                <span style="color:#888">Total Liters</span>
                 <span id="dispLtrs" class="res-val" style="color:#fff">0.000</span>
             </div>
-            <div class="res-row" style="border-top: 1px solid #222; padding-top: 15px;">
+            <div class="res-row" style="border-top: 1px solid #222; padding-top: 10px;">
                 <span style="font-weight:bold">TOTAL SAR</span>
                 <span id="dispAmt" class="res-val" style="font-size: 32px;">0.00</span>
             </div>
-            <button onclick="if(confirm('Reset all?')) location.reload()" style="width:100%; background:none; border:none; color:#444; font-size:11px; margin-top:10px; cursor:pointer">CLEAR ALL DATA</button>
+            
+            <button class="share-btn" onclick="shareWhatsApp()">
+                <span>SEND TO WHATSAPP</span>
+            </button>
+            
+            <button onclick="clearAll()" style="width:100%; background:none; border:none; color:#444; font-size:11px; margin-top:15px; cursor:pointer">RESET EVERYTHING</button>
         </div>
     </div>
 </div>
@@ -106,64 +96,55 @@
         <div class="guide" id="guide"><div class="scan-line"></div></div>
     </div>
     <div class="ui-panel">
-        <div class="status" id="stat">LOADING AI...</div>
-        <button class="close-btn" onclick="stopCam()">CLOSE</button>
+        <div class="status" id="stat">AI INITIALIZING...</div>
+        <button class="close-btn" onclick="stopCam()">CANCEL</button>
     </div>
     <canvas id="c" style="display:none"></canvas>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 <script>
-    let activeId = null;
-    let stream = null;
-    let isScanning = false;
-    let worker = null;
+    let activeId = null, stream = null, isScanning = false, worker = null;
 
-    // Load AI Worker on Start
     async function initAI() {
         worker = await Tesseract.createWorker();
         await worker.loadLanguage('eng');
         await worker.initialize('eng');
-        await worker.setParameters({
-            tessedit_char_whitelist: '0123456789.',
-            tessedit_pageseg_mode: '7' 
-        });
+        await worker.setParameters({ tessedit_char_whitelist: '0123456789.', tessedit_pageseg_mode: '7' });
         document.getElementById('stat').innerText = "AI READY";
     }
     initAI();
 
-    // Create 5 Rows
+    // Create Rows & Load Saved Data
     const tbody = document.getElementById('rows');
     for(let i=1; i<=5; i++) {
         tbody.innerHTML += `<tr>
             <td style="color:#ccc; font-weight:bold">${i}</td>
-            <td>
-                <input type="number" id="i${i}" class="reading-input" placeholder="0.0" oninput="doMath()">
-                <button class="cam-btn" onclick="startScan('i${i}')">📸</button>
-            </td>
-            <td>
-                <input type="number" id="f${i}" class="reading-input" placeholder="0.0" oninput="doMath()">
-                <button class="cam-btn" onclick="startScan('f${i}')">📸</button>
-            </td>
+            <td><input type="number" id="i${i}" class="reading-input" placeholder="0.0" oninput="doMath()">
+                <button class="cam-btn" onclick="startScan('i${i}')">📸</button></td>
+            <td><input type="number" id="f${i}" class="reading-input" placeholder="0.0" oninput="doMath()">
+                <button class="cam-btn" onclick="startScan('f${i}')">📸</button></td>
         </tr>`;
     }
 
+    // Auto-load data on startup
+    window.onload = () => {
+        for(let i=1; i<=5; i++){
+            document.getElementById('i'+i).value = localStorage.getItem('i'+i) || '';
+            document.getElementById('f'+i).value = localStorage.getItem('f'+i) || '';
+        }
+        document.getElementById('price').value = localStorage.getItem('price') || '2.18';
+        doMath();
+    };
+
     async function startScan(id) {
-        activeId = id;
-        isScanning = true;
+        activeId = id; isScanning = true;
         document.getElementById('scanner').style.display = 'flex';
-        document.getElementById('guide').classList.remove('found');
-        
         try {
-            stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'environment', width: { ideal: 1280 } }
-            });
+            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 } } });
             document.getElementById('v').srcObject = stream;
             processLoop();
-        } catch (e) {
-            alert("Camera access required.");
-            stopCam();
-        }
+        } catch (e) { alert("Camera error"); stopCam(); }
     }
 
     function stopCam() {
@@ -174,40 +155,20 @@
 
     async function processLoop() {
         if (!isScanning) return;
-
-        const v = document.getElementById('v');
-        const c = document.getElementById('c');
-        const ctx = c.getContext('2d');
-
+        const v = document.getElementById('v'), c = document.getElementById('c'), ctx = c.getContext('2d');
         if (v.readyState === v.HAVE_ENOUGH_DATA) {
             const ratio = v.videoWidth / v.clientWidth;
-            const w = v.videoWidth * 0.8;
-            const h = 95 * ratio; 
-            const x = (v.videoWidth - w) / 2;
-            const y = (v.videoHeight - h) / 2;
-
-            c.width = w; 
-            c.height = h;
-
-            // Pre-process for high accuracy
+            const w = v.videoWidth * 0.8, h = 95 * ratio;
+            const x = (v.videoWidth - w) / 2, y = (v.videoHeight - h) / 2;
+            c.width = w; c.height = h;
             ctx.filter = 'grayscale(1) contrast(2) brightness(1.2)';
             ctx.drawImage(v, x, y, w, h, 0, 0, w, h);
-
             try {
                 const { data: { text, confidence } } = await worker.recognize(c);
-                const clean = text.replace(/\s/g, '');
-                const match = clean.match(/\d+\.\d{1,3}/) || clean.match(/\d{3,}/);
-
+                const match = text.replace(/\s/g, '').match(/\d+\.\d{1,3}/) || text.replace(/\s/g, '').match(/\d{3,}/);
                 if (match && confidence > 50) {
                     document.getElementById(activeId).value = match[0];
-                    document.getElementById('guide').classList.add('found');
-                    document.getElementById('stat').innerText = "MATCH FOUND!";
-                    
-                    setTimeout(() => {
-                        doMath();
-                        stopCam();
-                    }, 400);
-                    return;
+                    doMath(); stopCam(); return;
                 }
             } catch (err) {}
         }
@@ -217,13 +178,28 @@
     function doMath() {
         let ltrs = 0;
         const p = parseFloat(document.getElementById('price').value) || 0;
+        localStorage.setItem('price', p);
         for(let i=1; i<=5; i++) {
             const s = parseFloat(document.getElementById('i'+i).value) || 0;
             const f = parseFloat(document.getElementById('f'+i).value) || 0;
+            localStorage.setItem('i'+i, s || '');
+            localStorage.setItem('f'+i, f || '');
             if(f > s) ltrs += (f - s);
         }
         document.getElementById('dispLtrs').innerText = ltrs.toFixed(3);
         document.getElementById('dispAmt').innerText = (ltrs * p).toFixed(2);
+    }
+
+    function shareWhatsApp() {
+        const ltrs = document.getElementById('dispLtrs').innerText;
+        const total = document.getElementById('dispAmt').innerText;
+        const price = document.getElementById('price').value;
+        const text = `⛽ *FUEL REPORT*%0A------------------%0A*Total Liters:* ${ltrs} L%0A*Price/Unit:* ${price} SAR%0A------------------%0A*TOTAL AMOUNT:* ${total} SAR`;
+        window.open(`https://wa.me/?text=${text}`, '_blank');
+    }
+
+    function clearAll() {
+        if(confirm('Clear all data?')) { localStorage.clear(); location.reload(); }
     }
 </script>
 
