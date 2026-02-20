@@ -3,68 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Station Master - Export Pro</title>
+    <title>Reben Pro Compact</title>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
     <style>
-        :root { --primary: #000DFF; --bg: #f0f2f5; --91: #28a745; --95: #dc3545; --d: #495057; --error: #ff3b30; }
+        :root { --reben-red: #E30613; --bg: #f8f9fa; --91: #28a745; --95: #dc3545; --d: #333; --error: #ff3b30; --wa: #25D366; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
-        body { background: var(--bg); padding-bottom: 220px; }
+        body { background: var(--bg); padding-bottom: 180px; padding-top: 10px; }
         
-        .top-nav { position: sticky; top: 0; z-index: 100; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .header { background: var(--primary); color: white; padding: 12px; text-align: center; }
-        .station-input { width: 90%; margin: 8px auto; display: block; padding: 12px; border-radius: 8px; font-weight: 800; text-align: center; font-size: 16px; outline: none; border: 2px solid #ddd; }
-        .invalid { border-color: var(--error) !important; background-color: #fff0f0 !important; }
+        /* CONDITIONAL FORMATTING */
+        .invalid { border: 2px solid var(--error) !important; background-color: #fff0f0 !important; }
 
-        .price-settings { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 10px; background: #fff; border-bottom: 2px solid #eee; }
-        .p-input { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-        .p-input label { font-size: 9px; font-weight: bold; color: #666; }
-        .p-input input { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; text-align: center; font-weight: bold; font-size: 14px; outline: none; }
+        .top-nav { position: sticky; top: 0; z-index: 100; background: white; margin: 0 10px 15px 10px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; }
+        .station-input { width: 100%; padding: 12px; border: 2px solid transparent; font-weight: 900; text-align: center; font-size: 16px; outline: none; color: var(--reben-red); text-transform: uppercase; }
+        
+        .price-settings { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; padding: 5px 10px 10px 10px; border-top: 1px solid #f0f0f0; }
+        .p-input { display: flex; flex-direction: column; align-items: center; }
+        .p-input label { font-size: 8px; font-weight: 800; color: #999; margin-bottom: 2px; }
+        .p-input input { width: 100%; padding: 6px; border: 1.5px solid #eee; border-radius: 8px; text-align: center; font-weight: 900; font-size: 13px; outline: none; }
 
-        .nozzle-list { padding: 10px; }
-        .nozzle-row { background: white; border-radius: 20px; padding: 15px; margin-bottom: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 10px solid #ccc; }
+        .nozzle-list { padding: 0 10px; }
+        .nozzle-row { background: white; border-radius: 20px; padding: 15px; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-left: 12px solid #ccc; }
         .row-91 { border-left-color: var(--91); }
         .row-95 { border-left-color: var(--95); }
         .row-d { border-left-color: var(--d); }
 
-        .row-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .nozzle-num-input { border: none; font-weight: 900; color: #333; font-size: 1.1rem; width: 110px; outline: none; }
-        .fuel-select { padding: 8px; border-radius: 8px; border: 1px solid #ddd; font-weight: bold; font-size: 13px; }
+        .row-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .nozzle-num-input { border: none; font-weight: 900; color: #222; font-size: 1rem; width: 120px; outline: none; background: transparent; }
+        .fuel-select { padding: 5px 10px; border-radius: 10px; border: none; background: #eee; font-weight: 800; font-size: 11px; }
 
         .scan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .input-grp { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .input-grp label { font-size: 10px; color: #999; font-weight: 800; }
-        .reading-input { width: 100%; padding: 12px 5px; border: 2px solid #f0f2f5; border-radius: 12px; font-weight: 900; font-size: 18px; text-align: center; background: #f8f9fa; }
-        .cam-btn { width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 18px; cursor: pointer; }
+        .input-grp { position: relative; display: flex; flex-direction: column; align-items: center; }
+        .input-grp label { font-size: 9px; color: #888; font-weight: 900; margin-bottom: 5px; }
+        .reading-input { width: 100%; padding: 14px 5px; border: 1.5px solid #f0f2f5; border-radius: 14px; font-weight: 900; font-size: 19px; text-align: center; background: #fafafa; outline: none; }
+        .cam-btn { position: absolute; bottom: 6px; right: 6px; background: #333; color: white; border: none; border-radius: 10px; width: 32px; height: 32px; font-size: 14px; cursor: pointer; }
 
-        .footer-tools { position: fixed; bottom: 0; left: 0; right: 0; background: #111; padding: 15px; border-radius: 25px 25px 0 0; z-index: 200; }
-        .stats { display: flex; justify-content: space-between; margin-bottom: 12px; color: white; font-weight: bold; font-size: 14px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .total-val { color: var(--91); font-size: 24px; font-weight: 900; }
+        .footer-tools { position: fixed; bottom: 0; left: 0; right: 0; background: #111; padding: 15px 15px 25px 15px; border-radius: 25px 25px 0 0; z-index: 200; }
+        .stats { display: flex; justify-content: space-between; margin-bottom: 15px; color: white; align-items: flex-end; }
+        .total-val { color: #fff; font-size: 30px; font-weight: 900; }
+        .shift-label { font-size: 9px; color: #aaa; line-height: 1.4; font-weight: bold; }
+
+        .action-row { display: grid; grid-template-columns: 1fr 1fr 1.2fr 1fr 0.8fr; gap: 6px; align-items: center; }
+        .tool-btn { border: none; border-radius: 14px; font-weight: 800; font-size: 10px; height: 50px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
         
-        .btn-group { display: flex; flex-direction: column; gap: 8px; }
-        .row-btns { display: flex; gap: 8px; }
-        .add-btn { flex: 1; padding: 12px; background: white; color: black; border-radius: 12px; font-weight: 900; border: none; }
-        .wa-btn { flex: 2; padding: 12px; background: #25D366; color: white; border-radius: 12px; font-weight: 900; border: none; }
-        .dl-btn { flex: 1; padding: 10px; background: #555; color: white; border-radius: 10px; font-weight: bold; border: none; font-size: 12px; }
+        .btn-add { background: #fff; color: #000; font-size: 22px; }
+        .btn-xl { background: #1D6F42; color: #fff; }
+        .btn-next { background: #FF9500; color: #fff; }
+        .btn-pdf { background: var(--reben-red); color: #fff; }
+        .btn-wa { background: var(--wa); color: #fff; font-size: 24px; }
 
+        /* SCANNER UI */
         .modal { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; flex-direction: column; }
-        .cam-view { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; }
+        .cam-view { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         video { width: 100%; height: 100%; object-fit: cover; }
-        .guide { position: absolute; width: 85%; height: 95px; border: 3px solid #0f0; border-radius: 18px; box-shadow: 0 0 0 3000px rgba(0,0,0,0.7); }
+        .guide { position: absolute; width: 80%; height: 80px; border: 3px solid var(--wa); border-radius: 15px; box-shadow: 0 0 0 4000px rgba(0,0,0,0.7); z-index: 5; }
+        .flash-success { position: absolute; inset: 0; background: var(--wa); opacity: 0; z-index: 10; pointer-events: none; }
+        
+        @keyframes flashAnim { 0% { opacity: 0.7; } 100% { opacity: 0; } }
+        .trigger-flash { animation: flashAnim 0.3s ease-out forwards; }
     </style>
 </head>
 <body>
 
 <div class="top-nav">
-    <div class="header"><h1>REBEN STATION PRO v11</h1></div>
-    <input type="text" id="station-name" class="station-input" placeholder="* STATION NAME REQUIRED">
+    <input type="text" id="sn" class="station-input" placeholder="STATION NAME" oninput="saveMem()">
     <div class="price-settings">
-        <div class="p-input"><label>PRICE 91</label><input type="number" id="global-p91" placeholder="0.00" step="0.01" oninput="doMath()"></div>
-        <div class="p-input"><label>PRICE 95</label><input type="number" id="global-p95" placeholder="0.00" step="0.01" oninput="doMath()"></div>
-        <div class="p-input"><label>DIESEL</label><input type="number" id="global-pd" placeholder="0.00" step="0.01" oninput="doMath()"></div>
+        <div class="p-input"><label>PRICE 91</label><input type="number" id="p91" step="0.01" oninput="doMath(); saveMem()"></div>
+        <div class="p-input"><label>PRICE 95</label><input type="number" id="p95" step="0.01" oninput="doMath(); saveMem()"></div>
+        <div class="p-input"><label>DIESEL</label><input type="number" id="pd" step="0.01" oninput="doMath(); saveMem()"></div>
     </div>
 </div>
 
@@ -72,200 +82,269 @@
 
 <div class="footer-tools">
     <div class="stats">
-        <div id="summary-text" style="font-size: 11px; line-height: 1.4;">
-            91: <span id="sum91">0</span>L | 95: <span id="sum95">0</span>L | D: <span id="sumD">0</span>L
+        <div class="shift-label">
+            <span id="shift-text">SHIFT DATA</span><br>
+            91: <span id="sum91" style="color:var(--91)">0</span> | 95: <span id="sum95" style="color:var(--95)">0</span> | D: <span id="sumD">0</span>
         </div>
         <div class="total-val" id="grandTotal">0.00</div>
     </div>
-    <div class="btn-group">
-        <div class="row-btns">
-            <button class="add-btn" onclick="addNewNozzle()">+ NOZZLE</button>
-            <button class="wa-btn" onclick="shareWA()">WHATSAPP</button>
-        </div>
-        <div class="row-btns">
-            <button class="dl-btn" style="background:#007bff" onclick="exportExcel()">EXCEL (.xlsx)</button>
-            <button class="dl-btn" style="background:#dc3545" onclick="exportPDF()">PDF (.pdf)</button>
-        </div>
+    <div class="action-row">
+        <button class="tool-btn btn-add" onclick="addNewNozzle()"><i class="fa-solid fa-plus"></i></button>
+        <button class="tool-btn btn-xl" onclick="exportExcel()"><b>EXCEL</b></button>
+        <button class="tool-btn btn-next" onclick="rotateShift()"><b>NEXT<br>SHIFT</b></button>
+        <button class="tool-btn btn-pdf" onclick="exportPDF()"><b>PDF</b></button>
+        <button class="tool-btn btn-wa" onclick="shareWA()"><i class="fa-brands fa-whatsapp"></i></button>
     </div>
 </div>
 
 <div class="modal" id="scanner">
-    <div class="cam-view"><video id="v" autoplay playsinline></video><div class="guide"></div></div>
-    <div style="background:#000; padding:30px; text-align:center"><button onclick="stopCam()" style="background:#ff3b30; color:white; border:none; padding:15px 40px; border-radius:30px; font-weight:bold">CANCEL</button></div>
+    <div class="cam-view">
+        <div id="flash" class="flash-success"></div>
+        <video id="v" autoplay playsinline></video>
+        <div class="guide"></div>
+    </div>
+    <div style="background:#000; padding:25px; text-align:center">
+        <button onclick="stopCam()" style="background:#333; color:white; border:none; padding:15px 50px; border-radius:30px; font-weight:bold; font-size: 14px;">CLOSE SCANNER</button>
+    </div>
     <canvas id="c" style="display:none"></canvas>
 </div>
 
 <script>
     let nozzleCount = 0, activeId = null, stream = null, isScanning = false, worker = null;
+    let isDayTime = true;
 
+    // OCR INITIALIZATION - Optimized Sensitivity
     async function initAI() {
         worker = await Tesseract.createWorker();
         await worker.loadLanguage('eng');
         await worker.initialize('eng');
-        await worker.setParameters({ tessedit_char_whitelist: '0123456789.', tessedit_pageseg_mode: '7' });
+        // Whitelist restricted to digits and dot for high-speed matching
+        await worker.setParameters({ 
+            tessedit_char_whitelist: '0123456789.', 
+            tessedit_pageseg_mode: '7',
+            tessjs_create_hocr: '0',
+            tessjs_create_tsv: '0'
+        });
     }
     initAI();
 
-    function addNewNozzle() {
+    function validate() {
+        const fields = [document.getElementById('sn'), document.getElementById('p91'), document.getElementById('p95'), document.getElementById('pd')];
+        let valid = true;
+        fields.forEach(f => {
+            f.classList.remove('invalid');
+            if(!f.value || f.value.trim() === "" || parseFloat(f.value) <= 0) { f.classList.add('invalid'); valid = false; }
+        });
+        if(!valid) alert("Check Station Name & Prices!");
+        return valid;
+    }
+
+    function addNewNozzle(saved = null) {
         nozzleCount++;
         const id = nozzleCount;
         const div = document.createElement('div');
-        div.className = `nozzle-row row-91`;
+        div.className = `nozzle-row row-${saved ? saved.type : '91'}`;
         div.id = `card-${id}`;
+        
+        const labelI = isDayTime ? "INITIAL (6 AM)" : "INITIAL (6 PM)";
+        const labelF = isDayTime ? "FINAL (6 PM)" : "FINAL (6 AM)";
+
         div.innerHTML = `
             <div class="row-top">
-                <input class="nozzle-num-input" value="Nozzle ${id}" id="name-${id}">
-                <select class="fuel-select" id="type-${id}" onchange="updateRowColor(${id})">
-                    <option value="91">91</option>
-                    <option value="95">95</option>
-                    <option value="D">Diesel</option>
+                <input class="nozzle-num-input" value="${saved ? saved.name : 'Nozzle ' + id}" id="name-${id}" oninput="saveMem()">
+                <select class="fuel-select" id="type-${id}" onchange="updateRowColor(${id}); saveMem()">
+                    <option value="91" ${saved?.type=='91'?'selected':''}>91</option>
+                    <option value="95" ${saved?.type=='95'?'selected':''}>95</option>
+                    <option value="D" ${saved?.type=='D'?'selected':''}>Diesel</option>
                 </select>
+                <button onclick="this.parentElement.parentElement.remove(); doMath(); saveMem();" style="border:none; background:none; color:#ddd"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="scan-grid">
-                <div class="input-grp"><label>INITIAL</label><input type="number" id="i${id}" class="reading-input" placeholder="0.0" oninput="doMath()"><button class="cam-btn" onclick="startScan('i${id}')">📸</button></div>
-                <div class="input-grp"><label>FINAL</label><input type="number" id="f${id}" class="reading-input" placeholder="0.0" oninput="doMath()"><button class="cam-btn" onclick="startScan('f${id}')">📸</button></div>
+                <div class="input-grp">
+                    <label class="lbl-init">${labelI}</label>
+                    <input type="number" id="i${id}" class="reading-input" value="${saved?saved.init:''}" oninput="doMath(); saveMem()">
+                    <button class="cam-btn" onclick="startScan('i${id}')"><i class="fa-solid fa-camera"></i></button>
+                </div>
+                <div class="input-grp">
+                    <label class="lbl-final">${labelF}</label>
+                    <input type="number" id="f${id}" class="reading-input" value="${saved?saved.final:''}" oninput="doMath(); saveMem()">
+                    <button class="cam-btn" onclick="startScan('f${id}')"><i class="fa-solid fa-camera"></i></button>
+                </div>
             </div>
         `;
         document.getElementById('list').appendChild(div);
-        window.scrollTo(0, document.body.scrollHeight);
+        if(!saved) window.scrollTo(0, document.body.scrollHeight);
     }
 
-    function updateRowColor(id) {
-        document.getElementById(`card-${id}`).className = `nozzle-row row-${document.getElementById(`type-${id}`).value.toLowerCase()}`;
+    function rotateShift() {
+        if(!confirm("Switching Shift: Final readings will become Initial readings. Continue?")) return;
+        isDayTime = !isDayTime;
+        document.getElementById('shift-text').innerText = isDayTime ? "DAY SHIFT (6AM-6PM)" : "NIGHT SHIFT (6PM-6AM)";
+        
+        document.querySelectorAll('.nozzle-row').forEach(row => {
+            const id = row.id.split('-')[1];
+            document.getElementById(`i${id}`).value = document.getElementById(`f${id}`).value;
+            document.getElementById(`f${id}`).value = "";
+            row.querySelector('.lbl-init').innerText = isDayTime ? "INITIAL (6 AM)" : "INITIAL (6 PM)";
+            row.querySelector('.lbl-final').innerText = isDayTime ? "FINAL (6 PM)" : "FINAL (6 AM)";
+        });
         doMath();
+        saveMem();
     }
 
-    async function startScan(id) {
-        activeId = id; isScanning = true;
-        document.getElementById('scanner').style.display = 'flex';
-        try {
-            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 } } });
-            document.getElementById('v').srcObject = stream;
-            tick();
-        } catch (e) { stopCam(); }
+    // --- ENHANCED OCR LOGIC ---
+    async function startScan(id) { 
+        activeId = id; 
+        isScanning = true; 
+        document.getElementById('scanner').style.display = 'flex'; 
+        try { 
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } } 
+            }); 
+            document.getElementById('v').srcObject = stream; 
+            requestAnimationFrame(tick); 
+        } catch (e) { stopCam(); } 
     }
 
-    function stopCam() {
-        isScanning = false;
-        if(stream) stream.getTracks().forEach(t => t.stop());
-        document.getElementById('scanner').style.display = 'none';
-    }
+    function stopCam() { isScanning = false; if(stream) stream.getTracks().forEach(t => t.stop()); document.getElementById('scanner').style.display = 'none'; }
 
     async function tick() {
         if (!isScanning) return;
         const v = document.getElementById('v'), c = document.getElementById('c'), ctx = c.getContext('2d');
         if (v.readyState === v.HAVE_ENOUGH_DATA) {
             const ratio = v.videoWidth / v.clientWidth;
-            const w = v.videoWidth * 0.8, h = 95 * ratio;
+            const w = v.videoWidth * 0.7, h = 80 * ratio;
             const x = (v.videoWidth - w) / 2, y = (v.videoHeight - h) / 2;
             c.width = w; c.height = h;
-            ctx.filter = 'grayscale(1) contrast(2) brightness(1.2)';
+            
+            // Image enhancement for pump screens
+            ctx.filter = 'contrast(1.6) grayscale(1) brightness(1.1)';
             ctx.drawImage(v, x, y, w, h, 0, 0, w, h);
+            
             try {
                 const { data: { text, confidence } } = await worker.recognize(c);
                 const match = text.replace(/\s/g, '').match(/\d+\.\d{1,3}/) || text.replace(/\s/g, '').match(/\d{3,}/);
-                if (match && confidence > 50) { document.getElementById(activeId).value = match[0]; doMath(); stopCam(); return; }
+                
+                if (match && confidence > 65) { 
+                    // Success!
+                    document.getElementById('flash').classList.add('trigger-flash');
+                    document.getElementById(activeId).value = match[0]; 
+                    doMath(); 
+                    saveMem();
+                    setTimeout(() => {
+                        document.getElementById('flash').classList.remove('trigger-flash');
+                        stopCam();
+                    }, 400);
+                    return; 
+                }
             } catch (err) {}
         }
-        if (isScanning) setTimeout(tick, 500);
+        if (isScanning) setTimeout(() => requestAnimationFrame(tick), 100);
     }
 
     function doMath() {
-        let gt = 0, l91 = 0, l95 = 0, ld = 0;
-        const p91 = parseFloat(document.getElementById('global-p91').value) || 0;
-        const p95 = parseFloat(document.getElementById('global-p95').value) || 0;
-        const pd = parseFloat(document.getElementById('global-pd').value) || 0;
-        for (let i = 1; i <= nozzleCount; i++) {
-            const type = document.getElementById(`type-${i}`).value;
-            const init = parseFloat(document.getElementById(`i${i}`).value) || 0;
-            const final = parseFloat(document.getElementById(`f${i}`).value) || 0;
-            let diff = final > init ? final - init : 0;
-            if (type === "91") { l91 += diff; gt += diff * p91; }
-            if (type === "95") { l95 += diff; gt += diff * p95; }
-            if (type === "D") { ld += diff; gt += diff * pd; }
-        }
-        document.getElementById('sum91').innerText = l91.toFixed(2);
-        document.getElementById('sum95').innerText = l95.toFixed(2);
-        document.getElementById('sumD').innerText = ld.toFixed(2);
-        document.getElementById('grandTotal').innerText = gt.toFixed(2);
+        let total = 0, q91 = 0, q95 = 0, qd = 0;
+        const pr91 = parseFloat(document.getElementById('p91').value) || 0;
+        const pr95 = parseFloat(document.getElementById('p95').value) || 0;
+        const prd = parseFloat(document.getElementById('pd').value) || 0;
+        document.querySelectorAll('.nozzle-row').forEach(row => {
+            const id = row.id.split('-')[1];
+            const type = document.getElementById(`type-${id}`).value;
+            const diff = Math.max(0, (document.getElementById(`f${id}`).value - document.getElementById(`i${id}`).value) || 0);
+            if(type === '91') { q91 += diff; total += diff * pr91; }
+            else if(type === '95') { q95 += diff; total += diff * pr95; }
+            else { qd += diff; total += diff * prd; }
+        });
+        document.getElementById('sum91').innerText = q91.toFixed(2);
+        document.getElementById('sum95').innerText = q95.toFixed(2);
+        document.getElementById('sumD').innerText = qd.toFixed(2);
+        document.getElementById('grandTotal').innerText = total.toFixed(2).toLocaleString();
     }
 
-    function validate() {
-        const sName = document.getElementById('station-name');
-        const p91 = document.getElementById('global-p91'), p95 = document.getElementById('global-p95'), pd = document.getElementById('global-pd');
-        [sName, p91, p95, pd].forEach(el => el.classList.remove('invalid'));
-        if(!sName.value.trim() || !parseFloat(p91.value) || !parseFloat(p95.value) || !parseFloat(pd.value)) {
-            if(!sName.value.trim()) sName.classList.add('invalid');
-            if(!parseFloat(p91.value)) p91.classList.add('invalid');
-            if(!parseFloat(p95.value)) p95.classList.add('invalid');
-            if(!parseFloat(pd.value)) pd.classList.add('invalid');
-            alert("⚠️ Please fill Station Name and all Prices!");
-            return false;
-        }
-        return true;
+    function saveMem() {
+        const data = {
+            sn: document.getElementById('sn').value,
+            p91: document.getElementById('p91').value,
+            p95: document.getElementById('p95').value,
+            pd: document.getElementById('pd').value,
+            day: isDayTime,
+            nozzles: []
+        };
+        document.querySelectorAll('.nozzle-row').forEach(row => {
+            const id = row.id.split('-')[1];
+            data.nozzles.push({
+                name: document.getElementById(`name-${id}`).value,
+                type: document.getElementById(`type-${id}`).value,
+                init: document.getElementById(`i${id}`).value,
+                final: document.getElementById(`f${id}`).value
+            });
+        });
+        localStorage.setItem('reben_compact_final', JSON.stringify(data));
     }
 
-    function getReportData() {
-        const p91 = parseFloat(document.getElementById('global-p91').value);
-        const p95 = parseFloat(document.getElementById('global-p95').value);
-        const pd = parseFloat(document.getElementById('global-pd').value);
-        const data = [];
-        for (let i = 1; i <= nozzleCount; i++) {
-            const name = document.getElementById(`name-${i}`).value;
-            const type = document.getElementById(`type-${i}`).value;
-            const init = parseFloat(document.getElementById(`i${i}`).value) || 0;
-            const final = parseFloat(document.getElementById(`f${i}`).value) || 0;
-            const price = type === "91" ? p91 : type === "95" ? p95 : pd;
-            const ltrs = final > init ? final - init : 0;
-            data.push({ Nozzle: name, Fuel: type, Initial: init, Final: final, Liters: ltrs.toFixed(2), Total_SAR: (ltrs * price).toFixed(2) });
-        }
-        return data;
+    function loadMem() {
+        const stored = localStorage.getItem('reben_compact_final');
+        if(stored) {
+            const data = JSON.parse(stored);
+            document.getElementById('sn').value = data.sn || "";
+            document.getElementById('p91').value = data.p91 || "";
+            document.getElementById('p95').value = data.p95 || "";
+            document.getElementById('pd').value = data.pd || "";
+            isDayTime = data.day;
+            document.getElementById('shift-text').innerText = isDayTime ? "DAY SHIFT (6AM-6PM)" : "NIGHT SHIFT (6PM-6AM)";
+            data.nozzles.forEach(n => addNewNozzle(n));
+            doMath();
+        } else { addNewNozzle(); }
+    }
+
+    function updateRowColor(id) {
+        const type = document.getElementById(`type-${id}`).value;
+        document.getElementById(`card-${id}`).className = `nozzle-row row-${type.toLowerCase()}`;
+        doMath();
     }
 
     function shareWA() {
         if(!validate()) return;
-        const station = document.getElementById('station-name').value;
-        const gt = document.getElementById('grandTotal').innerText;
-        let msg = `🏪 *${station.toUpperCase()}*%0A💰 *TOTAL:* ${gt} SAR%0A%0A`;
-        getReportData().forEach(r => { msg += `📍 ${r.Nozzle} (${r.Fuel}): ${r.Initial} -> ${r.Final}%0A`; });
+        const station = document.getElementById('sn').value.toUpperCase();
+        let msg = `🏪 *${station}*%0A📅 *${isDayTime?'DAY':'NIGHT'} SHIFT*%0A💰 *TOTAL:* ${document.getElementById('grandTotal').innerText} SAR%0A%0A`;
+        document.querySelectorAll('.nozzle-row').forEach(row => {
+            const id = row.id.split('-')[1];
+            msg += `📍 ${document.getElementById(`name-${id}`).value}: ${document.getElementById(`i${id}`).value} -> ${document.getElementById(`f${id}`).value}%0A`;
+        });
         window.open(`https://wa.me/?text=${msg}`, '_blank');
     }
 
     function exportExcel() {
         if(!validate()) return;
-        const data = getReportData();
+        const data = [];
+        document.querySelectorAll('.nozzle-row').forEach(row => {
+            const id = row.id.split('-')[1];
+            data.push({ Nozzle: document.getElementById(`name-${id}`).value, Fuel: document.getElementById(`type-${id}`).value, Start: document.getElementById(`i${id}`).value, End: document.getElementById(`f${id}`).value });
+        });
         const ws = XLSX.utils.json_to_sheet(data);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Station Report");
-        XLSX.writeFile(wb, `${document.getElementById('station-name').value}_Report.xlsx`);
+        XLSX.utils.book_append_sheet(wb, ws, "Report");
+        XLSX.writeFile(wb, `${document.getElementById('sn').value}_Report.xlsx`);
     }
 
     function exportPDF() {
         if(!validate()) return;
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        const station = document.getElementById('station-name').value.toUpperCase();
-        
-        doc.setFontSize(18); doc.text(station, 14, 20);
-        doc.setFontSize(10); doc.text(`Date: ${new Date().toLocaleString()}`, 14, 28);
-        
-        const summary = [
-            ["Fuel Type", "Total Liters", "Price", "Subtotal SAR"],
-            ["Octane 91", document.getElementById('sum91').innerText, document.getElementById('global-p91').value, (parseFloat(document.getElementById('sum91').innerText) * parseFloat(document.getElementById('global-p91').value)).toFixed(2)],
-            ["Octane 95", document.getElementById('sum95').innerText, document.getElementById('global-p95').value, (parseFloat(document.getElementById('sum95').innerText) * parseFloat(document.getElementById('global-p95').value)).toFixed(2)],
-            ["Diesel", document.getElementById('sumD').innerText, document.getElementById('global-pd').value, (parseFloat(document.getElementById('sumD').innerText) * parseFloat(document.getElementById('global-pd').value)).toFixed(2)],
-            [{content: "GRAND TOTAL", colSpan: 3, styles: {halign: 'right', fontStyle: 'bold'}}, {content: document.getElementById('grandTotal').innerText + " SAR", styles: {fontStyle: 'bold'}}]
-        ];
-
-        doc.autoTable({ head: [summary[0]], body: summary.slice(1, 5), startY: 35, theme: 'striped' });
-        
-        const details = getReportData().map(r => [r.Nozzle, r.Fuel, r.Initial, r.Final, r.Liters, r.Total_SAR]);
-        doc.autoTable({ head: [["Nozzle", "Type", "Initial", "Final", "Liters", "SAR"]], body: details, startY: doc.lastAutoTable.finalY + 10 });
-        
-        doc.save(`${station}_Report.pdf`);
+        doc.setFontSize(18);
+        doc.text(`REBEN: ${document.getElementById('sn').value.toUpperCase()}`, 14, 20);
+        doc.setFontSize(10);
+        doc.text(`Shift: ${isDayTime?'Day (6AM-6PM)':'Night (6PM-6AM)'}`, 14, 28);
+        const rows = [];
+        document.querySelectorAll('.nozzle-row').forEach(row => {
+            const id = row.id.split('-')[1];
+            rows.push([document.getElementById(`name-${id}`).value, document.getElementById(`type-${id}`).value, document.getElementById(`i${id}`).value, document.getElementById(`f${id}`).value]);
+        });
+        doc.autoTable({ head: [["Nozzle", "Type", "Start", "End"]], body: rows, startY: 35, theme: 'grid' });
+        doc.save("Report.pdf");
     }
 
-    addNewNozzle(); addNewNozzle();
+    window.onload = loadMem;
 </script>
 </body>
 </html>
