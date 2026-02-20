@@ -252,30 +252,27 @@
     }
 
     function getNowStr() {
-        return new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-');
+        return new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, ' - ');
     }
 
     function shareWA() {
         if(!validate()) { alert("Please complete Station Name and Prices"); return; }
         const station = document.getElementById('sn').value.toUpperCase();
         const shift = isDayTime ? "Day" : "Night";
+        const time = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
         
-        let msg = `🏪 *${station}*%0A`;
-        msg += `       Date ${getNowStr()}%0A`;
-        msg += `       Shift - ${shift}%0A%0A`;
-        msg += `⛽ *91 Total:* ${document.getElementById('sum91').innerText} L%0A`;
-        msg += `⛽ *95 Total:* ${document.getElementById('sum95').innerText} L%0A`;
-        msg += `⛽ *Diesel Total:* ${document.getElementById('sumD').innerText} L%0A`;
-        msg += `💰 *GRAND TOTAL:* ${document.getElementById('grandTotal').innerText} SAR%0A%0A`;
-        msg += `Fuel Price -%0A`;
-        msg += ` 91- ${document.getElementById('p91').value}%0A`;
-        msg += ` 95 - ${document.getElementById('p95').value}%0A`;
-        msg += ` D  - ${document.getElementById('pd').value}%0A%0A`;
-        msg += `--- NOZZLE DETAILS ---%0A`;
-        document.querySelectorAll('.nozzle-row').forEach(row => {
-            const id = row.id.split('-')[1];
-            msg += `📍 ${document.getElementById(`name-${id}`).value} (${document.getElementById(`type-${id}`).value}): ${document.getElementById(`i${id}`).value || "0"} -> ${document.getElementById(`f${id}`).value || "0"}%0A`;
-        });
+        let msg = `🏪 *Station Report*%0A%0A`;
+        msg += `    *${station}*%0A`;
+        msg += `     Date ${getNowStr()}%0A`;
+        msg += `     Shift - ${shift}%0A`;
+        msg += `     Reporting Time - ${time}%0A%0A`;
+        msg += `---- SUMMARY ----%0A%0A`;
+        msg += `🟢 *91 Total:* ${document.getElementById('sum91').innerText} L%0A`;
+        msg += `🔴 *95 Total:* ${document.getElementById('sum95').innerText} L%0A`;
+        msg += `🔵 *Diesel Total:* ${document.getElementById('sumD').innerText} L%0A`;
+        msg += `💰 *Total Amount:* ${document.getElementById('grandTotal').innerText} SAR%0A%0A%0A%0A`;
+        msg += `*Designed by Mozahid*`;
+        
         window.open(`https://wa.me/?text=${msg}`, '_blank');
     }
 
