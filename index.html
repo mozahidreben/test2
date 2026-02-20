@@ -3,231 +3,721 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Reben Pro - Wide Input Edition</title>
+    <title>Reben Pro - Universal Auto-Scan</title>
     <style>
-        :root { --primary: #000DFF; --success: #28a745; --bg: #f0f4f8; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
-        body { background: var(--bg); padding: 10px; }
-        
-        .container { max-width: 600px; margin: auto; background: white; border-radius: 25px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.1); }
-        .header { background: var(--primary); color: white; padding: 25px; text-align: center; }
-        .header h1 { font-size: 1.6rem; font-weight: 800; text-transform: uppercase; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
 
-        .content { padding: 10px; }
-        
-        /* Table & Wide Input Styling */
-        table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
-        th { font-size: 11px; color: #888; text-transform: uppercase; padding-bottom: 5px; }
-        td { padding: 10px 5px; vertical-align: middle; text-align: center; background: #fff; }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-        /* LARGE INPUT BOXES */
-        .reading-input { 
-            width: 120px; /* Increased Width */
-            padding: 15px 5px; /* Increased Padding */
-            border: 2px solid #e0e6ed; 
-            border-radius: 12px; 
-            font-weight: 900; 
-            font-size: 18px; /* Increased Font Size */
-            text-align: center; 
-            outline: none; 
+        .container {
+            max-width: 800px;
+            width: 100%;
+            margin: auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .content {
+            padding: 24px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        th {
+            background: #f3f4f6;
+            padding: 15px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #4b5563;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            border: 1px solid #e5e7eb;
+            padding: 12px;
+            text-align: center;
+            background: white;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .reading-input {
+            width: 100px;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .reading-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .cam-btn {
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .cam-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .cam-btn:active {
+            transform: translateY(0);
+        }
+
+        .calc-box {
             background: #f9fafb;
-            color: #333;
-            transition: 0.3s;
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid #e5e7eb;
+            margin-top: 20px;
         }
-        .reading-input:focus { border-color: var(--primary); background: #fff; box-shadow: 0 4px 12px rgba(0,13,255,0.1); }
-        
-        .cam-btn { 
-            width: 48px; 
-            height: 48px; 
-            background: var(--primary); 
-            color: white; 
-            border: none; 
-            border-radius: 15px; 
-            cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            margin: 5px auto; 
-            font-size: 20px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+
+        .price-input {
+            margin-bottom: 20px;
         }
-        .cam-btn:active { transform: scale(0.9); }
 
-        /* Calculation Section */
-        .calc-box { background: #111; color: white; padding: 25px; border-radius: 20px; margin-top: 10px; }
-        .res-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .res-val { font-weight: 900; font-size: 22px; color: var(--success); }
-        .price-tag { background: #222; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 10px; width: 80px; text-align: center; font-size: 16px; }
-
-        /* Pro Scanner View */
-        .modal { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; flex-direction: column; }
-        .cam-view { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        video { width: 100%; height: 100%; object-fit: cover; }
-        
-        .guide { 
-            position: absolute; width: 80%; height: 90px; 
-            border: 3px solid #00ff00; border-radius: 15px; 
-            box-shadow: 0 0 0 3000px rgba(0,0,0,0.7); z-index: 10; 
+        .price-input label {
+            font-weight: 600;
+            color: #4b5563;
+            margin-right: 10px;
         }
-        .scan-line { position: absolute; width: 100%; height: 2px; background: #00ff00; box-shadow: 0 0 15px #00ff00; animation: scan 2s infinite ease-in-out; }
-        @keyframes scan { 0%, 100% { top: 0; } 50% { top: 100%; } }
 
-        .ui-panel { background: #000; padding: 40px 20px; text-align: center; }
-        .status { color: #00ff00; font-weight: bold; margin-bottom: 20px; letter-spacing: 1px; }
-        .close-btn { background: #ff3b30; color: white; border: none; padding: 18px 60px; border-radius: 40px; font-weight: bold; cursor: pointer; }
+        .price-input input {
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 16px;
+            width: 120px;
+            transition: all 0.2s;
+        }
+
+        .price-input input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .res-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 2px solid #e5e7eb;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .res-row:last-child {
+            border-bottom: none;
+        }
+
+        .res-row span:last-child {
+            color: #059669;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .clear-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            margin-top: 20px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(220,38,38,0.2);
+        }
+
+        .clear-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(220,38,38,0.3);
+        }
+
+        .clear-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Modal & Scanner UI */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .cam-wrap {
+            position: relative;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            border: 3px solid rgba(255,255,255,0.2);
+        }
+
+        video {
+            width: 100%;
+            display: block;
+            transform: scale(1.02);
+        }
+
+        .guide-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85%;
+            height: 80px;
+            border: 3px solid #10b981;
+            border-radius: 16px;
+            box-shadow: 0 0 0 1000px rgba(0,0,0,0.7), 0 0 20px rgba(16,185,129,0.5);
+            z-index: 5;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { border-color: #10b981; box-shadow: 0 0 0 1000px rgba(0,0,0,0.7), 0 0 20px rgba(16,185,129,0.5); }
+            50% { border-color: #34d399; box-shadow: 0 0 0 1000px rgba(0,0,0,0.7), 0 0 40px rgba(52,211,153,0.8); }
+            100% { border-color: #10b981; box-shadow: 0 0 0 1000px rgba(0,0,0,0.7), 0 0 20px rgba(16,185,129,0.5); }
+        }
+
+        .scanner-line {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #10b981, #34d399, #10b981, transparent);
+            box-shadow: 0 0 20px #10b981;
+            animation: scanMove 1.5s ease-in-out infinite;
+            z-index: 6;
+            border-radius: 2px;
+        }
+
+        @keyframes scanMove {
+            0% { top: 0; opacity: 0; }
+            10% { opacity: 1; }
+            50% { top: calc(100% - 4px); opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 0; opacity: 0; }
+        }
+
+        .status-tag {
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            color: #10b981;
+            padding: 16px 32px;
+            border-radius: 50px;
+            margin-top: 30px;
+            font-weight: 600;
+            font-size: 18px;
+            letter-spacing: 1px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            animation: glow 2s infinite;
+        }
+
+        @keyframes glow {
+            0% { text-shadow: 0 0 10px #10b981; }
+            50% { text-shadow: 0 0 20px #34d399, 0 0 30px #10b981; }
+            100% { text-shadow: 0 0 10px #10b981; }
+        }
+
+        .cancel-btn {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.2);
+            padding: 16px 40px;
+            border-radius: 50px;
+            margin-top: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 1px;
+        }
+
+        .cancel-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.05);
+        }
+
+        .cancel-btn:active {
+            transform: scale(0.95);
+        }
+
+        .detected-number {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(16,185,129,0.9);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 24px;
+            font-weight: 700;
+            z-index: 10;
+            backdrop-filter: blur(5px);
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translate(-50%, -20px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(16,185,129,0.3);
+            transform: scale(0);
+            animation: ripple 1s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            to { transform: scale(4); opacity: 0; }
+        }
+
+        /* Loading spinner */
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header"><h1>REBEN PRO v6</h1></div>
+    <div class="header">
+        <h1>⚡ Reben Pro Scanner ⚡</h1>
+    </div>
     <div class="content">
         <table>
-            <thead><tr><th>#</th><th>Initial Reading</th><th>Final Reading</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Initial Reading</th>
+                    <th>Final Reading</th>
+                </tr>
+            </thead>
             <tbody id="rows"></tbody>
         </table>
 
         <div class="calc-box">
-            <div class="res-row">
-                <span>Unit Price (SAR)</span>
-                <input type="number" id="price" value="2.18" step="0.01" class="price-tag" oninput="doMath()">
+            <div class="price-input">
+                <label>Price (SAR/L):</label>
+                <input type="number" id="price" value="2.18" step="0.01" oninput="doMath()">
             </div>
             <div class="res-row">
-                <span style="color:#aaa">Total Liters</span>
-                <span id="dispLtrs" class="res-val" style="color:#fff">0.000</span>
+                <span>Total Liters:</span>
+                <span id="dispLtrs">0.000</span>
             </div>
-            <div class="res-row" style="border-top: 1px solid #222; padding-top: 15px;">
-                <span style="font-weight:bold">TOTAL SAR</span>
-                <span id="dispAmt" class="res-val" style="font-size: 30px;">0.00</span>
+            <div class="res-row">
+                <span>Total Amount:</span>
+                <span id="dispAmt">0.00 SAR</span>
             </div>
-            <button onclick="if(confirm('Clear Data?')) location.reload()" style="width:100%; background:none; border:none; color:#555; font-size:12px; cursor:pointer; margin-top:10px">RESET ALL FIELDS</button>
+            <button class="clear-btn" onclick="reset()">
+                🔄 Reset All Readings
+            </button>
         </div>
     </div>
 </div>
 
-<div class="modal" id="scanner">
-    <div class="cam-view">
+<div class="modal" id="camModal">
+    <div class="cam-wrap">
         <video id="v" autoplay playsinline></video>
-        <div class="guide"><div class="scan-line"></div></div>
+        <div class="guide-box">
+            <div class="scanner-line"></div>
+        </div>
+        <div id="detectedNumber" class="detected-number" style="display: none;"></div>
     </div>
-    <div class="ui-panel">
-        <div class="status" id="stat">WAITING FOR AI...</div>
-        <button class="close-btn" onclick="stopCam()">CANCEL SCAN</button>
+    <div class="status-tag" id="statusText">
+        <span class="spinner"></span>
+        POSITION NUMBER IN GREEN BOX
     </div>
-    <canvas id="c" style="display:none"></canvas>
+    <button class="cancel-btn" onclick="stopCam()">✕ CANCEL</button>
 </div>
+
+<canvas id="c" style="display: none;"></canvas>
 
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 <script>
+    // Configuration
+    const CONFIG = {
+        SCAN_INTERVAL: 300, // Reduced for faster scanning
+        CONFIDENCE_THRESHOLD: 70,
+        MAX_RETRIES: 3,
+        WORKER_PATH: 'https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/worker.min.js',
+        CORE_PATH: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@4/tesseract-core.wasm.js'
+    };
+
     let activeId = null;
     let stream = null;
     let isScanning = false;
-    let worker = null;
+    let scanRetries = 0;
+    let lastDetectedText = '';
+    let stableDetections = 0;
+    const REQUIRED_STABLE_DETECTIONS = 2; // Reduced for faster confirmation
 
-    // Load AI Engine on Startup
-    async function initAI() {
-        worker = await Tesseract.createWorker();
-        await worker.loadLanguage('eng');
-        await worker.initialize('eng');
-        await worker.setParameters({
-            tessedit_char_whitelist: '0123456789.',
-            tessedit_pageseg_mode: '7' // Single line optimization
-        });
-        document.getElementById('stat').innerText = "AI READY";
-    }
-    initAI();
+    // Initialize Tesseract with better performance settings
+    const worker = Tesseract.createWorker({
+        workerPath: CONFIG.WORKER_PATH,
+        corePath: CONFIG.CORE_PATH,
+        logger: m => console.log(m) // Optional: remove in production
+    });
 
-    // Generate Rows
-    const tbody = document.getElementById('rows');
-    for(let i=1; i<=5; i++) {
-        tbody.innerHTML += `<tr>
-            <td style="color:#ccc; font-weight:bold">${i}</td>
+    // Initialize table rows
+    const rows = document.getElementById('rows');
+    for(let i = 1; i <= 5; i++) {
+        rows.innerHTML += `<tr>
+            <td><strong>#${i}</strong></td>
             <td>
-                <input type="number" id="i${i}" class="reading-input" placeholder="0.00" oninput="doMath()">
-                <button class="cam-btn" onclick="startScan('i${i}')">📸</button>
+                <div class="input-group">
+                    <input type="number" id="i${i}" class="reading-input" step="0.001" oninput="doMath()">
+                    <button class="cam-btn" onclick="startAutoScan('i${i}')">📷</button>
+                </div>
             </td>
             <td>
-                <input type="number" id="f${i}" class="reading-input" placeholder="0.00" oninput="doMath()">
-                <button class="cam-btn" onclick="startScan('f${i}')">📸</button>
+                <div class="input-group">
+                    <input type="number" id="f${i}" class="reading-input" step="0.001" oninput="doMath()">
+                    <button class="cam-btn" onclick="startAutoScan('f${i}')">📷</button>
+                </div>
             </td>
         </tr>`;
     }
 
-    async function startScan(id) {
+    async function startAutoScan(id) {
         activeId = id;
         isScanning = true;
-        document.getElementById('scanner').style.display = 'flex';
+        scanRetries = 0;
+        stableDetections = 0;
+        lastDetectedText = '';
+        
+        document.getElementById('camModal').style.display = 'flex';
+        document.getElementById('detectedNumber').style.display = 'none';
+        updateStatus('POSITION NUMBER IN GREEN BOX', '#10b981');
         
         try {
+            // Request higher quality stream for better recognition
             stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'environment', width: { ideal: 1280 } }
+                video: {
+                    facingMode: 'environment',
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 },
+                    aspectRatio: { ideal: 1.7777777778 }
+                }
             });
-            document.getElementById('v').srcObject = stream;
-            requestAnimationFrame(processLoop);
+            
+            const video = document.getElementById('v');
+            video.srcObject = stream;
+            
+            // Wait for video to be ready
+            video.onloadedmetadata = () => {
+                video.play();
+                // Start scanning loop
+                requestAnimationFrame(autoDetectionLoop);
+            };
         } catch (e) {
-            alert("Camera Error");
+            console.error('Camera error:', e);
+            alert('Unable to access camera. Please check permissions.');
             stopCam();
         }
     }
 
     function stopCam() {
         isScanning = false;
-        if(stream) stream.getTracks().forEach(t => t.stop());
-        document.getElementById('scanner').style.display = 'none';
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+        document.getElementById('camModal').style.display = 'none';
     }
 
-    async function processLoop() {
+    function updateStatus(text, color) {
+        const statusEl = document.getElementById('statusText');
+        statusEl.innerHTML = text;
+        statusEl.style.color = color;
+    }
+
+    function showDetectedNumber(number) {
+        const el = document.getElementById('detectedNumber');
+        el.textContent = number;
+        el.style.display = 'block';
+        
+        // Add ripple effect
+        const ripple = document.createElement('div');
+        ripple.className = 'ripple';
+        ripple.style.left = '50%';
+        ripple.style.top = '50%';
+        el.appendChild(ripple);
+        
+        setTimeout(() => ripple.remove(), 1000);
+        
+        // Hide after 2 seconds
+        setTimeout(() => {
+            el.style.display = 'none';
+        }, 2000);
+    }
+
+    async function autoDetectionLoop() {
         if (!isScanning) return;
 
-        const v = document.getElementById('v');
-        const c = document.getElementById('c');
-        const ctx = c.getContext('2d');
+        const video = document.getElementById('v');
+        const canvas = document.getElementById('c');
+        const ctx = canvas.getContext('2d');
 
-        if (v.readyState === v.HAVE_ENOUGH_DATA) {
-            const scale = v.videoWidth / v.clientWidth;
-            const w = v.videoWidth * 0.8;
-            const h = 90 * scale; 
-            const x = (v.videoWidth - w) / 2;
-            const y = (v.videoHeight - h) / 2;
-
-            c.width = w; 
-            c.height = h;
-
-            // OCR Pre-processing
-            ctx.filter = 'grayscale(1) contrast(2) brightness(1.2)';
-            ctx.drawImage(v, x, y, w, h, 0, 0, w, h);
-
+        if (video.readyState === video.HAVE_ENOUGH_DATA) {
             try {
-                const { data: { text, confidence } } = await worker.recognize(c);
-                const clean = text.replace(/\s/g, '');
-                const match = clean.match(/\d+\.\d{1,3}/) || clean.match(/\d{3,}/);
+                // Calculate optimal capture area
+                const targetWidth = 800; // Higher resolution for better accuracy
+                const targetHeight = 200;
+                
+                // Focus on the guide box area
+                const boxWidth = video.videoWidth * 0.7;
+                const boxHeight = video.videoHeight * 0.25;
+                const boxX = (video.videoWidth - boxWidth) / 2;
+                const boxY = (video.videoHeight - boxHeight) / 2;
 
-                if (match && confidence > 50) {
-                    document.getElementById(activeId).value = match[0];
-                    document.getElementById('stat').innerText = "SUCCESS!";
+                // Set canvas to optimal size
+                canvas.width = targetWidth;
+                canvas.height = targetHeight;
+
+                // Apply image processing for better OCR
+                ctx.drawImage(video, boxX, boxY, boxWidth, boxHeight, 0, 0, targetWidth, targetHeight);
+                
+                // Get image data for processing
+                const imageData = ctx.getImageData(0, 0, targetWidth, targetHeight);
+                const data = imageData.data;
+                
+                // Enhanced image preprocessing
+                for (let i = 0; i < data.length; i += 4) {
+                    // Convert to grayscale with better contrast
+                    let gray = 0.34 * data[i] + 0.5 * data[i + 1] + 0.16 * data[i + 2];
                     
-                    setTimeout(() => {
-                        doMath();
-                        stopCam();
-                    }, 300);
-                    return;
+                    // Adaptive threshold for better number recognition
+                    gray = gray > 128 ? 255 : 0;
+                    
+                    data[i] = gray;     // R
+                    data[i + 1] = gray; // G
+                    data[i + 2] = gray; // B
                 }
-            } catch (err) {}
+                
+                ctx.putImageData(imageData, 0, 0);
+
+                // Initialize worker if needed
+                await worker.load();
+                await worker.loadLanguage('eng');
+                await worker.initialize('eng');
+
+                // Perform OCR with optimized settings
+                const { data: { text, confidence } } = await worker.recognize(canvas, {
+                    tessedit_char_whitelist: '0123456789.',
+                    tessedit_pageseg_mode: '7', // Treat as single text line
+                    tessedit_ocr_engine_mode: '2' // Use LSTM engine
+                });
+
+                if (confidence > CONFIG.CONFIDENCE_THRESHOLD) {
+                    // Enhanced number extraction
+                    const cleanText = text.replace(/[^0-9.]/g, '');
+                    
+                    // Look for patterns: decimal numbers or 3+ digit numbers
+                    const patterns = [
+                        /\d+\.\d{1,3}/g,  // Decimal numbers
+                        /\d{3,}/g,          // 3+ digit numbers
+                        /\d+\.\d+/g         // Any decimal
+                    ];
+
+                    let detectedNumber = null;
+                    
+                    // Try each pattern
+                    for (const pattern of patterns) {
+                        const matches = cleanText.match(pattern);
+                        if (matches && matches.length > 0) {
+                            // Take the longest match (usually the most complete)
+                            detectedNumber = matches.reduce((a, b) => a.length > b.length ? a : b);
+                            break;
+                        }
+                    }
+
+                    if (detectedNumber) {
+                        // Check if detection is stable
+                        if (detectedNumber === lastDetectedText) {
+                            stableDetections++;
+                            
+                            if (stableDetections >= REQUIRED_STABLE_DETECTIONS) {
+                                // Success! Update the input field
+                                document.getElementById(activeId).value = detectedNumber;
+                                showDetectedNumber(detectedNumber);
+                                updateStatus(`✓ CAPTURED: ${detectedNumber}`, '#10b981');
+                                
+                                // Vibrate if supported
+                                if (navigator.vibrate) {
+                                    navigator.vibrate([100, 50, 100]);
+                                }
+                                
+                                // Calculate and close
+                                doMath();
+                                setTimeout(() => stopCam(), 800);
+                                return;
+                            } else {
+                                updateStatus(`✓ DETECTED: ${detectedNumber} (${stableDetections}/${REQUIRED_STABLE_DETECTIONS})`, '#fbbf24');
+                            }
+                        } else {
+                            stableDetections = 1;
+                            lastDetectedText = detectedNumber;
+                            updateStatus(`✓ FOUND: ${detectedNumber}`, '#fbbf24');
+                        }
+                    } else {
+                        // No number found, reset stability counter
+                        stableDetections = 0;
+                        lastDetectedText = '';
+                        updateStatus('🔍 LOOKING FOR NUMBERS...', '#10b981');
+                    }
+                } else {
+                    // Low confidence, reset stability
+                    stableDetections = 0;
+                    lastDetectedText = '';
+                    
+                    if (scanRetries < CONFIG.MAX_RETRIES) {
+                        scanRetries++;
+                        updateStatus(`🔄 ADJUSTING FOCUS... (${scanRetries}/${CONFIG.MAX_RETRIES})`, '#fbbf24');
+                    } else {
+                        updateStatus('📱 MOVE CLOSER OR ADJUST ANGLE', '#ef4444');
+                    }
+                }
+            } catch (error) {
+                console.error('OCR error:', error);
+                updateStatus('⚠️ SCAN ERROR - TRY AGAIN', '#ef4444');
+            }
         }
-        if (isScanning) setTimeout(processLoop, 500);
+
+        // Continue scanning with optimized interval
+        if (isScanning) {
+            setTimeout(() => {
+                requestAnimationFrame(autoDetectionLoop);
+            }, CONFIG.SCAN_INTERVAL);
+        }
     }
 
     function doMath() {
-        let ltrs = 0;
-        const p = parseFloat(document.getElementById('price').value) || 0;
-        for(let i=1; i<=5; i++) {
-            const s = parseFloat(document.getElementById('i'+i).value) || 0;
-            const f = parseFloat(document.getElementById('f'+i).value) || 0;
-            if(f > s) ltrs += (f - s);
+        let totalLiters = 0;
+        const price = parseFloat(document.getElementById('price').value) || 0;
+        
+        for (let i = 1; i <= 5; i++) {
+            const initial = parseFloat(document.getElementById('i' + i).value) || 0;
+            const final = parseFloat(document.getElementById('f' + i).value) || 0;
+            
+            if (final > initial) {
+                totalLiters += (final - initial);
+            }
         }
-        document.getElementById('dispLtrs').innerText = ltrs.toFixed(3);
-        document.getElementById('dispAmt').innerText = (ltrs * p).toFixed(2);
+        
+        const totalAmount = totalLiters * price;
+        
+        document.getElementById('dispLtrs').textContent = totalLiters.toFixed(3);
+        document.getElementById('dispAmt').textContent = totalAmount.toFixed(2) + ' SAR';
     }
+
+    function reset() {
+        if (confirm('Are you sure you want to reset all readings?')) {
+            for (let i = 1; i <= 5; i++) {
+                document.getElementById('i' + i).value = '';
+                document.getElementById('f' + i).value = '';
+            }
+            doMath();
+        }
+    }
+
+    // Clean up on page unload
+    window.addEventListener('beforeunload', () => {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+        worker.terminate();
+    });
 </script>
 
 </body>
