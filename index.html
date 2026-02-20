@@ -37,7 +37,8 @@
 
         /* Enhanced Nozzle Cards */
         .nozzle-list { padding: 0 12px; }
-        .nozzle-row { background: white; border-radius: 20px; padding: 15px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border-left: 10px solid #ccc; }
+        .nozzle-row { background: white; border-radius: 20px; padding: 15px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border-left: 10px solid #ccc; transition: transform 0.2s; }
+        .nozzle-row:active { transform: scale(0.98); }
         .row-91 { border-left-color: var(--91); }
         .row-95 { border-left-color: var(--95); }
         .row-d { border-left-color: var(--d); }
@@ -46,7 +47,6 @@
         .nozzle-num-input { border: none; font-weight: 900; color: #222; font-size: 1.1rem; width: 120px; outline: none; }
         .fuel-select { padding: 6px 12px; border-radius: 10px; border: 1px solid #eee; background: #fff; font-weight: 800; font-size: 11px; color: #555; }
 
-        /* Logic: 1 Row per Reading (Vertical Stack) */
         .scan-grid { display: flex; flex-direction: column; gap: 12px; }
         .input-grp { position: relative; width: 100%; display: flex; flex-direction: column; }
         .input-grp label { font-size: 10px; color: #888; font-weight: 700; margin-bottom: 4px; padding-left: 2px; }
@@ -57,14 +57,17 @@
             border: 1.5px solid #edf2f7; 
             border-radius: 12px; 
             font-weight: 900; 
-            font-size: 24px; /* Bigger Reading */
+            font-size: 24px; 
             background: #fcfcfc; 
             outline: none;
             color: #2d3436;
         }
         .cam-btn { position: absolute; bottom: 8px; right: 8px; background: #333; color: white; border: none; border-radius: 10px; width: 40px; height: 40px; font-size: 16px; cursor: pointer; }
         
+        /* Point 4 CSS: Error color class */
         .diff-tag { margin-top: 10px; font-size: 12px; font-weight: 900; color: #444; text-align: right; }
+        .diff-error { color: var(--error) !important; animation: shake 0.3s ease-in-out; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 
         /* Glass Footer */
         .footer-tools { position: fixed; bottom: 0; left: 0; right: 0; background: var(--glass); backdrop-filter: blur(10px); padding: 15px 15px 30px 15px; border-radius: 30px 30px 0 0; z-index: 200; box-shadow: 0 -10px 25px rgba(0,0,0,0.1); }
@@ -247,6 +250,17 @@
         try { await track.applyConstraints({ advanced: [{ torch: torchOn }] }); } catch (e) {}
     }
 
+    // Point 2: OCR Sanitizer
+    function sanitizeOCR(text) {
+        return text
+            .replace(/[S]/g, '5')
+            .replace(/[O]/g, '0')
+            .replace(/[I|l]/g, '1')
+            .replace(/[B]/g, '8')
+            .replace(/[Z]/g, '2')
+            .replace(/[^0-9.]/g, ''); // Remove everything except numbers and dots
+    }
+
     async function tick() {
         if (!isScanning) return;
         const v = document.getElementById('v'), c = document.getElementById('c'), ctx = c.getContext('2d');
@@ -258,8 +272,12 @@
             ctx.filter = 'contrast(1.5) grayscale(1) brightness(1.1)';
             ctx.drawImage(v, x, y, w, h, 0, 0, w, h);
             try {
-                const { data: { text, confidence } } = await worker.recognize(c);
-                const match = text.replace(/\s/g, '').match(/\d+\.\d{1,3}/) || text.replace(/\s/g, '').match(/\d{3,}/);
+                let { data: { text, confidence } } = await worker.recognize(c);
+                
+                // Point 2 logic: Clean the OCR text
+                text = sanitizeOCR(text);
+                const match = text.match(/\d+\.\d{1,3}/) || text.match(/\d{3,}/);
+
                 if (match && confidence > 70) { 
                     document.getElementById('flash').classList.add('trigger-flash');
                     document.getElementById(activeId).value = match[0]; 
@@ -283,13 +301,23 @@
             const type = document.getElementById(`type-${id}`).value;
             const initVal = parseFloat(document.getElementById(`i${id}`).value) || 0;
             const finalVal = parseFloat(document.getElementById(`f${id}`).value) || 0;
-            const diff = Math.max(0, finalVal - initVal);
             
-            document.getElementById(`diff-${id}`).innerText = `Sales: ${diff.toFixed(2)} L`;
+            // Point 4: Error Handling Logic
+            const diffTag = document.getElementById(`diff-${id}`);
+            const diff = finalVal - initVal;
 
-            if(type === '91') { q91 += diff; total += diff * pr91; }
-            else if(type === '95') { q95 += diff; total += diff * pr95; }
-            else { qd += diff; total += diff * prd; }
+            if (finalVal > 0 && diff < 0) {
+                diffTag.innerText = `Error: End < Start`;
+                diffTag.classList.add('diff-error');
+            } else {
+                const actualDiff = Math.max(0, diff);
+                diffTag.innerText = `Sales: ${actualDiff.toFixed(2)} L`;
+                diffTag.classList.remove('diff-error');
+                
+                if(type === '91') { q91 += actualDiff; total += actualDiff * pr91; }
+                else if(type === '95') { q95 += actualDiff; total += actualDiff * pr95; }
+                else { qd += actualDiff; total += actualDiff * prd; }
+            }
         });
         document.getElementById('sum91').innerText = q91.toFixed(2);
         document.getElementById('sum95').innerText = q95.toFixed(2);
