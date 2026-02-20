@@ -14,90 +14,285 @@
         :root { 
             --reben-red: #E30613; 
             --bg: #f2f4f7; 
-            --card-bg: #ffffff;
-            --text-main: #1a1a1a;
-            --text-sub: #777;
             --91: #1a9a4c; 
             --95: #d32f2f; 
             --d: #2c3e50; 
             --error: #ff3b30; 
             --wa: #25D366; 
             --glass: rgba(255, 255, 255, 0.95);
-            --input-bg: #f8f9fa;
-            --border: #f0f0f0;
+            
+            /* Light mode (day) variables */
+            --primary-bg: #f2f4f7;
+            --card-bg: white;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666;
+            --input-bg: #fcfcfc;
+            --input-border: #edf2f7;
+            --footer-bg: rgba(255, 255, 255, 0.95);
+            --shift-indicator: #000;
         }
-
-        /* Night Mode Styles */
+        
+        /* Dark mode (night) variables */
         body.night-mode {
-            --bg: #0f172a; 
-            --card-bg: #1e293b;
-            --text-main: #f8fafc;
-            --text-sub: #94a3b8;
-            --glass: rgba(30, 41, 59, 0.95);
-            --input-bg: #334155;
-            --border: #334155;
+            --primary-bg: #1a1e24;
+            --card-bg: #2c3e50;
+            --text-primary: #ecf0f1;
+            --text-secondary: #bdc3c7;
+            --input-bg: #34495e;
+            --input-border: #4a5b6b;
+            --footer-bg: rgba(44, 62, 80, 0.98);
+            --shift-indicator: #f1c40f;
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; transition: background 0.3s ease, color 0.3s ease; }
-        body { background: var(--bg); padding-bottom: 200px; padding-top: 10px; color: var(--text-main); }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { 
+            background: var(--primary-bg); 
+            padding-bottom: 200px; 
+            padding-top: 10px; 
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
         
         .invalid { border: 2px solid var(--error) !important; background-color: #fff0f0 !important; }
 
-        .top-nav { position: sticky; top: 0; z-index: 100; background: var(--card-bg); margin: 0 12px 15px 12px; border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); overflow: hidden; }
-        .station-input { width: 100%; padding: 15px; border: none; font-weight: 900; text-align: center; font-size: 18px; outline: none; color: var(--reben-red); text-transform: uppercase; border-bottom: 1px solid var(--border); background: var(--card-bg); }
+        /* Modernized Header */
+        .top-nav { 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            background: var(--card-bg); 
+            margin: 0 12px 15px 12px; 
+            border-radius: 20px; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06); 
+            overflow: hidden;
+            transition: background-color 0.3s ease;
+        }
+        .station-input { 
+            width: 100%; 
+            padding: 15px; 
+            border: none; 
+            font-weight: 900; 
+            text-align: center; 
+            font-size: 18px; 
+            outline: none; 
+            color: var(--reben-red); 
+            text-transform: uppercase; 
+            border-bottom: 1px solid var(--input-border);
+            background: var(--card-bg);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
         
-        .price-settings { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 12px; background: var(--card-bg); }
-        .p-input { display: flex; flex-direction: column; align-items: center; background: var(--input-bg); padding: 8px; border-radius: 12px; }
-        .p-input label { font-size: 10px; font-weight: 800; color: var(--text-sub); margin-bottom: 4px; }
-        .p-input input { width: 100%; border: none; background: transparent; text-align: center; font-weight: 900; font-size: 15px; outline: none; color: var(--text-main); }
+        .price-settings { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr 1fr; 
+            gap: 8px; 
+            padding: 12px; 
+            background: var(--card-bg);
+            transition: background-color 0.3s ease;
+        }
+        .p-input { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            background: var(--input-bg); 
+            padding: 8px; 
+            border-radius: 12px;
+            transition: background-color 0.3s ease;
+        }
+        .p-input label { font-size: 10px; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px; }
+        .p-input input { 
+            width: 100%; 
+            border: none; 
+            background: transparent; 
+            text-align: center; 
+            font-weight: 900; 
+            font-size: 15px; 
+            outline: none; 
+            color: var(--text-primary);
+            transition: color 0.3s ease;
+        }
 
+        /* Enhanced Nozzle Cards */
         .nozzle-list { padding: 0 12px; }
-        .nozzle-row { background: var(--card-bg); border-radius: 20px; padding: 15px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border-left: 10px solid #ccc; }
+        .nozzle-row { 
+            background: var(--card-bg); 
+            border-radius: 20px; 
+            padding: 15px; 
+            margin-bottom: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04); 
+            border-left: 10px solid #ccc; 
+            transition: transform 0.2s, background-color 0.3s ease;
+        }
+        .nozzle-row:active { transform: scale(0.98); }
         .row-91 { border-left-color: var(--91); }
         .row-95 { border-left-color: var(--95); }
         .row-d { border-left-color: var(--d); }
 
         .row-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .nozzle-num-input { border: none; font-weight: 900; color: var(--text-main); font-size: 1.1rem; width: 120px; outline: none; background: transparent; }
-        .fuel-select { padding: 6px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--input-bg); font-weight: 800; font-size: 11px; color: var(--text-sub); }
+        .nozzle-num-input { 
+            border: none; 
+            font-weight: 900; 
+            color: var(--text-primary); 
+            font-size: 1.1rem; 
+            width: 120px; 
+            outline: none;
+            background: transparent;
+            transition: color 0.3s ease;
+        }
+        .fuel-select { 
+            padding: 6px 12px; 
+            border-radius: 10px; 
+            border: 1px solid var(--input-border); 
+            background: var(--input-bg); 
+            font-weight: 800; 
+            font-size: 11px; 
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
 
         .scan-grid { display: flex; flex-direction: column; gap: 12px; }
         .input-grp { position: relative; width: 100%; display: flex; flex-direction: column; }
-        .input-grp label { font-size: 10px; color: var(--text-sub); font-weight: 700; margin-bottom: 4px; padding-left: 2px; }
+        .input-grp label { 
+            font-size: 10px; 
+            color: var(--text-secondary); 
+            font-weight: 700; 
+            margin-bottom: 4px; 
+            padding-left: 2px;
+            transition: color 0.3s ease;
+        }
         
         .reading-input { 
-            width: 100%; padding: 12px 50px 12px 15px; border: 1.5px solid var(--border); 
-            border-radius: 12px; font-weight: 900; font-size: 24px; background: var(--input-bg); 
-            outline: none; color: var(--text-main);
+            width: 100%; 
+            padding: 12px 50px 12px 15px; 
+            border: 1.5px solid var(--input-border); 
+            border-radius: 12px; 
+            font-weight: 900; 
+            font-size: 24px; 
+            background: var(--input-bg); 
+            outline: none;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
         }
-        .cam-btn { position: absolute; bottom: 8px; right: 8px; background: #333; color: white; border: none; border-radius: 10px; width: 40px; height: 40px; font-size: 16px; cursor: pointer; }
+        .cam-btn { 
+            position: absolute; 
+            bottom: 8px; 
+            right: 8px; 
+            background: #333; 
+            color: white; 
+            border: none; 
+            border-radius: 10px; 
+            width: 40px; 
+            height: 40px; 
+            font-size: 16px; 
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
         
-        .diff-tag { margin-top: 10px; font-size: 12px; font-weight: 900; color: var(--text-sub); text-align: right; }
+        /* Point 4 CSS: Error color class */
+        .diff-tag { 
+            margin-top: 10px; 
+            font-size: 12px; 
+            font-weight: 900; 
+            color: var(--text-secondary); 
+            text-align: right;
+            transition: color 0.3s ease;
+        }
         .diff-error { color: var(--error) !important; animation: shake 0.3s ease-in-out; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 
-        .footer-tools { position: fixed; bottom: 0; left: 0; right: 0; background: var(--glass); backdrop-filter: blur(10px); padding: 15px 15px 30px 15px; border-radius: 30px 30px 0 0; z-index: 200; box-shadow: 0 -10px 25px rgba(0,0,0,0.1); }
-        .stats { display: flex; justify-content: space-between; margin-bottom: 18px; color: var(--text-main); align-items: flex-end; }
-        .total-val { color: var(--text-main); font-size: 34px; font-weight: 900; letter-spacing: -1px; }
-        .shift-label { font-size: 10px; color: var(--text-sub); font-weight: 700; }
+        /* Glass Footer */
+        .footer-tools { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            right: 0; 
+            background: var(--footer-bg); 
+            backdrop-filter: blur(10px); 
+            padding: 15px 15px 30px 15px; 
+            border-radius: 30px 30px 0 0; 
+            z-index: 200; 
+            box-shadow: 0 -10px 25px rgba(0,0,0,0.1);
+            transition: background-color 0.3s ease;
+        }
+        .stats { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-bottom: 18px; 
+            color: var(--text-primary); 
+            align-items: flex-end;
+            transition: color 0.3s ease;
+        }
+        .total-val { 
+            color: var(--shift-indicator); 
+            font-size: 34px; 
+            font-weight: 900; 
+            letter-spacing: -1px;
+            transition: color 0.3s ease;
+        }
+        .shift-label { 
+            font-size: 10px; 
+            color: var(--text-secondary); 
+            font-weight: 700;
+            transition: color 0.3s ease;
+        }
 
         .action-row { display: grid; grid-template-columns: 1fr 1fr 1.2fr 1fr 0.8fr; gap: 8px; }
-        .tool-btn { border: none; border-radius: 16px; font-weight: 800; font-size: 10px; height: 54px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .tool-btn { 
+            border: none; 
+            border-radius: 16px; 
+            font-weight: 800; 
+            font-size: 10px; 
+            height: 54px; 
+            cursor: pointer; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            transition: 0.2s, background-color 0.3s ease;
+        }
+        .tool-btn:active { transform: translateY(2px); }
         
         .btn-add { background: #000; color: #fff; }
-        .night-mode .btn-add { background: #f8fafc; color: #000; }
         .btn-xl { background: #e8f5e9; color: #2e7d32; }
-        .btn-next { background: #fff3e0; color: #ef6c00; }
+        .btn-next { 
+            background: #fff3e0; 
+            color: #ef6c00;
+            transition: all 0.3s ease;
+        }
+        body.night-mode .btn-next {
+            background: #2c3e50;
+            color: #f1c40f;
+            border: 1px solid #f1c40f;
+        }
         .btn-pdf { background: #ffebee; color: #c62828; }
-        .btn-wa { background: var(--wa); color: #fff; font-size: 22px; }
+        body.night-mode .btn-pdf {
+            background: #2c3e50;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+        .btn-wa { background: var(--wa); color: #fff; font-size: 22px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3); }
 
+        /* Scanner Modal UI - Keep original dark theme */
         .modal { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; flex-direction: column; }
         .cam-view { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; }
         video { width: 100%; height: 100%; object-fit: cover; }
-        .guide { position: absolute; width: 85%; height: 90px; border: 3px solid #25D366; border-radius: 12px; box-shadow: 0 0 0 4000px rgba(0,0,0,0.6); z-index: 5; }
+        .guide { position: absolute; width: 80%; height: 80px; border: 2px solid white; border-radius: 12px; box-shadow: 0 0 0 4000px rgba(0,0,0,0.6); z-index: 5; }
+        .guide::after { content: 'ALIGN READING HERE'; position: absolute; top: -25px; left: 0; width: 100%; text-align: center; color: white; font-size: 10px; font-weight: bold; letter-spacing: 1px; }
+        
+        .scan-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 40px 20px; z-index: 10; pointer-events: none; }
+        .scan-btn-row { pointer-events: auto; display: flex; justify-content: space-around; padding-bottom: 20px; }
+        
         .flash-success { position: absolute; inset: 0; background: var(--wa); opacity: 0; z-index: 15; pointer-events: none; }
         @keyframes flashAnim { 0% { opacity: 0.6; } 100% { opacity: 0; } }
         .trigger-flash { animation: flashAnim 0.3s ease-out forwards; }
+
+        /* Moon/Sun indicator */
+        .shift-indicator {
+            display: inline-block;
+            margin-left: 5px;
+            font-size: 12px;
+            color: var(--shift-indicator);
+        }
     </style>
 </head>
 <body>
@@ -116,7 +311,8 @@
 <div class="footer-tools">
     <div class="stats">
         <div class="shift-label">
-            <span id="shift-text">SHIFT DATA</span><br>
+            <span id="shift-text">SHIFT DATA</span>
+            <span id="shift-icon" class="shift-indicator"><i class="fa-regular fa-sun"></i></span><br>
             91: <span id="sum91" style="color:var(--91)">0</span> | 95: <span id="sum95" style="color:var(--95)">0</span> | D: <span id="sumD">0</span>
         </div>
         <div class="total-val" id="grandTotal">0.00</div>
@@ -135,9 +331,12 @@
         <div id="flash" class="flash-success"></div>
         <video id="v" autoplay playsinline></video>
         <div class="guide"></div>
-        <div class="scan-overlay" style="position: absolute; bottom: 30px; left: 0; right: 0; display: flex; justify-content: space-around; z-index: 20;">
-            <button onclick="toggleTorch()" style="background:rgba(255,255,255,0.2); border:none; color:white; width:60px; height:60px; border-radius:50%; font-size:20px;"><i class="fa-solid fa-bolt"></i></button>
-            <button onclick="stopCam()" style="background:rgba(255,0,0,0.4); border:none; color:white; width:60px; height:60px; border-radius:50%; font-size:20px;"><i class="fa-solid fa-xmark"></i></button>
+        <div class="scan-overlay">
+            <div style="text-align: center; color: white; font-weight: bold; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 5px;">SCANNING...</div>
+            <div class="scan-btn-row">
+                <button onclick="toggleTorch()" id="torchBtn" style="background:rgba(255,255,255,0.2); border:none; color:white; width:60px; height:60px; border-radius:50%; font-size:20px;"><i class="fa-solid fa-bolt"></i></button>
+                <button onclick="stopCam()" style="background:rgba(255,0,0,0.4); border:none; color:white; width:60px; height:60px; border-radius:50%; font-size:20px;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
         </div>
     </div>
     <canvas id="c" style="display:none"></canvas>
@@ -153,7 +352,7 @@
         await worker.loadLanguage('eng');
         await worker.initialize('eng');
         await worker.setParameters({ 
-            tessedit_char_whitelist: '0123456789.SOIB', 
+            tessedit_char_whitelist: '0123456789.', 
             tessedit_pageseg_mode: '7'
         });
     }
@@ -175,6 +374,10 @@
         const div = document.createElement('div');
         div.className = `nozzle-row row-${saved ? saved.type : '91'}`;
         div.id = `card-${id}`;
+        
+        const labelI = isDayTime ? "INITIAL (6 AM)" : "INITIAL (6 PM)";
+        const labelF = isDayTime ? "FINAL (6 PM)" : "FINAL (6 AM)";
+
         div.innerHTML = `
             <div class="row-top">
                 <input class="nozzle-num-input" value="${saved ? saved.name : 'Nozzle ' + id}" id="name-${id}" oninput="saveMem()">
@@ -187,12 +390,12 @@
             </div>
             <div class="scan-grid">
                 <div class="input-grp">
-                    <label>INITIAL READING</label>
+                    <label class="lbl-init">${labelI}</label>
                     <input type="number" id="i${id}" class="reading-input" value="${saved?saved.init:''}" oninput="doMath(); saveMem()">
                     <button class="cam-btn" onclick="startScan('i${id}')"><i class="fa-solid fa-camera"></i></button>
                 </div>
                 <div class="input-grp">
-                    <label>FINAL READING</label>
+                    <label class="lbl-final">${labelF}</label>
                     <input type="number" id="f${id}" class="reading-input" value="${saved?saved.final:''}" oninput="doMath(); saveMem()">
                     <button class="cam-btn" onclick="startScan('f${id}')"><i class="fa-solid fa-camera"></i></button>
                 </div>
@@ -200,35 +403,43 @@
             <div class="diff-tag" id="diff-${id}">Sales: 0.00 L</div>
         `;
         document.getElementById('list').appendChild(div);
+        if(!saved) window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }
 
-    // ONLY CHANGE: ADDED DARK MODE TOGGLE TO NEXT SHIFT
     function rotateShift() {
         if(!confirm("Start Next Shift? Final values will become Initial values.")) return;
         isDayTime = !isDayTime;
         
-        // Toggle Dark/Bright Mode Class
-        if (!isDayTime) {
-            document.body.classList.add('night-mode');
-            document.getElementById('shift-text').innerText = "NIGHT SHIFT (6PM-6AM)";
-        } else {
+        // Update shift text and icon
+        document.getElementById('shift-text').innerText = isDayTime ? "DAY SHIFT (6AM-6PM)" : "NIGHT SHIFT (6PM-6AM)";
+        
+        // Update theme based on shift
+        if (isDayTime) {
             document.body.classList.remove('night-mode');
-            document.getElementById('shift-text').innerText = "DAY SHIFT (6AM-6PM)";
+            document.getElementById('shift-icon').innerHTML = '<i class="fa-regular fa-sun"></i>';
+        } else {
+            document.body.classList.add('night-mode');
+            document.getElementById('shift-icon').innerHTML = '<i class="fa-regular fa-moon"></i>';
         }
-
+        
         document.querySelectorAll('.nozzle-row').forEach(row => {
             const id = row.id.split('-')[1];
             document.getElementById(`i${id}`).value = document.getElementById(`f${id}`).value;
             document.getElementById(`f${id}`).value = "";
+            row.querySelector('.lbl-init').innerText = isDayTime ? "INITIAL (6 AM)" : "INITIAL (6 PM)";
+            row.querySelector('.lbl-final').innerText = isDayTime ? "FINAL (6 PM)" : "FINAL (6 AM)";
         });
-        doMath(); saveMem();
+        doMath();
+        saveMem();
     }
 
     async function startScan(id) { 
         activeId = id; isScanning = true; 
         document.getElementById('scanner').style.display = 'flex'; 
         try { 
-            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 } } }); 
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: 'environment', width: { ideal: 1280 } } 
+            }); 
             document.getElementById('v').srcObject = stream; 
             tick(); 
         } catch (e) { stopCam(); } 
@@ -238,6 +449,7 @@
         isScanning = false; 
         if(stream) stream.getTracks().forEach(t => t.stop()); 
         document.getElementById('scanner').style.display = 'none'; 
+        torchOn = false;
     }
 
     async function toggleTorch() {
@@ -246,11 +458,15 @@
         try { await track.applyConstraints({ advanced: [{ torch: torchOn }] }); } catch (e) {}
     }
 
+    // Point 2: OCR Sanitizer
     function sanitizeOCR(text) {
-        return text.toUpperCase()
-            .replace(/S/g, '5').replace(/O/g, '0').replace(/[I|l]/g, '1')
-            .replace(/B/g, '8').replace(/Z/g, '2')
-            .replace(/[^0-9.]/g, ''); 
+        return text
+            .replace(/[S]/g, '5')
+            .replace(/[O]/g, '0')
+            .replace(/[I|l]/g, '1')
+            .replace(/[B]/g, '8')
+            .replace(/[Z]/g, '2')
+            .replace(/[^0-9.]/g, ''); // Remove everything except numbers and dots
     }
 
     async function tick() {
@@ -258,16 +474,19 @@
         const v = document.getElementById('v'), c = document.getElementById('c'), ctx = c.getContext('2d');
         if (v.readyState === v.HAVE_ENOUGH_DATA) {
             const ratio = v.videoWidth / v.clientWidth;
-            const w = v.videoWidth * 0.8, h = 90 * ratio;
+            const w = v.videoWidth * 0.8, h = 80 * ratio;
             const x = (v.videoWidth - w) / 2, y = (v.videoHeight - h) / 2;
             c.width = w; c.height = h;
-            ctx.filter = 'contrast(3.5) grayscale(1) brightness(1.2)';
+            ctx.filter = 'contrast(1.5) grayscale(1) brightness(1.1)';
             ctx.drawImage(v, x, y, w, h, 0, 0, w, h);
             try {
                 let { data: { text, confidence } } = await worker.recognize(c);
+                
+                // Point 2 logic: Clean the OCR text
                 text = sanitizeOCR(text);
                 const match = text.match(/\d+\.\d{1,3}/) || text.match(/\d{3,}/);
-                if (match && confidence > 55) { 
+
+                if (match && confidence > 70) { 
                     document.getElementById('flash').classList.add('trigger-flash');
                     document.getElementById(activeId).value = match[0]; 
                     doMath(); saveMem();
@@ -276,7 +495,7 @@
                 }
             } catch (err) {}
         }
-        if (isScanning) setTimeout(tick, 100);
+        if (isScanning) setTimeout(tick, 150);
     }
 
     function doMath() {
@@ -284,20 +503,25 @@
         const pr91 = parseFloat(document.getElementById('p91').value) || 0;
         const pr95 = parseFloat(document.getElementById('p95').value) || 0;
         const prd = parseFloat(document.getElementById('pd').value) || 0;
+        
         document.querySelectorAll('.nozzle-row').forEach(row => {
             const id = row.id.split('-')[1];
             const type = document.getElementById(`type-${id}`).value;
-            const i = parseFloat(document.getElementById(`i${id}`).value) || 0;
-            const f = parseFloat(document.getElementById(`f${id}`).value) || 0;
+            const initVal = parseFloat(document.getElementById(`i${id}`).value) || 0;
+            const finalVal = parseFloat(document.getElementById(`f${id}`).value) || 0;
+            
+            // Point 4: Error Handling Logic
             const diffTag = document.getElementById(`diff-${id}`);
-            const diff = f - i;
-            if (f > 0 && diff < 0) {
+            const diff = finalVal - initVal;
+
+            if (finalVal > 0 && diff < 0) {
                 diffTag.innerText = `Error: End < Start`;
                 diffTag.classList.add('diff-error');
             } else {
                 const actualDiff = Math.max(0, diff);
                 diffTag.innerText = `Sales: ${actualDiff.toFixed(2)} L`;
                 diffTag.classList.remove('diff-error');
+                
                 if(type === '91') { q91 += actualDiff; total += actualDiff * pr91; }
                 else if(type === '95') { q95 += actualDiff; total += actualDiff * pr95; }
                 else { qd += actualDiff; total += actualDiff * prd; }
@@ -306,39 +530,113 @@
         document.getElementById('sum91').innerText = q91.toFixed(2);
         document.getElementById('sum95').innerText = q95.toFixed(2);
         document.getElementById('sumD').innerText = qd.toFixed(2);
-        document.getElementById('grandTotal').innerText = total.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('grandTotal').innerText = total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+
+    function getNowStr() {
+        return new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, ' - ');
     }
 
     function shareWA() {
         if(!validate()) { alert("Please complete Station Name and Prices"); return; }
         const station = document.getElementById('sn').value.toUpperCase();
-        let msg = `*STATION REPORT: ${station}*%0A%0A`;
-        msg += `91 Total: ${document.getElementById('sum91').innerText} L%0A`;
-        msg += `95 Total: ${document.getElementById('sum95').innerText} L%0A`;
-        msg += `Diesel Total: ${document.getElementById('sumD').innerText} L%0A`;
-        msg += `*GRAND TOTAL: ${document.getElementById('grandTotal').innerText} SAR*`;
-        window.open(`https://wa.me/?text=${msg}`);
+        const shift = isDayTime ? "Day" : "Night";
+        const time = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
+        
+        let msg = `🏪 *Station Report*%0A%0A`;
+        msg += `    *${station}*%0A`;
+        msg += `     Date ${getNowStr()}%0A`;
+        msg += `     Shift - ${shift}%0A`;
+        msg += `     Reporting Time - ${time}%0A%0A`;
+        msg += `---- SUMMARY ----%0A%0A`;
+        msg += `🟢 *91 Total:* ${document.getElementById('sum91').innerText} L%0A`;
+        msg += `🔴 *95 Total:* ${document.getElementById('sum95').innerText} L%0A`;
+        msg += `🔵 *Diesel Total:* ${document.getElementById('sumD').innerText} L%0A`;
+        msg += `💰 *Total Amount:* ${document.getElementById('grandTotal').innerText} SAR%0A%0A%0A%0A`;
+        msg += `*Designed by Mozahid*`;
+        
+        window.open(`https://wa.me/?text=${msg}`, '_blank');
     }
 
     function exportExcel() {
-        if(!validate()) { alert("Please complete Station Name and Prices"); return; }
-        const table = [["NOZZLE", "TYPE", "INITIAL", "FINAL", "LITERS"]];
+        if(!validate()) return;
+        const station = document.getElementById('sn').value.toUpperCase();
+        const headerInfo = [
+            ["STATION", station],
+            ["DATE", getNowStr()],
+            ["SHIFT", isDayTime ? "Day" : "Night"],
+            ["91 PRICE", document.getElementById('p91').value],
+            ["95 PRICE", document.getElementById('p95').value],
+            ["D PRICE", document.getElementById('pd').value],
+            ["GRAND TOTAL", document.getElementById('grandTotal').innerText + " SAR"],
+            [],
+            ["NOZZLE", "FUEL", "INITIAL", "FINAL", "LITERS"]
+        ];
+        
+        const nozzleData = [];
         document.querySelectorAll('.nozzle-row').forEach(row => {
             const id = row.id.split('-')[1];
-            table.push([document.getElementById(`name-${id}`).value, document.getElementById(`type-${id}`).value, document.getElementById(`i${id}`).value, document.getElementById(`f${id}`).value, document.getElementById(`diff-${id}`).innerText]);
+            const init = parseFloat(document.getElementById(`i${id}`).value) || 0;
+            const final = parseFloat(document.getElementById(`f${id}`).value) || 0;
+            nozzleData.push([
+                document.getElementById(`name-${id}`).value,
+                document.getElementById(`type-${id}`).value,
+                init,
+                final,
+                Math.max(0, final - init).toFixed(2)
+            ]);
         });
-        const ws = XLSX.utils.aoa_to_sheet(table);
+
+        const ws = XLSX.utils.aoa_to_sheet([...headerInfo, ...nozzleData]);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Sales");
-        XLSX.writeFile(wb, `${document.getElementById('sn').value}_Report.xlsx`);
+        XLSX.utils.book_append_sheet(wb, ws, "Report");
+        XLSX.writeFile(wb, `${station}_Report.xlsx`);
     }
 
     function exportPDF() {
-        if(!validate()) { alert("Please complete Station Name and Prices"); return; }
+        if(!validate()) return;
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        doc.text(`STATION: ${document.getElementById('sn').value.toUpperCase()}`, 10, 10);
-        doc.save("Report.pdf");
+        const station = document.getElementById('sn').value.toUpperCase();
+        const shift = isDayTime ? "Day" : "Night";
+        const time = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+        doc.setFontSize(18); doc.text(`STATION: ${station}`, 14, 20);
+        doc.setFontSize(10);
+        doc.text(`Date: ${getNowStr()} | Shift: ${shift} | Time: ${time}`, 14, 28);
+        doc.text(`Prices: 91 (${document.getElementById('p91').value}) | 95 (${document.getElementById('p95').value}) | D (${document.getElementById('pd').value})`, 14, 34);
+        
+        const summary = [
+            ["Fuel Type", "Total Liters", "Total SAR"],
+            ["Octane 91", document.getElementById('sum91').innerText, (parseFloat(document.getElementById('sum91').innerText) * parseFloat(document.getElementById('p91').value)).toFixed(2)],
+            ["Octane 95", document.getElementById('sum95').innerText, (parseFloat(document.getElementById('sum95').innerText) * parseFloat(document.getElementById('p95').value)).toFixed(2)],
+            ["Diesel", document.getElementById('sumD').innerText, (parseFloat(document.getElementById('sumD').innerText) * parseFloat(document.getElementById('pd').value)).toFixed(2)],
+            ["GRAND TOTAL", "", document.getElementById('grandTotal').innerText + " SAR"]
+        ];
+        doc.autoTable({ head: [summary[0]], body: summary.slice(1), startY: 40, theme: 'grid' });
+
+        const rows = [];
+        document.querySelectorAll('.nozzle-row').forEach(row => {
+            const id = row.id.split('-')[1];
+            const init = parseFloat(document.getElementById(`i${id}`).value) || 0;
+            const final = parseFloat(document.getElementById(`f${id}`).value) || 0;
+            const diff = Math.max(0, final - init).toFixed(2);
+            rows.push([
+                document.getElementById(`name-${id}`).value, 
+                document.getElementById(`type-${id}`).value, 
+                init, 
+                final,
+                diff
+            ]);
+        });
+        doc.autoTable({ head: [["Nozzle", "Type", "Start", "End", "Difference"]], body: rows, startY: doc.lastAutoTable.finalY + 10 });
+        
+        const finalY = doc.lastAutoTable.finalY + 15;
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bold");
+        doc.text("Designed By - Mozahid", 14, finalY);
+
+        doc.save(`${station}_Report.pdf`);
     }
 
     function saveMem() {
@@ -365,16 +663,28 @@
             document.getElementById('p91').value = data.p91 || "";
             document.getElementById('p95').value = data.p95 || "";
             document.getElementById('pd').value = data.pd || "";
-            isDayTime = data.day;
+            isDayTime = data.day !== undefined ? data.day : true;
             
-            if (!isDayTime) {
+            // Set initial theme based on loaded shift
+            if (isDayTime) {
+                document.body.classList.remove('night-mode');
+                document.getElementById('shift-icon').innerHTML = '<i class="fa-regular fa-sun"></i>';
+                document.getElementById('shift-text').innerText = "DAY SHIFT (6AM-6PM)";
+            } else {
                 document.body.classList.add('night-mode');
+                document.getElementById('shift-icon').innerHTML = '<i class="fa-regular fa-moon"></i>';
                 document.getElementById('shift-text').innerText = "NIGHT SHIFT (6PM-6AM)";
             }
             
             data.nozzles.forEach(n => addNewNozzle(n));
             doMath();
-        } else { addNewNozzle(); }
+        } else { 
+            addNewNozzle(); 
+            // Set initial theme
+            document.body.classList.remove('night-mode');
+            document.getElementById('shift-icon').innerHTML = '<i class="fa-regular fa-sun"></i>';
+            document.getElementById('shift-text').innerText = "DAY SHIFT (6AM-6PM)";
+        }
     }
 
     function updateRowColor(id) {
