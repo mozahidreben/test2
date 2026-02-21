@@ -49,6 +49,19 @@
             color: var(--text-primary);
             transition: background-color 0.3s ease, color 0.3s ease;
         }
+
+        /* ROUND PROCESSING SPINNER */
+        .spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(0,0,0,0.1);
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
         .invalid { 
             border: 2px solid var(--error) !important; 
@@ -257,6 +270,7 @@
             transition: 0.2s, background-color 0.3s ease;
         }
         .tool-btn:active { transform: translateY(2px); }
+        .tool-btn:disabled { opacity: 0.8; cursor: not-allowed; }
         
         .btn-add { background: #000; color: #fff; }
         .btn-xl { background: #e8f5e9; color: #2e7d32; }
@@ -265,11 +279,23 @@
             color: #ef6c00;
             transition: all 0.3s ease;
         }
+        /* SYNCING STATE FOR NEXT SHIFT BUTTON */
+        .btn-next.syncing { 
+            background: #ffebee !important; 
+            color: #d32f2f !important; 
+        }
+
         body.night-mode .btn-next {
             background: #2c3e50;
             color: #f1c40f;
             border: 1px solid #f1c40f;
         }
+        body.night-mode .btn-next.syncing {
+            background: #4a1a1a !important;
+            color: #ff3b30 !important;
+            border-color: #ff3b30 !important;
+        }
+
         .btn-pdf { background: #ffebee; color: #c62828; }
         body.night-mode .btn-pdf {
             background: #2c3e50;
@@ -324,7 +350,7 @@
     <div class="action-row">
         <button class="tool-btn btn-add" onclick="addNewNozzle()"><i class="fa-solid fa-plus"></i></button>
         <button class="tool-btn btn-xl" onclick="exportExcel()"><b>EXCEL</b></button>
-        <button class="tool-btn btn-next" onclick="rotateShift()"><b>NEXT SHIFT</b></button>
+        <button class="tool-btn btn-next" id="btnNext" onclick="rotateShift()"><b>NEXT SHIFT</b></button>
         <button class="tool-btn btn-pdf" onclick="exportPDF()"><b>PDF</b></button>
         <button class="tool-btn btn-wa" onclick="shareWA()"><i class="fa-brands fa-whatsapp"></i></button>
     </div>
@@ -470,29 +496,46 @@
     async function rotateShift() {
         if(!confirm("Start Next Shift? Final values will become Initial values and data will sync to Google Sheet.")) return;
         
-        // Sync to sheet before rotating values
-        await syncToSheet();
+        const btn = document.getElementById('btnNext');
+        const oldContent = btn.innerHTML;
         
-        isDayTime = !isDayTime;
-        document.getElementById('shift-text').innerText = isDayTime ? "DAY SHIFT (6AM-6PM)" : "NIGHT SHIFT (6PM-6AM)";
-        
-        if (isDayTime) {
-            document.body.classList.remove('night-mode');
-            document.getElementById('shift-icon').innerHTML = '<i class="fa-regular fa-sun"></i>';
-        } else {
-            document.body.classList.add('night-mode');
-            document.getElementById('shift-icon').innerHTML = '<i class="fa-regular fa-moon"></i>';
+        // SWITCH TO RED LOADING STATE
+        btn.disabled = true;
+        btn.classList.add('syncing');
+        btn.innerHTML = `<div class="spinner"></div><br><b>SYNCING...</b>`;
+
+        try {
+            // Sync to sheet before rotating values
+            await syncToSheet();
+            
+            isDayTime = !isDayTime;
+            document.getElementById('shift-text').innerText = isDayTime ? "DAY SHIFT (6AM-6PM)" : "NIGHT SHIFT (6PM-6AM)";
+            
+            if (isDayTime) {
+                document.body.classList.remove('night-mode');
+                document.getElementById('shift-icon').innerHTML = '<i class="fa-regular fa-sun"></i>';
+            } else {
+                document.body.classList.add('night-mode');
+                document.getElementById('shift-icon').innerHTML = '<i class="fa-regular fa-moon"></i>';
+            }
+            
+            document.querySelectorAll('.nozzle-row').forEach(row => {
+                const id = row.id.split('-')[1];
+                document.getElementById(`i${id}`).value = document.getElementById(`f${id}`).value;
+                document.getElementById(`f${id}`).value = "";
+                row.querySelector('.lbl-init').innerText = isDayTime ? "INITIAL (6 AM)" : "INITIAL (6 PM)";
+                row.querySelector('.lbl-final').innerText = isDayTime ? "FINAL (6 PM)" : "FINAL (6 AM)";
+            });
+            doMath();
+            saveMem();
+        } catch (err) {
+            console.error(err);
+        } finally {
+            // RESET BUTTON
+            btn.disabled = false;
+            btn.classList.remove('syncing');
+            btn.innerHTML = `<b>NEXT SHIFT</b>`;
         }
-        
-        document.querySelectorAll('.nozzle-row').forEach(row => {
-            const id = row.id.split('-')[1];
-            document.getElementById(`i${id}`).value = document.getElementById(`f${id}`).value;
-            document.getElementById(`f${id}`).value = "";
-            row.querySelector('.lbl-init').innerText = isDayTime ? "INITIAL (6 AM)" : "INITIAL (6 PM)";
-            row.querySelector('.lbl-final').innerText = isDayTime ? "FINAL (6 PM)" : "FINAL (6 AM)";
-        });
-        doMath();
-        saveMem();
     }
 
     async function startScan(id) { 
@@ -597,7 +640,7 @@
 
     function getTopDateStr() {
         const d = new Date();
-        if (!isDayTime) d.setDate(d.getDate() - 1); // Previous day for night shift
+        if (!isDayTime) d.setDate(d.getDate() - 1); 
         return formatDate(d);
     }
 
@@ -626,6 +669,7 @@
             msg += `Note - Closing reading recorded%0A`;
             msg += `     ${getNowStr()} Morning time%0A%0A`;
         }
+        
         
         msg += `*Designed by Mozahid*`;
         window.open(`https://wa.me/?text=${msg}`, '_blank');
