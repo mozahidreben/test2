@@ -20,7 +20,6 @@
             --error: #ff3b30; 
             --wa: #25D366; 
             --glass: rgba(255, 255, 255, 0.95);
-            
             --primary-bg: #f2f4f7;
             --card-bg: white;
             --text-primary: #1a1a1a;
@@ -58,9 +57,9 @@
         }
         
         body.night-mode .invalid {
-            background-color: #4a1a1a !important; 
-            border-color: #ff6b6b !important; 
-            color: #fff !important; 
+            background-color: #4a1a1a !important;
+            border-color: #ff6b6b !important;
+            color: #fff !important;
         }
         
         .p-input input.invalid { color: #000 !important; }
@@ -468,7 +467,7 @@
             .replace(/[I|l]/g, '1')
             .replace(/[B]/g, '8')
             .replace(/[Z]/g, '2')
-            .replace(/[^0-9.]/g, ''); 
+            .replace(/[^0-9.]/g, '');
     }
 
     async function tick() {
@@ -485,6 +484,7 @@
                 let { data: { text, confidence } } = await worker.recognize(c);
                 text = sanitizeOCR(text);
                 const match = text.match(/\d+\.\d{1,3}/) || text.match(/\d{3,}/);
+
                 if (match && confidence > 70) { 
                     document.getElementById('flash').classList.add('trigger-flash');
                     document.getElementById(activeId).value = match[0]; 
@@ -531,47 +531,43 @@
         document.getElementById('grandTotal').innerText = total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
     }
 
+    function formatDate(date) {
+        return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, ' - ');
+    }
+
+    function getTopDateStr() {
+        const d = new Date();
+        if (!isDayTime) d.setDate(d.getDate() - 1); // Previous day for night shift
+        return formatDate(d);
+    }
+
     function getNowStr() {
-        return new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, ' - ');
+        return formatDate(new Date());
     }
 
     function shareWA() {
         if(!validate()) { alert("Please complete Station Name and Prices"); return; }
         const station = document.getElementById('sn').value.toUpperCase();
+        const shift = isDayTime ? "Day" : "Night";
         const time = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
         
-        let msg = "";
-        if(isDayTime) {
-            msg = `笵ｽ *Station Report*%0A%0A`;
-            msg += `    *${station}*%0A`;
-            msg += `     Date ${getNowStr()}%0A`;
-            msg += `     Shift - Day%0A`;
-            msg += `     Reporting Time - ${time}%0A%0A`;
-            msg += `---- SUMMARY ----%0A%0A`;
-            msg += `🟢 *91 Total:* ${document.getElementById('sum91').innerText} L%0A`;
-            msg += `🔴 *95 Total:* ${document.getElementById('sum95').innerText} L%0A`;
-            msg += `🟡 *D   Total:* ${document.getElementById('sumD').innerText} L%0A`;
-            msg += `💰 *Total Amount:* ${document.getElementById('grandTotal').innerText} SAR%0A%0A%0A%0A`;
-            msg += `*Designed by Mozahid*`;
-        } else {
-            const nextDay = new Date();
-            nextDay.setDate(nextDay.getDate() + 1);
-            const nextDayStr = nextDay.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, ' - ');
-            
-            msg = `⛽ *Station Report*%0A%0A`;
-            msg += `    *${station}*%0A`;
-            msg += `     Date ${getNowStr()}%0A`;
-            msg += `     Shift - Night%0A`;
-            msg += `     Reporting Time - ${time}%0A%0A`;
-            msg += `---- SUMMARY ----%0A%0A`;
-            msg += `🟢 *91 Total:* ${document.getElementById('sum91').innerText} L%0A`;
-            msg += `🔴 *95 Total:* ${document.getElementById('sum95').innerText} L%0A`;
-            msg += `🟡 *D   Total:* ${document.getElementById('sumD').innerText} L%0A`;
-            msg += `💰 *Total Amount:* ${document.getElementById('grandTotal').innerText} SAR%0A%0A`;
+        let msg = `⛽ *Station Report*%0A%0A`;
+        msg += `    *${station}*%0A`;
+        msg += `     Date ${getTopDateStr()}%0A`; // Logic applied here
+        msg += `     Shift - ${shift}%0A`;
+        msg += `     Reporting Time - ${time}%0A%0A`;
+        msg += `---- SUMMARY ----%0A%0A`;
+        msg += `🟢 *91 Total:* ${document.getElementById('sum91').innerText} L%0A`;
+        msg += `🔴 *95 Total:* ${document.getElementById('sum95').innerText} L%0A`;
+        msg += `🟡 *D   Total:* ${document.getElementById('sumD').innerText} L%0A`;
+        msg += `💰 *Total Amount:* ${document.getElementById('grandTotal').innerText} SAR%0A%0A`;
+        
+        if (!isDayTime) {
             msg += `Note - Closing reading recorded%0A`;
-            msg += `     ${nextDayStr} Morning time%0A%0A%0A%0A`;
-            msg += `*Designed by Mozahid*`;
+            msg += `     ${getNowStr()} Morning time%0A%0A`; // Current day for morning note
         }
+        
+        msg += `*Designed by Mozahid*`;
         
         window.open(`https://wa.me/?text=${msg}`, '_blank');
     }
@@ -581,7 +577,7 @@
         const station = document.getElementById('sn').value.toUpperCase();
         const headerInfo = [
             ["STATION", station],
-            ["DATE", getNowStr()],
+            ["DATE", getTopDateStr()],
             ["SHIFT", isDayTime ? "Day" : "Night"],
             ["91 PRICE", document.getElementById('p91').value],
             ["95 PRICE", document.getElementById('p95').value],
@@ -617,12 +613,11 @@
         const doc = new jsPDF();
         const station = document.getElementById('sn').value.toUpperCase();
         const shift = isDayTime ? "Day" : "Night";
-        const shiftHours = isDayTime ? "6 AM - 6 PM" : "6 PM - 6 AM";
         const time = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
         doc.setFontSize(18); doc.text(`STATION: ${station}`, 14, 20);
         doc.setFontSize(10);
-        doc.text(`Date: ${getNowStr()} | Shift: ${shift} (${shiftHours}) | Time: ${time}`, 14, 28);
+        doc.text(`Date: ${getTopDateStr()} | Shift: ${shift} | Time: ${time}`, 14, 28);
         doc.text(`Prices: 91 (${document.getElementById('p91').value}) | 95 (${document.getElementById('p95').value}) | D (${document.getElementById('pd').value})`, 14, 34);
         
         const summary = [
@@ -650,7 +645,16 @@
         });
         doc.autoTable({ head: [["Nozzle", "Type", "Start", "End", "Difference"]], body: rows, startY: doc.lastAutoTable.finalY + 10 });
         
-        const finalY = doc.lastAutoTable.finalY + 15;
+        let finalY = doc.lastAutoTable.finalY + 15;
+        
+        if (!isDayTime) {
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
+            doc.text("Note - Closing reading recorded", 14, finalY);
+            doc.text(`${getNowStr()} Morning time`, 14, finalY + 5);
+            finalY += 15;
+        }
+
         doc.setFontSize(12);
         doc.setFont("helvetica", "bold");
         doc.text("Designed By - Mozahid", 14, finalY);
