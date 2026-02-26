@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Reben · mobile</title>
+    <title>Reben Pro Compact</title>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -11,540 +11,373 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        :root { 
+            --reben-red: #E30613; 
+            --bg: #f2f4f7; 
+            --91: #1a9a4c; 
+            --95: #d32f2f; 
+            --d: #f1c40f; 
+            --error: #ff3b30; 
+            --wa: #25D366; 
+            --glass: rgba(255, 255, 255, 0.95);
+            --primary-bg: #f2f4f7;
+            --card-bg: white;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666;
+            --input-bg: #fcfcfc;
+            --input-border: #edf2f7;
+            --footer-bg: rgba(255, 255, 255, 0.95);
+            --shift-indicator: #000;
         }
-
-        :root {
-            --reben-red: #E30613;
-            --primary-bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
-            --input-bg: #f1f5f9;
-            --input-border: #e2e8f0;
-            --footer-bg: rgba(255, 255, 255, 0.98);
-            --shift-indicator: #0f172a;
-            --91: #059669;
-            --95: #dc2626;
-            --d: #f59e0b;
-            --wa: #25D366;
-            --error: #ef4444;
-        }
-
+        
         body.night-mode {
-            --primary-bg: #0f172a;
-            --card-bg: #1e293b;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --input-bg: #334155;
-            --input-border: #475569;
-            --footer-bg: rgba(30, 41, 59, 0.98);
-            --shift-indicator: #fbbf24;
+            --primary-bg: #1a1e24;
+            --card-bg: #2c3e50;
+            --text-primary: #ecf0f1;
+            --text-secondary: #bdc3c7;
+            --input-bg: #34495e;
+            --input-border: #4a5b6b;
+            --footer-bg: rgba(44, 62, 80, 0.98);
+            --shift-indicator: #f1c40f;
         }
-
-        body {
-            background: var(--primary-bg);
-            padding: 0 8px 180px 8px;
-            min-height: 100vh;
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { 
+            background: var(--primary-bg); 
+            padding-bottom: 200px; 
+            padding-top: 10px; 
             color: var(--text-primary);
-            transition: all 0.2s ease;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* FROZEN HEADER - STICKS TO TOP */
-        .frozen-header {
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            background: var(--primary-bg);
-            padding: 8px 0 4px 0;
-            margin-bottom: 8px;
-        }
-
-        /* Station card - more compact */
-        .station-card {
-            background: var(--card-bg);
-            border-radius: 28px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-            border: 1px solid var(--input-border);
-        }
-
-        .station-input {
-            width: 100%;
-            padding: 14px 12px;
-            border: none;
-            font-weight: 700;
-            font-size: 17px;
-            text-align: center;
-            letter-spacing: 0.5px;
-            color: var(--reben-red);
-            background: var(--card-bg);
-            border-bottom: 1px solid var(--input-border);
-            outline: none;
-            text-transform: uppercase;
-        }
-
-        /* COMPACT PRICE SECTION */
-        .price-row {
-            display: flex;
-            gap: 6px;
-            padding: 10px;
-        }
-
-        .price-item {
-            flex: 1;
-            background: var(--input-bg);
-            border-radius: 40px;
-            padding: 6px 4px;
-            text-align: center;
-            border: 1px solid var(--input-border);
-        }
-
-        .price-item label {
-            display: block;
-            font-size: 8px;
-            font-weight: 700;
-            color: var(--text-secondary);
-            letter-spacing: 0.3px;
-        }
-
-        .price-item input {
-            width: 100%;
-            border: none;
-            background: transparent;
-            font-weight: 800;
-            font-size: 14px;
-            text-align: center;
-            color: var(--text-primary);
-            outline: none;
-            padding: 2px;
-        }
-
-        /* Apps section - compact */
-        .apps-card {
-            background: var(--card-bg);
-            border-radius: 24px;
-            margin-bottom: 10px;
-            padding: 12px;
-            border: 1px solid var(--input-border);
-        }
-
-        .apps-header {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .apps-btn {
-            flex: 2;
-            background: #000;
-            color: white;
-            border: none;
-            border-radius: 40px;
-            padding: 12px 0;
-            font-weight: 600;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            cursor: pointer;
-        }
-
-        .cash-badge {
-            flex: 1;
-            background: var(--91);
-            border-radius: 40px;
-            padding: 6px 8px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: white;
-        }
-
-        .cash-badge span:first-child {
-            font-size: 8px;
-            font-weight: 600;
-            opacity: 0.9;
-        }
-
-        .cash-badge span:last-child {
-            font-size: 16px;
-            font-weight: 800;
-            line-height: 1.2;
-        }
-
-        /* Apps grid - 2 columns */
-        .apps-grid {
-            display: none;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px;
-            margin-top: 12px;
-        }
-
-        .app-item {
-            background: var(--input-bg);
-            border-radius: 20px;
-            padding: 8px 4px;
-            border: 1px solid var(--input-border);
-        }
-
-        .app-item label {
-            display: block;
-            font-size: 7px;
-            font-weight: 700;
-            color: var(--text-secondary);
-            margin-bottom: 2px;
-            text-align: center;
-            letter-spacing: 0.3px;
-        }
-
-        .app-item input {
-            width: 100%;
-            border: none;
-            background: transparent;
-            font-weight: 800;
-            font-size: 13px;
-            text-align: center;
-            color: var(--text-primary);
-            outline: none;
-        }
-
-        /* Nozzle cards - with stacked readings */
-        .nozzle-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .nozzle-card {
-            background: var(--card-bg);
-            border-radius: 24px;
-            padding: 12px;
-            border-left: 8px solid;
-            border: 1px solid var(--input-border);
-            border-left-width: 8px;
-        }
-
-        .card-91 { border-left-color: var(--91); }
-        .card-95 { border-left-color: var(--95); }
-        .card-d { border-left-color: var(--d); }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            gap: 6px;
-        }
-
-        .nozzle-name {
-            border: none;
-            background: var(--input-bg);
-            font-weight: 700;
-            font-size: 14px;
-            color: var(--text-primary);
-            width: 120px;
-            padding: 8px 12px;
-            border-radius: 30px;
-            outline: none;
-            border: 1px solid var(--input-border);
-        }
-
-        .fuel-badge {
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
-            border-radius: 30px;
-            padding: 8px 14px;
-            font-weight: 600;
-            font-size: 12px;
-            color: var(--text-primary);
-            outline: none;
-        }
-
-        .delete-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 16px;
-            width: 36px;
-            height: 36px;
-            border-radius: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-
-        /* STACKED READINGS - EACH IN ITS OWN ROW */
-        .reading-stack {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        .reading-row {
-            width: 100%;
-            position: relative;
-        }
-
-        .reading-row label {
-            display: block;
-            font-size: 10px;
-            font-weight: 700;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-            padding-left: 4px;
-        }
-
-        .reading-field {
-            width: 100%;
-            padding: 14px 50px 14px 16px;
-            border: 1.5px solid var(--input-border);
-            border-radius: 24px;
-            font-weight: 800;
-            font-size: 20px;
-            background: var(--input-bg);
-            color: var(--text-primary);
-            outline: none;
-        }
-
-        .cam-btn {
-            position: absolute;
-            bottom: 8px;
-            right: 8px;
-            background: #334155;
-            color: white;
-            border: none;
-            border-radius: 30px;
-            width: 38px;
-            height: 38px;
-            font-size: 14px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .diff-badge {
-            text-align: right;
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text-secondary);
-            background: var(--input-bg);
-            padding: 6px 14px;
-            border-radius: 30px;
-            display: inline-block;
-            margin-left: auto;
-        }
-        .diff-error { color: var(--error) !important; background: rgba(239,68,68,0.1) !important; }
-
-        /* Footer */
-        .footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--footer-bg);
-            backdrop-filter: blur(12px);
-            padding: 12px 16px 24px;
-            border-radius: 30px 30px 0 0;
-            border-top: 1px solid var(--input-border);
-            z-index: 100;
-        }
-
-        .stats-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-bottom: 12px;
-        }
-
-        .shift-badge {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-secondary);
-            background: var(--input-bg);
-            padding: 8px 14px;
-            border-radius: 30px;
-            border: 1px solid var(--input-border);
-        }
-
-        .fuel-mini {
-            display: flex;
-            gap: 12px;
-            margin-top: 6px;
-            font-size: 11px;
-        }
-
-        .grand-total {
-            font-size: 34px;
-            font-weight: 800;
-            color: var(--shift-indicator);
-            letter-spacing: -1px;
-            line-height: 1;
-        }
-
-        .action-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1.2fr 1fr 0.8fr;
-            gap: 6px;
-        }
-
-        .action {
-            border: none;
-            border-radius: 30px;
-            font-weight: 700;
-            font-size: 10px;
-            height: 52px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 2px;
-            cursor: pointer;
-            background: var(--input-bg);
-            color: var(--text-primary);
-            border: 1px solid var(--input-border);
-        }
-
-        .btn-add { background: #000; color: white; border: none; }
-        .btn-excel { background: #e8f5e9; color: #2e7d32; }
-        .btn-next { background: #fff3e0; color: #ef6c00; }
-        .btn-pdf { background: #ffebee; color: #c62828; }
-        .btn-wa { background: var(--wa); color: white; font-size: 20px; border: none; }
-
-        body.night-mode .btn-excel { background: #1e293b; color: #4ade80; border: 1px solid #4ade80; }
-        body.night-mode .btn-next { background: #1e293b; color: #fbbf24; border: 1px solid #fbbf24; }
-        body.night-mode .btn-pdf { background: #1e293b; color: #f87171; border: 1px solid #f87171; }
-
+        /* ROUND PROCESSING SPINNER */
         .spinner {
             width: 14px;
             height: 14px;
             border: 2px solid rgba(0,0,0,0.1);
-            border-top-color: currentColor;
+            border-top: 2px solid currentColor;
             border-radius: 50%;
-            animation: spin 0.6s linear infinite;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+            margin-bottom: 4px;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .invalid { border-color: var(--error) !important; background: #fee2e2 !important; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* Scanner modal */
-        .modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: #000;
-            z-index: 2000;
-            flex-direction: column;
+        .invalid { 
+            border: 2px solid var(--error) !important; 
+            background-color: #fff0f0 !important; 
+            color: #000 !important; 
         }
-        .cam-view {
-            flex: 1;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        
+        body.night-mode .invalid {
+            background-color: #4a1a1a !important;
+            border-color: #ff6b6b !important;
+            color: #fff !important;
         }
+        
+        .p-input input.invalid { color: #000 !important; }
+        body.night-mode .p-input input.invalid { color: #fff !important; }
+
+        .top-nav { 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            background: var(--card-bg); 
+            margin: 0 12px 15px 12px; 
+            border-radius: 20px; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06); 
+            overflow: hidden;
+            transition: background-color 0.3s ease;
+        }
+        .station-input { 
+            width: 100%; 
+            padding: 15px; 
+            border: none; 
+            font-weight: 900; 
+            text-align: center; 
+            font-size: 18px; 
+            outline: none; 
+            color: var(--reben-red); 
+            text-transform: uppercase; 
+            border-bottom: 1px solid var(--input-border);
+            background: var(--card-bg);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .price-settings { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr 1fr; 
+            gap: 8px; 
+            padding: 12px; 
+            background: var(--card-bg);
+            transition: background-color 0.3s ease;
+        }
+        .p-input { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            background: var(--input-bg); 
+            padding: 8px; 
+            border-radius: 12px;
+            transition: background-color 0.3s ease;
+        }
+        .p-input label { font-size: 10px; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px; }
+        .p-input input { 
+            width: 100%; 
+            border: none; 
+            background: transparent; 
+            text-align: center; 
+            font-weight: 900; 
+            font-size: 15px; 
+            outline: none; 
+            color: var(--text-primary);
+            transition: color 0.3s ease;
+        }
+
+        .nozzle-list { padding: 0 12px; }
+        .nozzle-row { 
+            background: var(--card-bg); 
+            border-radius: 20px; 
+            padding: 15px; 
+            margin-bottom: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04); 
+            border-left: 10px solid #ccc; 
+            transition: transform 0.2s, background-color 0.3s ease;
+        }
+        .nozzle-row:active { transform: scale(0.98); }
+        .row-91 { border-left-color: var(--91); }
+        .row-95 { border-left-color: var(--95); }
+        .row-d { border-left-color: var(--d); }
+
+        .row-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .nozzle-num-input { 
+            border: none; 
+            font-weight: 900; 
+            color: var(--text-primary); 
+            font-size: 1.1rem; 
+            width: 120px; 
+            outline: none;
+            background: transparent;
+            transition: color 0.3s ease;
+        }
+        .fuel-select { 
+            padding: 6px 12px; 
+            border-radius: 10px; 
+            border: 1px solid var(--input-border); 
+            background: var(--input-bg); 
+            font-weight: 800; 
+            font-size: 11px; 
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .scan-grid { display: flex; flex-direction: column; gap: 12px; }
+        .input-grp { position: relative; width: 100%; display: flex; flex-direction: column; }
+        .input-grp label { 
+            font-size: 10px; 
+            color: var(--text-secondary); 
+            font-weight: 700; 
+            margin-bottom: 4px; 
+            padding-left: 2px;
+            transition: color 0.3s ease;
+        }
+        
+        .reading-input { 
+            width: 100%; 
+            padding: 12px 50px 12px 15px; 
+            border: 1.5px solid var(--input-border); 
+            border-radius: 12px; 
+            font-weight: 900; 
+            font-size: 24px; 
+            background: var(--input-bg); 
+            outline: none;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+        .cam-btn { 
+            position: absolute; 
+            bottom: 8px; 
+            right: 8px; 
+            background: #333; 
+            color: white; 
+            border: none; 
+            border-radius: 10px; 
+            width: 40px; 
+            height: 40px; 
+            font-size: 16px; 
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .diff-tag { 
+            margin-top: 10px; 
+            font-size: 12px; 
+            font-weight: 900; 
+            color: var(--text-secondary); 
+            text-align: right;
+            transition: color 0.3s ease;
+        }
+        .diff-error { color: var(--error) !important; animation: shake 0.3s ease-in-out; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+
+        .footer-tools { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            right: 0; 
+            background: var(--footer-bg); 
+            backdrop-filter: blur(10px); 
+            padding: 15px 15px 30px 15px; 
+            border-radius: 30px 30px 0 0; 
+            z-index: 200; 
+            box-shadow: 0 -10px 25px rgba(0,0,0,0.1);
+            transition: background-color 0.3s ease;
+        }
+        .stats { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-bottom: 18px; 
+            color: var(--text-primary); 
+            align-items: flex-end;
+            transition: color 0.3s ease;
+        }
+        .total-val { 
+            color: var(--shift-indicator); 
+            font-size: 34px; 
+            font-weight: 900; 
+            letter-spacing: -1px;
+            transition: color 0.3s ease;
+        }
+        .shift-label { 
+            font-size: 10px; 
+            color: var(--text-secondary); 
+            font-weight: 700;
+            transition: color 0.3s ease;
+        }
+
+        .action-row { display: grid; grid-template-columns: 1fr 1fr 1.2fr 1fr 0.8fr; gap: 8px; }
+        .tool-btn { 
+            border: none; 
+            border-radius: 16px; 
+            font-weight: 800; 
+            font-size: 10px; 
+            height: 54px; 
+            cursor: pointer; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            transition: 0.2s, background-color 0.3s ease;
+        }
+        .tool-btn:active { transform: translateY(2px); }
+        .tool-btn:disabled { opacity: 0.8; cursor: not-allowed; }
+        
+        .btn-add { background: #000; color: #fff; }
+        .btn-xl { background: #e8f5e9; color: #2e7d32; }
+        .btn-next { 
+            background: #fff3e0; 
+            color: #ef6c00;
+            transition: all 0.3s ease;
+        }
+        /* SYNCING STATE FOR NEXT SHIFT BUTTON */
+        .btn-next.syncing { 
+            background: #ffebee !important; 
+            color: #d32f2f !important; 
+        }
+
+        body.night-mode .btn-next {
+            background: #2c3e50;
+            color: #f1c40f;
+            border: 1px solid #f1c40f;
+        }
+        body.night-mode .btn-next.syncing {
+            background: #4a1a1a !important;
+            color: #ff3b30 !important;
+            border-color: #ff3b30 !important;
+        }
+
+        .btn-pdf { background: #ffebee; color: #c62828; }
+        body.night-mode .btn-pdf {
+            background: #2c3e50;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+        .btn-wa { background: var(--wa); color: #fff; font-size: 22px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3); }
+
+        .modal { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; flex-direction: column; }
+        .cam-view { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; }
         video { width: 100%; height: 100%; object-fit: cover; }
-        .guide {
-            position: absolute;
-            width: 80%;
-            height: 100px;
-            border: 2px solid white;
-            border-radius: 20px;
-            box-shadow: 0 0 0 4000px rgba(0,0,0,0.7);
+        .guide { position: absolute; width: 80%; height: 80px; border: 2px solid white; border-radius: 12px; box-shadow: 0 0 0 4000px rgba(0,0,0,0.6); z-index: 5; }
+        .guide::after { content: 'ALIGN READING HERE'; position: absolute; top: -25px; left: 0; width: 100%; text-align: center; color: white; font-size: 10px; font-weight: bold; letter-spacing: 1px; }
+        
+        .scan-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 40px 20px; z-index: 10; pointer-events: none; }
+        .scan-btn-row { pointer-events: auto; display: flex; justify-content: space-around; padding-bottom: 20px; }
+        
+        .flash-success { position: absolute; inset: 0; background: var(--wa); opacity: 0; z-index: 15; pointer-events: none; }
+        @keyframes flashAnim { 0% { opacity: 0.6; } 100% { opacity: 0; } }
+        .trigger-flash { animation: flashAnim 0.3s ease-out forwards; }
+
+        .shift-indicator {
+            display: inline-block;
+            margin-left: 5px;
+            font-size: 12px;
+            color: var(--shift-indicator);
         }
     </style>
 </head>
 <body>
 
-<!-- FROZEN HEADER - STICKS TO TOP -->
-<div class="frozen-header">
-    <div class="station-card">
-        <input type="text" id="sn" class="station-input" placeholder="STATION NAME" oninput="saveMem()">
-        <!-- COMPACT PRICE SECTION -->
-        <div class="price-row">
-            <div class="price-item"><label>91</label><input type="number" id="p91" step="0.01" oninput="doMath(); saveMem()"></div>
-            <div class="price-item"><label>95</label><input type="number" id="p95" step="0.01" oninput="doMath(); saveMem()"></div>
-            <div class="price-item"><label>DIESEL</label><input type="number" id="pd" step="0.01" oninput="doMath(); saveMem()"></div>
-        </div>
+<div class="top-nav">
+    <input type="text" id="sn" class="station-input" placeholder="STATION NAME" oninput="saveMem()">
+    <div class="price-settings">
+        <div class="p-input"><label>OCTANE 91</label><input type="number" id="p91" step="0.01" oninput="doMath(); saveMem()"></div>
+        <div class="p-input"><label>OCTANE 95</label><input type="number" id="p95" step="0.01" oninput="doMath(); saveMem()"></div>
+        <div class="p-input"><label>DIESEL</label><input type="number" id="pd" step="0.01" oninput="doMath(); saveMem()"></div>
     </div>
 </div>
 
-<!-- Apps Section -->
-<div class="apps-card">
-    <div class="apps-header">
-        <button class="apps-btn" onclick="toggleApps()" id="appsToggleBtn"><i class="fa-solid fa-plus"></i> APPS</button>
-        <div class="cash-badge">
-            <span>CASH</span>
-            <span id="cashAmount">0.00</span>
+<div class="nozzle-list" id="list"></div>
+
+<div class="footer-tools">
+    <div class="stats">
+        <div class="shift-label">
+            <span id="shift-text">SHIFT DATA</span>
+            <span id="shift-icon" class="shift-indicator"><i class="fa-regular fa-sun"></i></span><br>
+            91: <span id="sum91" style="color:var(--91)">0</span> | 95: <span id="sum95" style="color:var(--95)">0</span> | D: <span id="sumD">0</span>
         </div>
+        <div class="total-val" id="grandTotal">0.00</div>
     </div>
-    <div class="apps-grid" id="appsContainer">
-        <div class="app-item"><label>REBEN</label><input type="number" id="appReben" value="0" oninput="calculatePayments(); saveMem()"></div>
-        <div class="app-item"><label>PETRO</label><input type="number" id="appPetro" value="0" oninput="calculatePayments(); saveMem()"></div>
-        <div class="app-item"><label>SAYYARA</label><input type="number" id="appSayyara" value="0" oninput="calculatePayments(); saveMem()"></div>
-        <div class="app-item"><label>KAFARAT</label><input type="number" id="appKafarat" value="0" oninput="calculatePayments(); saveMem()"></div>
-        <div class="app-item"><label>OTHER</label><input type="number" id="appOther" value="0" oninput="calculatePayments(); saveMem()"></div>
-        <div class="app-item"><label>CREDIT</label><input type="number" id="appCredit" value="0" oninput="calculatePayments(); saveMem()"></div>
-        <div class="app-item"><label>DEBIT</label><input type="number" id="appDebit" value="0" oninput="calculatePayments(); saveMem()"></div>
+    <div class="action-row">
+        <button class="tool-btn btn-add" onclick="addNewNozzle()"><i class="fa-solid fa-plus"></i></button>
+        <button class="tool-btn btn-xl" onclick="exportExcel()"><b>EXCEL</b></button>
+        <button class="tool-btn btn-next" id="btnNext" onclick="rotateShift()"><b>NEXT SHIFT</b></button>
+        <button class="tool-btn btn-pdf" onclick="exportPDF()"><b>PDF</b></button>
+        <button class="tool-btn btn-wa" onclick="shareWA()"><i class="fa-brands fa-whatsapp"></i></button>
     </div>
 </div>
 
-<!-- Nozzle List -->
-<div id="list" class="nozzle-list"></div>
-
-<!-- Footer -->
-<div class="footer">
-    <div class="stats-row">
-        <div>
-            <div class="shift-badge">
-                <span id="shift-text">DAY SHIFT (6AM-6PM)</span>
-                <span id="shift-icon"><i class="fa-regular fa-sun"></i></span>
-            </div>
-            <div class="fuel-mini">
-                <span>91: <span id="sum91" style="color:var(--91)">0</span></span>
-                <span>95: <span id="sum95" style="color:var(--95)">0</span></span>
-                <span>D: <span id="sumD">0</span></span>
-            </div>
-        </div>
-        <div class="grand-total" id="grandTotal">0.00</div>
-    </div>
-    <div class="action-grid">
-        <button class="action btn-add" onclick="addNewNozzle()"><i class="fa-solid fa-plus"></i><span>ADD</span></button>
-        <button class="action btn-excel" onclick="exportExcel()"><b>EXCEL</b></button>
-        <button class="action btn-next" id="btnNext" onclick="rotateShift()"><b>NEXT SHIFT</b></button>
-        <button class="action btn-pdf" onclick="exportPDF()"><b>PDF</b></button>
-        <button class="action btn-wa" onclick="shareWA()"><i class="fa-brands fa-whatsapp"></i></button>
-    </div>
-</div>
-
-<!-- Scanner Modal -->
 <div class="modal" id="scanner">
     <div class="cam-view">
-        <div id="flash" style="position:absolute; inset:0; background:var(--wa); opacity:0; z-index:15; pointer-events:none;"></div>
+        <div id="flash" class="flash-success"></div>
         <video id="v" autoplay playsinline></video>
         <div class="guide"></div>
-        <div style="position:absolute; bottom:40px; left:0; right:0; display:flex; justify-content:center; gap:20px; z-index:20;">
-            <button onclick="toggleTorch()" style="width:56px; height:56px; border-radius:50%; background:rgba(255,255,255,0.2); border:none; color:white; font-size:20px;"><i class="fa-solid fa-bolt"></i></button>
-            <button onclick="stopCam()" style="width:56px; height:56px; border-radius:50%; background:rgba(255,0,0,0.4); border:none; color:white; font-size:20px;"><i class="fa-solid fa-xmark"></i></button>
+        <div class="scan-overlay">
+            <div style="text-align: center; color: white; font-weight: bold; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 5px;">SCANNING...</div>
+            <div class="scan-btn-row">
+                <button onclick="toggleTorch()" id="torchBtn" style="background:rgba(255,255,255,0.2); border:none; color:white; width:60px; height:60px; border-radius:50%; font-size:20px;"><i class="fa-solid fa-bolt"></i></button>
+                <button onclick="stopCam()" style="background:rgba(255,0,0,0.4); border:none; color:white; width:60px; height:60px; border-radius:50%; font-size:20px;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
         </div>
     </div>
     <canvas id="c" style="display:none"></canvas>
 </div>
 
 <script>
-    // ALL YOUR EXISTING JAVASCRIPT CODE REMAINS EXACTLY THE SAME
     let nozzleCount = 0, activeId = null, stream = null, isScanning = false, worker = null;
     let isDayTime = true;
     let torchOn = false;
     
+    // REPLACE THIS WITH YOUR GOOGLE APPS SCRIPT WEB APP URL
     const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbyLrGK3QJ2OJbA421kNuY68KLjSjkAVqm7GDdnctrTaRPwpjlwXORv6PyWc14Uek-Qfpg/exec';
 
     async function initAI() {
@@ -557,38 +390,6 @@
         });
     }
     initAI();
-
-    function toggleApps() {
-        const container = document.getElementById('appsContainer');
-        const btn = document.getElementById('appsToggleBtn');
-        if (container.style.display === 'none' || container.style.display === '') {
-            container.style.display = 'grid';
-            btn.innerHTML = '<i class="fa-solid fa-minus"></i> APPS';
-        } else {
-            container.style.display = 'none';
-            btn.innerHTML = '<i class="fa-solid fa-plus"></i> APPS';
-        }
-        saveMem();
-    }
-
-    function calculatePayments() {
-        const total = parseFloat(document.getElementById('grandTotal').innerText.replace(/,/g, '')) || 0;
-        const r = parseFloat(document.getElementById('appReben').value) || 0;
-        const p = parseFloat(document.getElementById('appPetro').value) || 0;
-        const s = parseFloat(document.getElementById('appSayyara').value) || 0;
-        const k = parseFloat(document.getElementById('appKafarat').value) || 0;
-        const o = parseFloat(document.getElementById('appOther').value) || 0;
-        const c = parseFloat(document.getElementById('appCredit').value) || 0;
-        const d = parseFloat(document.getElementById('appDebit').value) || 0;
-        
-        const appsTotal = r + p + s + k + o;
-        const creditDebitTotal = c + d;
-        const allPaymentsTotal = appsTotal + creditDebitTotal;
-        const cash = total - allPaymentsTotal;
-        
-        document.getElementById('cashAmount').innerText = cash.toFixed(2);
-        return { total, appsTotal, creditDebitTotal, allPaymentsTotal, cash, r, p, s, k, o, c, d };
-    }
 
     function validate() {
         const fields = [document.getElementById('sn'), document.getElementById('p91'), document.getElementById('p95'), document.getElementById('pd')];
@@ -604,38 +405,35 @@
         nozzleCount++;
         const id = nozzleCount;
         const div = document.createElement('div');
-        div.className = `nozzle-card card-${saved ? saved.type.toLowerCase() : '91'}`;
+        div.className = `nozzle-row row-${saved ? saved.type : '91'}`;
         div.id = `card-${id}`;
         
         const labelI = isDayTime ? "INITIAL (6 AM)" : "INITIAL (6 PM)";
         const labelF = isDayTime ? "FINAL (6 PM)" : "FINAL (6 AM)";
 
         div.innerHTML = `
-            <div class="card-header">
-                <input class="nozzle-name" value="${saved ? saved.name : 'Nozzle ' + id}" id="name-${id}" oninput="saveMem()">
-                <select class="fuel-badge" id="type-${id}" onchange="updateRowColor(${id}); saveMem()">
+            <div class="row-top">
+                <input class="nozzle-num-input" value="${saved ? saved.name : 'Nozzle ' + id}" id="name-${id}" oninput="saveMem()">
+                <select class="fuel-select" id="type-${id}" onchange="updateRowColor(${id}); saveMem()">
                     <option value="91" ${saved?.type=='91'?'selected':''}>OCTANE 91</option>
                     <option value="95" ${saved?.type=='95'?'selected':''}>OCTANE 95</option>
                     <option value="D" ${saved?.type=='D'?'selected':''}>DIESEL</option>
                 </select>
-                <button class="delete-btn" onclick="this.parentElement.parentElement.remove(); doMath(); saveMem();"><i class="fa-solid fa-trash"></i></button>
+                <button onclick="this.parentElement.parentElement.remove(); doMath(); saveMem();" style="border:none; background:none; color:#ccc"><i class="fa-solid fa-trash-can"></i></button>
             </div>
-            <!-- STACKED READINGS - EACH IN ITS OWN ROW -->
-            <div class="reading-stack">
-                <div class="reading-row">
-                    <label>${labelI}</label>
-                    <input type="number" id="i${id}" class="reading-field" value="${saved?saved.init:''}" oninput="doMath(); saveMem()">
+            <div class="scan-grid">
+                <div class="input-grp">
+                    <label class="lbl-init">${labelI}</label>
+                    <input type="number" id="i${id}" class="reading-input" value="${saved?saved.init:''}" oninput="doMath(); saveMem()">
                     <button class="cam-btn" onclick="startScan('i${id}')"><i class="fa-solid fa-camera"></i></button>
                 </div>
-                <div class="reading-row">
-                    <label>${labelF}</label>
-                    <input type="number" id="f${id}" class="reading-field" value="${saved?saved.final:''}" oninput="doMath(); saveMem()">
+                <div class="input-grp">
+                    <label class="lbl-final">${labelF}</label>
+                    <input type="number" id="f${id}" class="reading-input" value="${saved?saved.final:''}" oninput="doMath(); saveMem()">
                     <button class="cam-btn" onclick="startScan('f${id}')"><i class="fa-solid fa-camera"></i></button>
                 </div>
             </div>
-            <div style="display: flex; justify-content: flex-end;">
-                <div class="diff-badge" id="diff-${id}">Sales: 0.00 L</div>
-            </div>
+            <div class="diff-tag" id="diff-${id}">Sales: 0.00 L</div>
         `;
         document.getElementById('list').appendChild(div);
         if(!saved) window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
@@ -653,8 +451,6 @@
         const q95 = parseFloat(document.getElementById('sum95').innerText) || 0;
         const qd = parseFloat(document.getElementById('sumD').innerText) || 0;
         
-        const payments = calculatePayments();
-        
         const payload = {
             summary: {
                 q91: q91,
@@ -663,26 +459,13 @@
                 totalAmt: document.getElementById('grandTotal').innerText,
                 amt91: (q91 * p91).toFixed(2),
                 amt95: (q95 * p95).toFixed(2),
-                amtD: (qd * pd).toFixed(2),
-                payments: {
-                    reben: payments.r,
-                    petro: payments.p,
-                    sayyara: payments.s,
-                    kafarat: payments.k,
-                    other: payments.o,
-                    credit: payments.c,
-                    debit: payments.d,
-                    appsTotal: payments.appsTotal,
-                    creditDebitTotal: payments.creditDebitTotal,
-                    allPaymentsTotal: payments.allPaymentsTotal,
-                    cash: payments.cash
-                }
+                amtD: (qd * pd).toFixed(2)
             },
             prices: { p91, p95, pd },
             rows: []
         };
 
-        document.querySelectorAll('.nozzle-card').forEach(row => {
+        document.querySelectorAll('.nozzle-row').forEach(row => {
             const id = row.id.split('-')[1];
             const init = parseFloat(document.getElementById(`i${id}`).value) || 0;
             const final = parseFloat(document.getElementById(`f${id}`).value) || 0;
@@ -711,15 +494,20 @@
     }
 
     async function rotateShift() {
-        if(!confirm("Start Next Shift? Final values will become Initial values.")) return;
+        if(!confirm("Start Next Shift? Final values will become Initial values and data will sync to Google Sheet.")) return;
         
         const btn = document.getElementById('btnNext');
+        const oldContent = btn.innerHTML;
+        
+        // SWITCH TO RED LOADING STATE
         btn.disabled = true;
         btn.classList.add('syncing');
-        btn.innerHTML = `<div class="spinner"></div><span>SYNC</span>`;
+        btn.innerHTML = `<div class="spinner"></div><br><b>SYNCING...</b>`;
 
         try {
+            // Sync to sheet before rotating values
             await syncToSheet();
+            
             isDayTime = !isDayTime;
             document.getElementById('shift-text').innerText = isDayTime ? "DAY SHIFT (6AM-6PM)" : "NIGHT SHIFT (6PM-6AM)";
             
@@ -731,18 +519,19 @@
                 document.getElementById('shift-icon').innerHTML = '<i class="fa-regular fa-moon"></i>';
             }
             
-            document.querySelectorAll('.nozzle-card').forEach(row => {
+            document.querySelectorAll('.nozzle-row').forEach(row => {
                 const id = row.id.split('-')[1];
                 document.getElementById(`i${id}`).value = document.getElementById(`f${id}`).value;
                 document.getElementById(`f${id}`).value = "";
-                row.querySelectorAll('label')[0].innerText = isDayTime ? "INITIAL (6 AM)" : "INITIAL (6 PM)";
-                row.querySelectorAll('label')[1].innerText = isDayTime ? "FINAL (6 PM)" : "FINAL (6 AM)";
+                row.querySelector('.lbl-init').innerText = isDayTime ? "INITIAL (6 AM)" : "INITIAL (6 PM)";
+                row.querySelector('.lbl-final').innerText = isDayTime ? "FINAL (6 PM)" : "FINAL (6 AM)";
             });
             doMath();
             saveMem();
         } catch (err) {
             console.error(err);
         } finally {
+            // RESET BUTTON
             btn.disabled = false;
             btn.classList.remove('syncing');
             btn.innerHTML = `<b>NEXT SHIFT</b>`;
@@ -775,7 +564,13 @@
     }
 
     function sanitizeOCR(text) {
-        return text.replace(/[S]/g, '5').replace(/[O]/g, '0').replace(/[I|l]/g, '1').replace(/[B]/g, '8').replace(/[Z]/g, '2').replace(/[^0-9.]/g, '');
+        return text
+            .replace(/[S]/g, '5')
+            .replace(/[O]/g, '0')
+            .replace(/[I|l]/g, '1')
+            .replace(/[B]/g, '8')
+            .replace(/[Z]/g, '2')
+            .replace(/[^0-9.]/g, '');
     }
 
     async function tick() {
@@ -792,11 +587,12 @@
                 let { data: { text, confidence } } = await worker.recognize(c);
                 text = sanitizeOCR(text);
                 const match = text.match(/\d+\.\d{1,3}/) || text.match(/\d{3,}/);
+
                 if (match && confidence > 70) { 
-                    document.getElementById('flash').style.animation = 'flashAnim 0.3s ease-out';
+                    document.getElementById('flash').classList.add('trigger-flash');
                     document.getElementById(activeId).value = match[0]; 
                     doMath(); saveMem();
-                    setTimeout(() => { document.getElementById('flash').style.animation = ''; stopCam(); }, 300);
+                    setTimeout(() => { document.getElementById('flash').classList.remove('trigger-flash'); stopCam(); }, 300);
                     return; 
                 }
             } catch (err) {}
@@ -810,13 +606,14 @@
         const pr95 = parseFloat(document.getElementById('p95').value) || 0;
         const prd = parseFloat(document.getElementById('pd').value) || 0;
         
-        document.querySelectorAll('.nozzle-card').forEach(row => {
+        document.querySelectorAll('.nozzle-row').forEach(row => {
             const id = row.id.split('-')[1];
             const type = document.getElementById(`type-${id}`).value;
             const initVal = parseFloat(document.getElementById(`i${id}`).value) || 0;
             const finalVal = parseFloat(document.getElementById(`f${id}`).value) || 0;
-            const diff = finalVal - initVal;
+            
             const diffTag = document.getElementById(`diff-${id}`);
+            const diff = finalVal - initVal;
 
             if (finalVal > 0 && diff < 0) {
                 diffTag.innerText = `Error: End < Start`;
@@ -835,7 +632,6 @@
         document.getElementById('sum95').innerText = q95.toFixed(2);
         document.getElementById('sumD').innerText = qd.toFixed(2);
         document.getElementById('grandTotal').innerText = total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-        calculatePayments();
     }
 
     function formatDate(date) {
@@ -857,33 +653,24 @@
         const station = document.getElementById('sn').value.toUpperCase();
         const shift = isDayTime ? "Day" : "Night";
         const time = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
-        const payments = calculatePayments();
-
+        
         let msg = `*⛽Station Report*%0A%0A`;
         msg += `    *${station}*%0A`;
         msg += `     Date ${getTopDateStr()}%0A`;
         msg += `     Shift - ${shift}%0A`;
-        msg += `     Time - ${time}%0A%0A`;
+        msg += `     Reporting Time - ${time}%0A%0A`;
         msg += `---- SUMMARY ----%0A%0A`;
-        msg += ` *91:* ${document.getElementById('sum91').innerText} L%0A`;
-        msg += ` *95:* ${document.getElementById('sum95').innerText} L%0A`;
-        msg += ` *D:* ${document.getElementById('sumD').innerText} L%0A`;
-        msg += ` *💰Total:* ${document.getElementById('grandTotal').innerText} SAR%0A%0A`;
+        msg += ` *🟢91 Total:* ${document.getElementById('sum91').innerText} L%0A`;
+        msg += ` *🔴95 Total:* ${document.getElementById('sum95').innerText} L%0A`;
+        msg += ` *🟡D Total:* ${document.getElementById('sumD').innerText} L%0A`;
+        msg += ` *💰Total Amount:* ${document.getElementById('grandTotal').innerText} SAR%0A%0A`;
         
-        msg += `---- PAYMENTS ----%0A`;
-        if(payments.r > 0) msg += `Reben: ${payments.r.toFixed(2)} SAR%0A`;
-        if(payments.p > 0) msg += `Petro: ${payments.p.toFixed(2)} SAR%0A`;
-        if(payments.s > 0) msg += `Sayyara: ${payments.s.toFixed(2)} SAR%0A`;
-        if(payments.k > 0) msg += `Kafarat: ${payments.k.toFixed(2)} SAR%0A`;
-        if(payments.o > 0) msg += `Other: ${payments.o.toFixed(2)} SAR%0A`;
-        if(payments.c > 0) msg += `Credit: ${payments.c.toFixed(2)} SAR%0A`;
-        if(payments.d > 0) msg += `Debit: ${payments.d.toFixed(2)} SAR%0A`;
-        msg += `*💵 CASH:* ${payments.cash.toFixed(2)} SAR%0A%0A`;
-
         if (!isDayTime) {
             msg += `Note - Closing reading recorded%0A`;
-            msg += `     ${getNowStr()} Morning%0A%0A`;
+            msg += `     ${getNowStr()} Morning time%0A%0A`;
         }
+        
+        
         msg += `*Thank you for being part of Reben!*`;
         window.open(`https://wa.me/?text=${msg}`, '_blank');
     }
@@ -891,8 +678,6 @@
     function exportExcel() {
         if(!validate()) return;
         const station = document.getElementById('sn').value.toUpperCase();
-        const payments = calculatePayments();
-        
         const headerInfo = [
             ["STATION", station],
             ["DATE", getTopDateStr()],
@@ -902,37 +687,20 @@
             ["D PRICE", document.getElementById('pd').value],
             ["GRAND TOTAL", document.getElementById('grandTotal').innerText + " SAR"],
             [],
-            ["FUEL SUMMARY"],
-            ["Fuel", "Liters", "SAR"],
-            ["91", document.getElementById('sum91').innerText, (parseFloat(document.getElementById('sum91').innerText) * parseFloat(document.getElementById('p91').value)).toFixed(2)],
-            ["95", document.getElementById('sum95').innerText, (parseFloat(document.getElementById('sum95').innerText) * parseFloat(document.getElementById('p95').value)).toFixed(2)],
-            ["D", document.getElementById('sumD').innerText, (parseFloat(document.getElementById('sumD').innerText) * parseFloat(document.getElementById('pd').value)).toFixed(2)],
-            [],
-            ["PAYMENTS"],
-            ["Type", "Amount"],
-            ...(payments.r > 0 ? [["Reben", payments.r.toFixed(2)]] : []),
-            ...(payments.p > 0 ? [["Petro", payments.p.toFixed(2)]] : []),
-            ...(payments.s > 0 ? [["Sayyara", payments.s.toFixed(2)]] : []),
-            ...(payments.k > 0 ? [["Kafarat", payments.k.toFixed(2)]] : []),
-            ...(payments.o > 0 ? [["Other", payments.o.toFixed(2)]] : []),
-            ...(payments.c > 0 ? [["Credit", payments.c.toFixed(2)]] : []),
-            ...(payments.d > 0 ? [["Debit", payments.d.toFixed(2)]] : []),
-            ["TOTAL PAYMENTS", payments.allPaymentsTotal.toFixed(2)],
-            ["CASH", payments.cash.toFixed(2)],
-            [],
-            ["NOZZLE DETAILS"],
             ["NOZZLE", "FUEL", "INITIAL", "FINAL", "LITERS"]
         ];
         
         const nozzleData = [];
-        document.querySelectorAll('.nozzle-card').forEach(row => {
+        document.querySelectorAll('.nozzle-row').forEach(row => {
             const id = row.id.split('-')[1];
+            const init = parseFloat(document.getElementById(`i${id}`).value) || 0;
+            const final = parseFloat(document.getElementById(`f${id}`).value) || 0;
             nozzleData.push([
                 document.getElementById(`name-${id}`).value,
                 document.getElementById(`type-${id}`).value,
-                parseFloat(document.getElementById(`i${id}`).value) || 0,
-                parseFloat(document.getElementById(`f${id}`).value) || 0,
-                Math.max(0, (parseFloat(document.getElementById(`f${id}`).value) || 0) - (parseFloat(document.getElementById(`i${id}`).value) || 0)).toFixed(2)
+                init,
+                final,
+                Math.max(0, final - init).toFixed(2)
             ]);
         });
 
@@ -949,91 +717,59 @@
         const station = document.getElementById('sn').value.toUpperCase();
         const shift = isDayTime ? "Day" : "Night";
         const time = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        const payments = calculatePayments();
 
-        doc.setFontSize(16); doc.text(`${station}`, 14, 20);
-        doc.setFontSize(8);
-        doc.text(`${getTopDateStr()} | ${shift} | ${time}`, 14, 28);
-        doc.text(`91:${document.getElementById('p91').value} 95:${document.getElementById('p95').value} D:${document.getElementById('pd').value}`, 14, 34);
+        doc.setFontSize(18); doc.text(`STATION: ${station}`, 14, 20);
+        doc.setFontSize(10);
+        doc.text(`Date: ${getTopDateStr()} | Shift: ${shift} | Time: ${time}`, 14, 28);
+        doc.text(`Prices: 91 (${document.getElementById('p91').value}) | 95 (${document.getElementById('p95').value}) | D (${document.getElementById('pd').value})`, 14, 34);
         
         const summary = [
-            ["Fuel", "Liters", "SAR"],
-            ["91", document.getElementById('sum91').innerText, (parseFloat(document.getElementById('sum91').innerText) * parseFloat(document.getElementById('p91').value)).toFixed(2)],
-            ["95", document.getElementById('sum95').innerText, (parseFloat(document.getElementById('sum95').innerText) * parseFloat(document.getElementById('p95').value)).toFixed(2)],
-            ["D", document.getElementById('sumD').innerText, (parseFloat(document.getElementById('sumD').innerText) * parseFloat(document.getElementById('pd').value)).toFixed(2)],
-            ["TOTAL", "", payments.total.toFixed(2)]
+            ["Fuel Type", "Total Liters", "Total SAR"],
+            ["Octane 91", document.getElementById('sum91').innerText, (parseFloat(document.getElementById('sum91').innerText) * parseFloat(document.getElementById('p91').value)).toFixed(2)],
+            ["Octane 95", document.getElementById('sum95').innerText, (parseFloat(document.getElementById('sum95').innerText) * parseFloat(document.getElementById('p95').value)).toFixed(2)],
+            ["Diesel", document.getElementById('sumD').innerText, (parseFloat(document.getElementById('sumD').innerText) * parseFloat(document.getElementById('pd').value)).toFixed(2)],
+            ["GRAND TOTAL", "", document.getElementById('grandTotal').innerText + " SAR"]
         ];
-        doc.autoTable({ head: [summary[0]], body: summary.slice(1), startY: 40, theme: 'grid', styles: { fontSize: 8 } });
-
-        if (payments.allPaymentsTotal > 0) {
-            const paymentRows = [];
-            if(payments.r > 0) paymentRows.push(["Reben", payments.r.toFixed(2)]);
-            if(payments.p > 0) paymentRows.push(["Petro", payments.p.toFixed(2)]);
-            if(payments.s > 0) paymentRows.push(["Sayyara", payments.s.toFixed(2)]);
-            if(payments.k > 0) paymentRows.push(["Kafarat", payments.k.toFixed(2)]);
-            if(payments.o > 0) paymentRows.push(["Other", payments.o.toFixed(2)]);
-            if(payments.c > 0) paymentRows.push(["Credit", payments.c.toFixed(2)]);
-            if(payments.d > 0) paymentRows.push(["Debit", payments.d.toFixed(2)]);
-            paymentRows.push(["TOTAL PAYMENTS", payments.allPaymentsTotal.toFixed(2)]);
-            paymentRows.push(["CASH", payments.cash.toFixed(2)]);
-            
-            doc.autoTable({ 
-                head: [["Payment", "SAR"]], 
-                body: paymentRows, 
-                startY: doc.lastAutoTable.finalY + 5,
-                theme: 'grid',
-                styles: { fontSize: 8 }
-            });
-        }
+        doc.autoTable({ head: [summary[0]], body: summary.slice(1), startY: 40, theme: 'grid' });
 
         const rows = [];
-        document.querySelectorAll('.nozzle-card').forEach(row => {
+        document.querySelectorAll('.nozzle-row').forEach(row => {
             const id = row.id.split('-')[1];
+            const init = parseFloat(document.getElementById(`i${id}`).value) || 0;
+            const final = parseFloat(document.getElementById(`f${id}`).value) || 0;
+            const diff = Math.max(0, final - init).toFixed(2);
             rows.push([
-                document.getElementById(`name-${id}`).value,
-                document.getElementById(`type-${id}`).value,
-                parseFloat(document.getElementById(`i${id}`).value) || 0,
-                parseFloat(document.getElementById(`f${id}`).value) || 0,
-                Math.max(0, (parseFloat(document.getElementById(`f${id}`).value) || 0) - (parseFloat(document.getElementById(`i${id}`).value) || 0)).toFixed(2)
+                document.getElementById(`name-${id}`).value, 
+                document.getElementById(`type-${id}`).value, 
+                init, 
+                final,
+                diff
             ]);
         });
-        doc.autoTable({ head: [["Nozzle", "Type", "Start", "End", "Liters"]], body: rows, startY: doc.lastAutoTable.finalY + 5, styles: { fontSize: 8 } });
+        doc.autoTable({ head: [["Nozzle", "Type", "Start", "End", "Difference"]], body: rows, startY: doc.lastAutoTable.finalY + 10 });
         
-        let finalY = doc.lastAutoTable.finalY + 10;
+        let finalY = doc.lastAutoTable.finalY + 15;
         if (!isDayTime) {
-            doc.setFontSize(8);
+            doc.setFontSize(10);
             doc.text("Note - Closing reading recorded", 14, finalY);
-            doc.text(getNowStr(), 14, finalY + 4);
-            finalY += 10;
+            doc.text(`${getNowStr()} Morning time`, 14, finalY + 5);
+            finalY += 15;
         }
-        doc.setFontSize(9); doc.text("Thank you for being part of Reben!", 14, finalY);
+        doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("Thank you for being part of Reben!", 14, finalY);
         doc.save(`${station}_Report.pdf`);
     }
 
     function saveMem() {
         const data = {
-            sn: document.getElementById('sn').value,
-            p91: document.getElementById('p91').value,
-            p95: document.getElementById('p95').value,
-            pd: document.getElementById('pd').value,
-            day: isDayTime,
-            appsVisible: document.getElementById('appsContainer').style.display === 'grid',
-            appReben: document.getElementById('appReben').value,
-            appPetro: document.getElementById('appPetro').value,
-            appSayyara: document.getElementById('appSayyara').value,
-            appKafarat: document.getElementById('appKafarat').value,
-            appOther: document.getElementById('appOther').value,
-            appCredit: document.getElementById('appCredit').value,
-            appDebit: document.getElementById('appDebit').value,
-            nozzles: []
+            sn: document.getElementById('sn').value, p91: document.getElementById('p91').value,
+            p95: document.getElementById('p95').value, pd: document.getElementById('pd').value,
+            day: isDayTime, nozzles: []
         };
-        document.querySelectorAll('.nozzle-card').forEach(row => {
+        document.querySelectorAll('.nozzle-row').forEach(row => {
             const id = row.id.split('-')[1];
             data.nozzles.push({
-                name: document.getElementById(`name-${id}`).value,
-                type: document.getElementById(`type-${id}`).value,
-                init: document.getElementById(`i${id}`).value,
-                final: document.getElementById(`f${id}`).value
+                name: document.getElementById(`name-${id}`).value, type: document.getElementById(`type-${id}`).value,
+                init: document.getElementById(`i${id}`).value, final: document.getElementById(`f${id}`).value
             });
         });
         localStorage.setItem('reben_v3_premium', JSON.stringify(data));
@@ -1047,19 +783,6 @@
             document.getElementById('p91').value = data.p91 || "";
             document.getElementById('p95').value = data.p95 || "";
             document.getElementById('pd').value = data.pd || "";
-            document.getElementById('appReben').value = data.appReben || "0";
-            document.getElementById('appPetro').value = data.appPetro || "0";
-            document.getElementById('appSayyara').value = data.appSayyara || "0";
-            document.getElementById('appKafarat').value = data.appKafarat || "0";
-            document.getElementById('appOther').value = data.appOther || "0";
-            document.getElementById('appCredit').value = data.appCredit || "0";
-            document.getElementById('appDebit').value = data.appDebit || "0";
-            
-            if(data.appsVisible) {
-                document.getElementById('appsContainer').style.display = 'grid';
-                document.getElementById('appsToggleBtn').innerHTML = '<i class="fa-solid fa-minus"></i> APPS';
-            }
-            
             isDayTime = data.day !== undefined ? data.day : true;
             
             if (isDayTime) {
@@ -1073,23 +796,15 @@
             }
             data.nozzles.forEach(n => addNewNozzle(n));
             doMath();
-            calculatePayments();
         } else { 
             addNewNozzle(); 
             document.getElementById('shift-text').innerText = "DAY SHIFT (6AM-6PM)";
-            document.getElementById('appReben').value = "0";
-            document.getElementById('appPetro').value = "0";
-            document.getElementById('appSayyara').value = "0";
-            document.getElementById('appKafarat').value = "0";
-            document.getElementById('appOther').value = "0";
-            document.getElementById('appCredit').value = "0";
-            document.getElementById('appDebit').value = "0";
         }
     }
 
     function updateRowColor(id) {
         const type = document.getElementById(`type-${id}`).value;
-        document.getElementById(`card-${id}`).className = `nozzle-card card-${type.toLowerCase()}`;
+        document.getElementById(`card-${id}`).className = `nozzle-row row-${type.toLowerCase()}`;
         doMath();
     }
 
