@@ -50,7 +50,6 @@
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* ROUND PROCESSING SPINNER */
         .spinner {
             width: 14px;
             height: 14px;
@@ -74,9 +73,6 @@
             border-color: #ff6b6b !important;
             color: #fff !important;
         }
-        
-        .p-input input.invalid { color: #000 !important; }
-        body.night-mode .p-input input.invalid { color: #fff !important; }
 
         .top-nav { 
             position: sticky; 
@@ -101,7 +97,6 @@
             text-transform: uppercase; 
             border-bottom: 1px solid var(--input-border);
             background: var(--card-bg);
-            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
         
         .price-settings { 
@@ -110,7 +105,6 @@
             gap: 8px; 
             padding: 12px; 
             background: var(--card-bg);
-            transition: background-color 0.3s ease;
         }
         .p-input { 
             display: flex; 
@@ -119,7 +113,6 @@
             background: var(--input-bg); 
             padding: 8px; 
             border-radius: 12px;
-            transition: background-color 0.3s ease;
         }
         .p-input label { font-size: 10px; font-weight: 800; color: var(--text-secondary); margin-bottom: 4px; }
         .p-input input { 
@@ -131,8 +124,29 @@
             font-size: 15px; 
             outline: none; 
             color: var(--text-primary);
-            transition: color 0.3s ease;
         }
+
+        /* NEW APP SECTION STYLES */
+        .app-toggle-btn {
+            grid-column: span 3;
+            background: var(--text-primary);
+            color: var(--card-bg);
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 12px;
+            margin-top: 5px;
+            cursor: pointer;
+        }
+        .app-grid {
+            display: none;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            padding: 0 12px 12px 12px;
+            background: var(--card-bg);
+        }
+        .app-grid.active { display: grid; }
 
         .nozzle-list { padding: 0 12px; }
         .nozzle-row { 
@@ -142,9 +156,8 @@
             margin-bottom: 12px; 
             box-shadow: 0 4px 12px rgba(0,0,0,0.04); 
             border-left: 10px solid #ccc; 
-            transition: transform 0.2s, background-color 0.3s ease;
+            transition: transform 0.2s;
         }
-        .nozzle-row:active { transform: scale(0.98); }
         .row-91 { border-left-color: var(--91); }
         .row-95 { border-left-color: var(--95); }
         .row-d { border-left-color: var(--d); }
@@ -158,7 +171,6 @@
             width: 120px; 
             outline: none;
             background: transparent;
-            transition: color 0.3s ease;
         }
         .fuel-select { 
             padding: 6px 12px; 
@@ -168,19 +180,11 @@
             font-weight: 800; 
             font-size: 11px; 
             color: var(--text-primary);
-            transition: all 0.3s ease;
         }
 
         .scan-grid { display: flex; flex-direction: column; gap: 12px; }
         .input-grp { position: relative; width: 100%; display: flex; flex-direction: column; }
-        .input-grp label { 
-            font-size: 10px; 
-            color: var(--text-secondary); 
-            font-weight: 700; 
-            margin-bottom: 4px; 
-            padding-left: 2px;
-            transition: color 0.3s ease;
-        }
+        .input-grp label { font-size: 10px; color: var(--text-secondary); font-weight: 700; margin-bottom: 4px; }
         
         .reading-input { 
             width: 100%; 
@@ -192,7 +196,6 @@
             background: var(--input-bg); 
             outline: none;
             color: var(--text-primary);
-            transition: all 0.3s ease;
         }
         .cam-btn { 
             position: absolute; 
@@ -205,19 +208,10 @@
             width: 40px; 
             height: 40px; 
             font-size: 16px; 
-            cursor: pointer;
-            transition: background-color 0.3s ease;
         }
         
-        .diff-tag { 
-            margin-top: 10px; 
-            font-size: 12px; 
-            font-weight: 900; 
-            color: var(--text-secondary); 
-            text-align: right;
-            transition: color 0.3s ease;
-        }
-        .diff-error { color: var(--error) !important; animation: shake 0.3s ease-in-out; }
+        .diff-tag { margin-top: 10px; font-size: 12px; font-weight: 900; color: var(--text-secondary); text-align: right; }
+        .diff-error { color: var(--error) !important; animation: shake 0.3s; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 
         .footer-tools { 
@@ -231,7 +225,6 @@
             border-radius: 30px 30px 0 0; 
             z-index: 200; 
             box-shadow: 0 -10px 25px rgba(0,0,0,0.1);
-            transition: background-color 0.3s ease;
         }
         .stats { 
             display: flex; 
@@ -239,21 +232,14 @@
             margin-bottom: 18px; 
             color: var(--text-primary); 
             align-items: flex-end;
-            transition: color 0.3s ease;
         }
         .total-val { 
             color: var(--shift-indicator); 
             font-size: 34px; 
             font-weight: 900; 
             letter-spacing: -1px;
-            transition: color 0.3s ease;
         }
-        .shift-label { 
-            font-size: 10px; 
-            color: var(--text-secondary); 
-            font-weight: 700;
-            transition: color 0.3s ease;
-        }
+        .shift-label { font-size: 10px; color: var(--text-secondary); font-weight: 700; }
 
         .action-row { display: grid; grid-template-columns: 1fr 1fr 1.2fr 1fr 0.8fr; gap: 8px; }
         .tool-btn { 
@@ -267,62 +253,24 @@
             flex-direction: column; 
             align-items: center; 
             justify-content: center; 
-            transition: 0.2s, background-color 0.3s ease;
         }
-        .tool-btn:active { transform: translateY(2px); }
-        .tool-btn:disabled { opacity: 0.8; cursor: not-allowed; }
-        
         .btn-add { background: #000; color: #fff; }
         .btn-xl { background: #e8f5e9; color: #2e7d32; }
-        .btn-next { 
-            background: #fff3e0; 
-            color: #ef6c00;
-            transition: all 0.3s ease;
-        }
-        /* SYNCING STATE FOR NEXT SHIFT BUTTON */
-        .btn-next.syncing { 
-            background: #ffebee !important; 
-            color: #d32f2f !important; 
-        }
+        .btn-next { background: #fff3e0; color: #ef6c00; }
+        .btn-next.syncing { background: #ffebee !important; color: #d32f2f !important; }
 
-        body.night-mode .btn-next {
-            background: #2c3e50;
-            color: #f1c40f;
-            border: 1px solid #f1c40f;
-        }
-        body.night-mode .btn-next.syncing {
-            background: #4a1a1a !important;
-            color: #ff3b30 !important;
-            border-color: #ff3b30 !important;
-        }
-
+        body.night-mode .btn-next { background: #2c3e50; color: #f1c40f; border: 1px solid #f1c40f; }
         .btn-pdf { background: #ffebee; color: #c62828; }
-        body.night-mode .btn-pdf {
-            background: #2c3e50;
-            color: #e74c3c;
-            border: 1px solid #e74c3c;
-        }
-        .btn-wa { background: var(--wa); color: #fff; font-size: 22px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3); }
+        .btn-wa { background: var(--wa); color: #fff; font-size: 22px; }
 
         .modal { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; flex-direction: column; }
         .cam-view { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; }
         video { width: 100%; height: 100%; object-fit: cover; }
         .guide { position: absolute; width: 80%; height: 80px; border: 2px solid white; border-radius: 12px; box-shadow: 0 0 0 4000px rgba(0,0,0,0.6); z-index: 5; }
-        .guide::after { content: 'ALIGN READING HERE'; position: absolute; top: -25px; left: 0; width: 100%; text-align: center; color: white; font-size: 10px; font-weight: bold; letter-spacing: 1px; }
-        
-        .scan-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; padding: 40px 20px; z-index: 10; pointer-events: none; }
-        .scan-btn-row { pointer-events: auto; display: flex; justify-content: space-around; padding-bottom: 20px; }
         
         .flash-success { position: absolute; inset: 0; background: var(--wa); opacity: 0; z-index: 15; pointer-events: none; }
         @keyframes flashAnim { 0% { opacity: 0.6; } 100% { opacity: 0; } }
         .trigger-flash { animation: flashAnim 0.3s ease-out forwards; }
-
-        .shift-indicator {
-            display: inline-block;
-            margin-left: 5px;
-            font-size: 12px;
-            color: var(--shift-indicator);
-        }
     </style>
 </head>
 <body>
@@ -333,6 +281,14 @@
         <div class="p-input"><label>OCTANE 91</label><input type="number" id="p91" step="0.01" oninput="doMath(); saveMem()"></div>
         <div class="p-input"><label>OCTANE 95</label><input type="number" id="p95" step="0.01" oninput="doMath(); saveMem()"></div>
         <div class="p-input"><label>DIESEL</label><input type="number" id="pd" step="0.01" oninput="doMath(); saveMem()"></div>
+        <button class="app-toggle-btn" onclick="document.getElementById('appGrid').classList.toggle('active')"> <i class="fa-solid fa-mobile-screen-button"></i> SALES APPS </button>
+    </div>
+    <div class="app-grid" id="appGrid">
+        <div class="p-input"><label>REBEN APP</label><input type="number" id="appReben" placeholder="0.00" oninput="doMath(); saveMem()"></div>
+        <div class="p-input"><label>PETRO APP</label><input type="number" id="appPetro" placeholder="0.00" oninput="doMath(); saveMem()"></div>
+        <div class="p-input"><label>SAYYARA APP</label><input type="number" id="appSayyara" placeholder="0.00" oninput="doMath(); saveMem()"></div>
+        <div class="p-input"><label>KAFARAT PLUS</label><input type="number" id="appKafarat" placeholder="0.00" oninput="doMath(); saveMem()"></div>
+        <div class="p-input" style="grid-column: span 2;"><label>OTHER</label><input type="number" id="appOther" placeholder="0.00" oninput="doMath(); saveMem()"></div>
     </div>
 </div>
 
@@ -361,45 +317,22 @@
         <div id="flash" class="flash-success"></div>
         <video id="v" autoplay playsinline></video>
         <div class="guide"></div>
-        <div class="scan-overlay">
-            <div style="text-align: center; color: white; font-weight: bold; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 5px;">SCANNING...</div>
-            <div class="scan-btn-row">
-                <button onclick="toggleTorch()" id="torchBtn" style="background:rgba(255,255,255,0.2); border:none; color:white; width:60px; height:60px; border-radius:50%; font-size:20px;"><i class="fa-solid fa-bolt"></i></button>
-                <button onclick="stopCam()" style="background:rgba(255,0,0,0.4); border:none; color:white; width:60px; height:60px; border-radius:50%; font-size:20px;"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-        </div>
     </div>
-    <canvas id="c" style="display:none"></canvas>
 </div>
 
 <script>
     let nozzleCount = 0, activeId = null, stream = null, isScanning = false, worker = null;
     let isDayTime = true;
-    let torchOn = false;
     
-    // REPLACE THIS WITH YOUR GOOGLE APPS SCRIPT WEB APP URL
     const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbyLrGK3QJ2OJbA421kNuY68KLjSjkAVqm7GDdnctrTaRPwpjlwXORv6PyWc14Uek-Qfpg/exec';
 
     async function initAI() {
         worker = await Tesseract.createWorker();
         await worker.loadLanguage('eng');
         await worker.initialize('eng');
-        await worker.setParameters({ 
-            tessedit_char_whitelist: '0123456789.', 
-            tessedit_pageseg_mode: '7'
-        });
+        await worker.setParameters({ tessedit_char_whitelist: '0123456789.', tessedit_pageseg_mode: '7' });
     }
     initAI();
-
-    function validate() {
-        const fields = [document.getElementById('sn'), document.getElementById('p91'), document.getElementById('p95'), document.getElementById('pd')];
-        let valid = true;
-        fields.forEach(f => {
-            f.classList.remove('invalid');
-            if(!f.value || f.value.trim() === "" || parseFloat(f.value) <= 0) { f.classList.add('invalid'); valid = false; }
-        });
-        return valid;
-    }
 
     function addNewNozzle(saved = null) {
         nozzleCount++;
@@ -436,172 +369,10 @@
             <div class="diff-tag" id="diff-${id}">Sales: 0.00 L</div>
         `;
         document.getElementById('list').appendChild(div);
-        if(!saved) window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-    }
-
-    async function syncToSheet() {
-        if (!GOOGLE_SHEET_URL || GOOGLE_SHEET_URL.includes('YOUR_GOOGLE_SCRIPT_URL_HERE')) return;
-        
-        const station = document.getElementById('sn').value.toUpperCase();
-        const p91 = parseFloat(document.getElementById('p91').value) || 0;
-        const p95 = parseFloat(document.getElementById('p95').value) || 0;
-        const pd = parseFloat(document.getElementById('pd').value) || 0;
-        
-        const q91 = parseFloat(document.getElementById('sum91').innerText) || 0;
-        const q95 = parseFloat(document.getElementById('sum95').innerText) || 0;
-        const qd = parseFloat(document.getElementById('sumD').innerText) || 0;
-        
-        const payload = {
-            summary: {
-                q91: q91,
-                q95: q95,
-                qd: qd,
-                totalAmt: document.getElementById('grandTotal').innerText,
-                amt91: (q91 * p91).toFixed(2),
-                amt95: (q95 * p95).toFixed(2),
-                amtD: (qd * pd).toFixed(2)
-            },
-            prices: { p91, p95, pd },
-            rows: []
-        };
-
-        document.querySelectorAll('.nozzle-row').forEach(row => {
-            const id = row.id.split('-')[1];
-            const init = parseFloat(document.getElementById(`i${id}`).value) || 0;
-            const final = parseFloat(document.getElementById(`f${id}`).value) || 0;
-            payload.rows.push({
-                syncTime: new Date().toLocaleTimeString(),
-                date: getTopDateStr(),
-                shift: isDayTime ? "Day" : "Night",
-                station: station,
-                nozzle: document.getElementById(`name-${id}`).value,
-                fuelType: document.getElementById(`type-${id}`).value,
-                initial: init,
-                final: final,
-                diff: Math.max(0, final - init).toFixed(2)
-            });
-        });
-
-        try {
-            await fetch(GOOGLE_SHEET_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                cache: 'no-cache',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-        } catch (e) { console.error("Sync Error:", e); }
-    }
-
-    async function rotateShift() {
-        if(!confirm("Start Next Shift? Final values will become Initial values and data will sync to Google Sheet.")) return;
-        
-        const btn = document.getElementById('btnNext');
-        const oldContent = btn.innerHTML;
-        
-        // SWITCH TO RED LOADING STATE
-        btn.disabled = true;
-        btn.classList.add('syncing');
-        btn.innerHTML = `<div class="spinner"></div><br><b>SYNCING...</b>`;
-
-        try {
-            // Sync to sheet before rotating values
-            await syncToSheet();
-            
-            isDayTime = !isDayTime;
-            document.getElementById('shift-text').innerText = isDayTime ? "DAY SHIFT (6AM-6PM)" : "NIGHT SHIFT (6PM-6AM)";
-            
-            if (isDayTime) {
-                document.body.classList.remove('night-mode');
-                document.getElementById('shift-icon').innerHTML = '<i class="fa-regular fa-sun"></i>';
-            } else {
-                document.body.classList.add('night-mode');
-                document.getElementById('shift-icon').innerHTML = '<i class="fa-regular fa-moon"></i>';
-            }
-            
-            document.querySelectorAll('.nozzle-row').forEach(row => {
-                const id = row.id.split('-')[1];
-                document.getElementById(`i${id}`).value = document.getElementById(`f${id}`).value;
-                document.getElementById(`f${id}`).value = "";
-                row.querySelector('.lbl-init').innerText = isDayTime ? "INITIAL (6 AM)" : "INITIAL (6 PM)";
-                row.querySelector('.lbl-final').innerText = isDayTime ? "FINAL (6 PM)" : "FINAL (6 AM)";
-            });
-            doMath();
-            saveMem();
-        } catch (err) {
-            console.error(err);
-        } finally {
-            // RESET BUTTON
-            btn.disabled = false;
-            btn.classList.remove('syncing');
-            btn.innerHTML = `<b>NEXT SHIFT</b>`;
-        }
-    }
-
-    async function startScan(id) { 
-        activeId = id; isScanning = true; 
-        document.getElementById('scanner').style.display = 'flex'; 
-        try { 
-            stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: 'environment', width: { ideal: 1280 } } 
-            }); 
-            document.getElementById('v').srcObject = stream; 
-            tick(); 
-        } catch (e) { stopCam(); } 
-    }
-
-    function stopCam() { 
-        isScanning = false; 
-        if(stream) stream.getTracks().forEach(t => t.stop()); 
-        document.getElementById('scanner').style.display = 'none'; 
-        torchOn = false;
-    }
-
-    async function toggleTorch() {
-        const track = stream.getVideoTracks()[0];
-        torchOn = !torchOn;
-        try { await track.applyConstraints({ advanced: [{ torch: torchOn }] }); } catch (e) {}
-    }
-
-    function sanitizeOCR(text) {
-        return text
-            .replace(/[S]/g, '5')
-            .replace(/[O]/g, '0')
-            .replace(/[I|l]/g, '1')
-            .replace(/[B]/g, '8')
-            .replace(/[Z]/g, '2')
-            .replace(/[^0-9.]/g, '');
-    }
-
-    async function tick() {
-        if (!isScanning) return;
-        const v = document.getElementById('v'), c = document.getElementById('c'), ctx = c.getContext('2d');
-        if (v.readyState === v.HAVE_ENOUGH_DATA) {
-            const ratio = v.videoWidth / v.clientWidth;
-            const w = v.videoWidth * 0.8, h = 80 * ratio;
-            const x = (v.videoWidth - w) / 2, y = (v.videoHeight - h) / 2;
-            c.width = w; c.height = h;
-            ctx.filter = 'contrast(1.5) grayscale(1) brightness(1.1)';
-            ctx.drawImage(v, x, y, w, h, 0, 0, w, h);
-            try {
-                let { data: { text, confidence } } = await worker.recognize(c);
-                text = sanitizeOCR(text);
-                const match = text.match(/\d+\.\d{1,3}/) || text.match(/\d{3,}/);
-
-                if (match && confidence > 70) { 
-                    document.getElementById('flash').classList.add('trigger-flash');
-                    document.getElementById(activeId).value = match[0]; 
-                    doMath(); saveMem();
-                    setTimeout(() => { document.getElementById('flash').classList.remove('trigger-flash'); stopCam(); }, 300);
-                    return; 
-                }
-            } catch (err) {}
-        }
-        if (isScanning) setTimeout(tick, 150);
     }
 
     function doMath() {
-        let total = 0, q91 = 0, q95 = 0, qd = 0;
+        let totalVal = 0, q91 = 0, q95 = 0, qd = 0;
         const pr91 = parseFloat(document.getElementById('p91').value) || 0;
         const pr95 = parseFloat(document.getElementById('p95').value) || 0;
         const prd = parseFloat(document.getElementById('pd').value) || 0;
@@ -611,165 +382,101 @@
             const type = document.getElementById(`type-${id}`).value;
             const initVal = parseFloat(document.getElementById(`i${id}`).value) || 0;
             const finalVal = parseFloat(document.getElementById(`f${id}`).value) || 0;
-            
             const diffTag = document.getElementById(`diff-${id}`);
             const diff = finalVal - initVal;
-
-            if (finalVal > 0 && diff < 0) {
-                diffTag.innerText = `Error: End < Start`;
-                diffTag.classList.add('diff-error');
-            } else {
-                const actualDiff = Math.max(0, diff);
-                diffTag.innerText = `Sales: ${actualDiff.toFixed(2)} L`;
-                diffTag.classList.remove('diff-error');
-                
-                if(type === '91') { q91 += actualDiff; total += actualDiff * pr91; }
-                else if(type === '95') { q95 += actualDiff; total += actualDiff * pr95; }
-                else { qd += actualDiff; total += actualDiff * prd; }
-            }
+            const actualDiff = Math.max(0, diff);
+            
+            diffTag.innerText = `Sales: ${actualDiff.toFixed(2)} L`;
+            if (type === '91') { q91 += actualDiff; totalVal += actualDiff * pr91; }
+            else if (type === '95') { q95 += actualDiff; totalVal += actualDiff * pr95; }
+            else { qd += actualDiff; totalVal += actualDiff * prd; }
         });
+
         document.getElementById('sum91').innerText = q91.toFixed(2);
         document.getElementById('sum95').innerText = q95.toFixed(2);
         document.getElementById('sumD').innerText = qd.toFixed(2);
-        document.getElementById('grandTotal').innerText = total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    }
-
-    function formatDate(date) {
-        return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, ' - ');
-    }
-
-    function getTopDateStr() {
-        const d = new Date();
-        if (!isDayTime) d.setDate(d.getDate() - 1); 
-        return formatDate(d);
-    }
-
-    function getNowStr() {
-        return formatDate(new Date());
+        document.getElementById('grandTotal').innerText = totalVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
     }
 
     function shareWA() {
-        if(!validate()) { alert("Please complete Station Name and Prices"); return; }
         const station = document.getElementById('sn').value.toUpperCase();
-        const shift = isDayTime ? "Day" : "Night";
-        const time = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
+        const totalAmount = parseFloat(document.getElementById('grandTotal').innerText.replace(/,/g, '')) || 0;
         
-        let msg = `*⛽Station Report*%0A%0A`;
-        msg += `    *${station}*%0A`;
-        msg += `     Date ${getTopDateStr()}%0A`;
-        msg += `     Shift - ${shift}%0A`;
-        msg += `     Reporting Time - ${time}%0A%0A`;
-        msg += `---- SUMMARY ----%0A%0A`;
-        msg += ` *🟢91 Total:* ${document.getElementById('sum91').innerText} L%0A`;
-        msg += ` *🔴95 Total:* ${document.getElementById('sum95').innerText} L%0A`;
-        msg += ` *🟡D Total:* ${document.getElementById('sumD').innerText} L%0A`;
-        msg += ` *💰Total Amount:* ${document.getElementById('grandTotal').innerText} SAR%0A%0A`;
+        const r = parseFloat(document.getElementById('appReben').value) || 0;
+        const p = parseFloat(document.getElementById('appPetro').value) || 0;
+        const s = parseFloat(document.getElementById('appSayyara').value) || 0;
+        const k = parseFloat(document.getElementById('appKafarat').value) || 0;
+        const o = parseFloat(document.getElementById('appOther').value) || 0;
+        const appTotal = r + p + s + k + o;
+        const cash = totalAmount - appTotal;
+
+        let msg = `*⛽Station Report*%0A%0A*${station}*%0A`;
+        msg += `Date: ${new Date().toLocaleDateString()}%0A%0A`;
+        msg += `---- SUMMARY ----%0A`;
+        msg += `91: ${document.getElementById('sum91').innerText} L%0A`;
+        msg += `95: ${document.getElementById('sum95').innerText} L%0A`;
+        msg += `Diesel: ${document.getElementById('sumD').innerText} L%0A`;
+        msg += `*Total:* ${totalAmount.toFixed(2)} SAR%0A%0A`;
         
-        if (!isDayTime) {
-            msg += `Note - Closing reading recorded%0A`;
-            msg += `     ${getNowStr()} Morning time%0A%0A`;
-        }
-        
-        
-        msg += `*Thank you for being part of Reben!*`;
+        msg += `---- PAYMENTS ----%0A`;
+        if(r>0) msg += `Reben App: ${r}%0A`;
+        if(p>0) msg += `Petro App: ${p}%0A`;
+        if(s>0) msg += `Sayyara App: ${s}%0A`;
+        if(k>0) msg += `Kafarat Plus: ${k}%0A`;
+        if(o>0) msg += `Other: ${o}%0A`;
+        msg += `*💵 CASH:* ${cash.toFixed(2)} SAR%0A%0A`;
+        msg += `*Thank you for using Reben!*`;
+
         window.open(`https://wa.me/?text=${msg}`, '_blank');
     }
 
-    function exportExcel() {
-        if(!validate()) return;
-        const station = document.getElementById('sn').value.toUpperCase();
-        const headerInfo = [
-            ["STATION", station],
-            ["DATE", getTopDateStr()],
-            ["SHIFT", isDayTime ? "Day" : "Night"],
-            ["91 PRICE", document.getElementById('p91').value],
-            ["95 PRICE", document.getElementById('p95').value],
-            ["D PRICE", document.getElementById('pd').value],
-            ["GRAND TOTAL", document.getElementById('grandTotal').innerText + " SAR"],
-            [],
-            ["NOZZLE", "FUEL", "INITIAL", "FINAL", "LITERS"]
-        ];
-        
-        const nozzleData = [];
-        document.querySelectorAll('.nozzle-row').forEach(row => {
-            const id = row.id.split('-')[1];
-            const init = parseFloat(document.getElementById(`i${id}`).value) || 0;
-            const final = parseFloat(document.getElementById(`f${id}`).value) || 0;
-            nozzleData.push([
-                document.getElementById(`name-${id}`).value,
-                document.getElementById(`type-${id}`).value,
-                init,
-                final,
-                Math.max(0, final - init).toFixed(2)
-            ]);
-        });
-
-        const ws = XLSX.utils.aoa_to_sheet([...headerInfo, ...nozzleData]);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Report");
-        XLSX.writeFile(wb, `${station}_Report.xlsx`);
-    }
-
     function exportPDF() {
-        if(!validate()) return;
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        const station = document.getElementById('sn').value.toUpperCase();
-        const shift = isDayTime ? "Day" : "Night";
-        const time = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const totalAmount = parseFloat(document.getElementById('grandTotal').innerText.replace(/,/g, '')) || 0;
+        const r = parseFloat(document.getElementById('appReben').value) || 0;
+        const p = parseFloat(document.getElementById('appPetro').value) || 0;
+        const s = parseFloat(document.getElementById('appSayyara').value) || 0;
+        const k = parseFloat(document.getElementById('appKafarat').value) || 0;
+        const o = parseFloat(document.getElementById('appOther').value) || 0;
+        const cash = totalAmount - (r+p+s+k+o);
 
-        doc.setFontSize(18); doc.text(`STATION: ${station}`, 14, 20);
-        doc.setFontSize(10);
-        doc.text(`Date: ${getTopDateStr()} | Shift: ${shift} | Time: ${time}`, 14, 28);
-        doc.text(`Prices: 91 (${document.getElementById('p91').value}) | 95 (${document.getElementById('p95').value}) | D (${document.getElementById('pd').value})`, 14, 34);
+        doc.text(`STATION: ${document.getElementById('sn').value.toUpperCase()}`, 14, 20);
         
         const summary = [
-            ["Fuel Type", "Total Liters", "Total SAR"],
-            ["Octane 91", document.getElementById('sum91').innerText, (parseFloat(document.getElementById('sum91').innerText) * parseFloat(document.getElementById('p91').value)).toFixed(2)],
-            ["Octane 95", document.getElementById('sum95').innerText, (parseFloat(document.getElementById('sum95').innerText) * parseFloat(document.getElementById('p95').value)).toFixed(2)],
-            ["Diesel", document.getElementById('sumD').innerText, (parseFloat(document.getElementById('sumD').innerText) * parseFloat(document.getElementById('pd').value)).toFixed(2)],
-            ["GRAND TOTAL", "", document.getElementById('grandTotal').innerText + " SAR"]
+            ["Category", "Amount"],
+            ["Total Sales", totalAmount.toFixed(2)],
+            ["Reben App", r.toFixed(2)],
+            ["Petro App", p.toFixed(2)],
+            ["Sayyara App", s.toFixed(2)],
+            ["Kafarat Plus", k.toFixed(2)],
+            ["Other Apps", o.toFixed(2)],
+            ["CASH PAYMENT", cash.toFixed(2)]
         ];
-        doc.autoTable({ head: [summary[0]], body: summary.slice(1), startY: 40, theme: 'grid' });
-
-        const rows = [];
-        document.querySelectorAll('.nozzle-row').forEach(row => {
-            const id = row.id.split('-')[1];
-            const init = parseFloat(document.getElementById(`i${id}`).value) || 0;
-            const final = parseFloat(document.getElementById(`f${id}`).value) || 0;
-            const diff = Math.max(0, final - init).toFixed(2);
-            rows.push([
-                document.getElementById(`name-${id}`).value, 
-                document.getElementById(`type-${id}`).value, 
-                init, 
-                final,
-                diff
-            ]);
-        });
-        doc.autoTable({ head: [["Nozzle", "Type", "Start", "End", "Difference"]], body: rows, startY: doc.lastAutoTable.finalY + 10 });
-        
-        let finalY = doc.lastAutoTable.finalY + 15;
-        if (!isDayTime) {
-            doc.setFontSize(10);
-            doc.text("Note - Closing reading recorded", 14, finalY);
-            doc.text(`${getNowStr()} Morning time`, 14, finalY + 5);
-            finalY += 15;
-        }
-        doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("Thank you for being part of Reben!", 14, finalY);
-        doc.save(`${station}_Report.pdf`);
+        doc.autoTable({ head: [summary[0]], body: summary.slice(1), startY: 30 });
+        doc.save("Report.pdf");
     }
 
     function saveMem() {
         const data = {
-            sn: document.getElementById('sn').value, p91: document.getElementById('p91').value,
-            p95: document.getElementById('p95').value, pd: document.getElementById('pd').value,
+            sn: document.getElementById('sn').value, 
+            p91: document.getElementById('p91').value,
+            p95: document.getElementById('p95').value, 
+            pd: document.getElementById('pd').value,
+            appReben: document.getElementById('appReben').value,
+            appPetro: document.getElementById('appPetro').value,
+            appSayyara: document.getElementById('appSayyara').value,
+            appKafarat: document.getElementById('appKafarat').value,
+            appOther: document.getElementById('appOther').value,
             day: isDayTime, nozzles: []
         };
         document.querySelectorAll('.nozzle-row').forEach(row => {
             const id = row.id.split('-')[1];
             data.nozzles.push({
-                name: document.getElementById(`name-${id}`).value, type: document.getElementById(`type-${id}`).value,
-                init: document.getElementById(`i${id}`).value, final: document.getElementById(`f${id}`).value
+                name: document.getElementById(`name-${id}`).value, 
+                type: document.getElementById(`type-${id}`).value,
+                init: document.getElementById(`i${id}`).value, 
+                final: document.getElementById(`f${id}`).value
             });
         });
         localStorage.setItem('reben_v3_premium', JSON.stringify(data));
@@ -783,23 +490,45 @@
             document.getElementById('p91').value = data.p91 || "";
             document.getElementById('p95').value = data.p95 || "";
             document.getElementById('pd').value = data.pd || "";
+            document.getElementById('appReben').value = data.appReben || "";
+            document.getElementById('appPetro').value = data.appPetro || "";
+            document.getElementById('appSayyara').value = data.appSayyara || "";
+            document.getElementById('appKafarat').value = data.appKafarat || "";
+            document.getElementById('appOther').value = data.appOther || "";
             isDayTime = data.day !== undefined ? data.day : true;
-            
-            if (isDayTime) {
-                document.body.classList.remove('night-mode');
-                document.getElementById('shift-icon').innerHTML = '<i class="fa-regular fa-sun"></i>';
-                document.getElementById('shift-text').innerText = "DAY SHIFT (6AM-6PM)";
-            } else {
-                document.body.classList.add('night-mode');
-                document.getElementById('shift-icon').innerHTML = '<i class="fa-regular fa-moon"></i>';
-                document.getElementById('shift-text').innerText = "NIGHT SHIFT (6PM-6AM)";
-            }
             data.nozzles.forEach(n => addNewNozzle(n));
             doMath();
-        } else { 
-            addNewNozzle(); 
-            document.getElementById('shift-text').innerText = "DAY SHIFT (6AM-6PM)";
+        } else { addNewNozzle(); }
+    }
+
+    async function startScan(id) { 
+        activeId = id; isScanning = true; 
+        document.getElementById('scanner').style.display = 'flex'; 
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }); 
+        document.getElementById('v').srcObject = stream; 
+        tick(); 
+    }
+
+    function stopCam() { 
+        isScanning = false; 
+        if(stream) stream.getTracks().forEach(t => t.stop()); 
+        document.getElementById('scanner').style.display = 'none'; 
+    }
+
+    async function tick() {
+        if (!isScanning) return;
+        const v = document.getElementById('v'), canvas = document.createElement('canvas');
+        if (v.readyState === v.HAVE_ENOUGH_DATA) {
+            canvas.width = v.videoWidth; canvas.height = v.videoHeight;
+            canvas.getContext('2d').drawImage(v, 0, 0);
+            const { data: { text, confidence } } = await worker.recognize(canvas);
+            const match = text.replace(/[^0-9.]/g, '').match(/\d+\.\d+/);
+            if (match && confidence > 70) { 
+                document.getElementById(activeId).value = match[0]; 
+                doMath(); saveMem(); stopCam(); 
+            }
         }
+        setTimeout(tick, 200);
     }
 
     function updateRowColor(id) {
