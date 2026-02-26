@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Reben · compact</title>
+    <title>Reben · mobile</title>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -33,7 +33,6 @@
             --d: #f59e0b;
             --wa: #25D366;
             --error: #ef4444;
-            --success: #10b981;
         }
 
         body.night-mode {
@@ -49,37 +48,37 @@
 
         body {
             background: var(--primary-bg);
-            padding: 8px 8px 160px 8px;
+            padding: 0 8px 180px 8px;
             min-height: 100vh;
             color: var(--text-primary);
-            transition: background-color 0.2s ease;
-        }
-
-        /* Compact card design */
-        .card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            margin-bottom: 10px;
-            padding: 14px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
             transition: all 0.2s ease;
         }
 
-        /* Station header */
+        /* FROZEN HEADER - STICKS TO TOP */
+        .frozen-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: var(--primary-bg);
+            padding: 8px 0 4px 0;
+            margin-bottom: 8px;
+        }
+
+        /* Station card - more compact */
         .station-card {
             background: var(--card-bg);
-            border-radius: 24px;
-            margin-bottom: 10px;
+            border-radius: 28px;
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            border: 1px solid var(--input-border);
         }
 
         .station-input {
             width: 100%;
-            padding: 16px 14px;
+            padding: 14px 12px;
             border: none;
             font-weight: 700;
-            font-size: 18px;
+            font-size: 17px;
             text-align: center;
             letter-spacing: 0.5px;
             color: var(--reben-red);
@@ -89,27 +88,27 @@
             text-transform: uppercase;
         }
 
-        /* Price grid - more compact */
-        .price-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+        /* COMPACT PRICE SECTION */
+        .price-row {
+            display: flex;
             gap: 6px;
-            padding: 12px 10px;
+            padding: 10px;
         }
 
         .price-item {
+            flex: 1;
             background: var(--input-bg);
-            border-radius: 16px;
-            padding: 8px 4px;
+            border-radius: 40px;
+            padding: 6px 4px;
             text-align: center;
+            border: 1px solid var(--input-border);
         }
 
         .price-item label {
             display: block;
-            font-size: 9px;
+            font-size: 8px;
             font-weight: 700;
             color: var(--text-secondary);
-            margin-bottom: 4px;
             letter-spacing: 0.3px;
         }
 
@@ -118,7 +117,7 @@
             border: none;
             background: transparent;
             font-weight: 800;
-            font-size: 15px;
+            font-size: 14px;
             text-align: center;
             color: var(--text-primary);
             outline: none;
@@ -131,46 +130,52 @@
             border-radius: 24px;
             margin-bottom: 10px;
             padding: 12px;
+            border: 1px solid var(--input-border);
         }
 
         .apps-header {
             display: flex;
             gap: 8px;
-            margin-bottom: 8px;
+            align-items: center;
         }
 
         .apps-btn {
-            flex: 1;
+            flex: 2;
             background: #000;
             color: white;
             border: none;
             border-radius: 40px;
-            padding: 14px 0;
-            font-weight: 700;
-            font-size: 14px;
+            padding: 12px 0;
+            font-weight: 600;
+            font-size: 13px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
             cursor: pointer;
-            transition: 0.2s;
         }
 
         .cash-badge {
-            background: var(--input-bg);
+            flex: 1;
+            background: var(--91);
             border-radius: 40px;
-            padding: 0 18px;
+            padding: 6px 8px;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 8px;
-            font-weight: 700;
-            font-size: 13px;
+            color: white;
+        }
+
+        .cash-badge span:first-child {
+            font-size: 8px;
+            font-weight: 600;
+            opacity: 0.9;
         }
 
         .cash-badge span:last-child {
-            color: var(--91);
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 800;
+            line-height: 1.2;
         }
 
         /* Apps grid - 2 columns */
@@ -178,76 +183,85 @@
             display: none;
             grid-template-columns: 1fr 1fr;
             gap: 6px;
-            margin-top: 10px;
+            margin-top: 12px;
         }
 
-        .app-input {
+        .app-item {
             background: var(--input-bg);
-            border-radius: 14px;
-            padding: 8px 6px;
+            border-radius: 20px;
+            padding: 8px 4px;
+            border: 1px solid var(--input-border);
         }
 
-        .app-input label {
+        .app-item label {
             display: block;
-            font-size: 8px;
+            font-size: 7px;
             font-weight: 700;
             color: var(--text-secondary);
             margin-bottom: 2px;
-            padding-left: 4px;
+            text-align: center;
+            letter-spacing: 0.3px;
         }
 
-        .app-input input {
+        .app-item input {
             width: 100%;
             border: none;
             background: transparent;
             font-weight: 800;
-            font-size: 14px;
+            font-size: 13px;
             text-align: center;
             color: var(--text-primary);
             outline: none;
-            padding: 4px;
         }
 
-        /* Nozzle rows - more compact */
-        .nozzle-row {
+        /* Nozzle cards - with stacked readings */
+        .nozzle-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nozzle-card {
             background: var(--card-bg);
             border-radius: 24px;
-            margin-bottom: 8px;
             padding: 12px;
             border-left: 8px solid;
-            transition: 0.2s;
+            border: 1px solid var(--input-border);
+            border-left-width: 8px;
         }
-        .nozzle-row:active { transform: scale(0.99); }
-        .row-91 { border-left-color: var(--91); }
-        .row-95 { border-left-color: var(--95); }
-        .row-d { border-left-color: var(--d); }
 
-        .row-header {
+        .card-91 { border-left-color: var(--91); }
+        .card-95 { border-left-color: var(--95); }
+        .card-d { border-left-color: var(--d); }
+
+        .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
-            gap: 8px;
+            margin-bottom: 12px;
+            gap: 6px;
         }
 
         .nozzle-name {
             border: none;
-            background: transparent;
-            font-weight: 800;
-            font-size: 15px;
+            background: var(--input-bg);
+            font-weight: 700;
+            font-size: 14px;
             color: var(--text-primary);
-            width: 110px;
-            padding: 4px;
+            width: 120px;
+            padding: 8px 12px;
+            border-radius: 30px;
             outline: none;
+            border: 1px solid var(--input-border);
         }
 
-        .fuel-select {
+        .fuel-badge {
             background: var(--input-bg);
             border: 1px solid var(--input-border);
             border-radius: 30px;
-            padding: 6px 10px;
-            font-weight: 700;
-            font-size: 10px;
+            padding: 8px 14px;
+            font-weight: 600;
+            font-size: 12px;
             color: var(--text-primary);
             outline: none;
         }
@@ -256,39 +270,45 @@
             background: none;
             border: none;
             color: var(--text-secondary);
-            font-size: 14px;
-            padding: 4px;
+            font-size: 16px;
+            width: 36px;
+            height: 36px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
         }
 
-        /* Reading inputs - side by side */
-        .readings {
+        /* STACKED READINGS - EACH IN ITS OWN ROW */
+        .reading-stack {
             display: flex;
-            gap: 8px;
-            margin-bottom: 6px;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 12px;
         }
 
-        .reading-group {
-            flex: 1;
+        .reading-row {
+            width: 100%;
             position: relative;
         }
 
-        .reading-group label {
+        .reading-row label {
             display: block;
-            font-size: 8px;
+            font-size: 10px;
             font-weight: 700;
             color: var(--text-secondary);
-            margin-bottom: 2px;
+            margin-bottom: 4px;
             padding-left: 4px;
         }
 
-        .reading-input {
+        .reading-field {
             width: 100%;
-            padding: 10px 36px 10px 10px;
+            padding: 14px 50px 14px 16px;
             border: 1.5px solid var(--input-border);
-            border-radius: 16px;
+            border-radius: 24px;
             font-weight: 800;
-            font-size: 18px;
+            font-size: 20px;
             background: var(--input-bg);
             color: var(--text-primary);
             outline: none;
@@ -296,31 +316,35 @@
 
         .cam-btn {
             position: absolute;
-            bottom: 6px;
-            right: 6px;
+            bottom: 8px;
+            right: 8px;
             background: #334155;
             color: white;
             border: none;
             border-radius: 30px;
-            width: 32px;
-            height: 32px;
-            font-size: 12px;
+            width: 38px;
+            height: 38px;
+            font-size: 14px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .diff-tag {
+        .diff-badge {
             text-align: right;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 700;
             color: var(--text-secondary);
-            padding-right: 4px;
+            background: var(--input-bg);
+            padding: 6px 14px;
+            border-radius: 30px;
+            display: inline-block;
+            margin-left: auto;
         }
-        .diff-error { color: var(--error) !important; }
+        .diff-error { color: var(--error) !important; background: rgba(239,68,68,0.1) !important; }
 
-        /* Footer - more compact */
+        /* Footer */
         .footer {
             position: fixed;
             bottom: 0;
@@ -330,7 +354,7 @@
             backdrop-filter: blur(12px);
             padding: 12px 16px 24px;
             border-radius: 30px 30px 0 0;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+            border-top: 1px solid var(--input-border);
             z-index: 100;
         }
 
@@ -338,52 +362,62 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
 
-        .shift-info {
-            font-size: 10px;
+        .shift-badge {
+            font-size: 11px;
             font-weight: 700;
             color: var(--text-secondary);
-            line-height: 1.3;
+            background: var(--input-bg);
+            padding: 8px 14px;
+            border-radius: 30px;
+            border: 1px solid var(--input-border);
+        }
+
+        .fuel-mini {
+            display: flex;
+            gap: 12px;
+            margin-top: 6px;
+            font-size: 11px;
         }
 
         .grand-total {
-            font-size: 32px;
+            font-size: 34px;
             font-weight: 800;
             color: var(--shift-indicator);
-            letter-spacing: -0.5px;
+            letter-spacing: -1px;
             line-height: 1;
         }
 
-        /* Action buttons - compact grid */
-        .actions {
+        .action-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1.2fr 1fr 0.8fr;
             gap: 6px;
         }
 
-        .action-btn {
+        .action {
             border: none;
             border-radius: 30px;
-            font-weight: 800;
+            font-weight: 700;
             font-size: 10px;
-            height: 48px;
+            height: 52px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 2px;
             cursor: pointer;
-            transition: 0.2s;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--input-border);
         }
-        .action-btn:active { transform: translateY(2px); }
 
-        .btn-add { background: #000; color: white; }
+        .btn-add { background: #000; color: white; border: none; }
         .btn-excel { background: #e8f5e9; color: #2e7d32; }
         .btn-next { background: #fff3e0; color: #ef6c00; }
         .btn-pdf { background: #ffebee; color: #c62828; }
-        .btn-wa { background: var(--wa); color: white; font-size: 20px; }
+        .btn-wa { background: var(--wa); color: white; font-size: 20px; border: none; }
 
         body.night-mode .btn-excel { background: #1e293b; color: #4ade80; border: 1px solid #4ade80; }
         body.night-mode .btn-next { background: #1e293b; color: #fbbf24; border: 1px solid #fbbf24; }
@@ -400,15 +434,14 @@
         @keyframes spin { to { transform: rotate(360deg); } }
 
         .invalid { border-color: var(--error) !important; background: #fee2e2 !important; }
-        body.night-mode .invalid { background: #451a1a !important; }
-
+        
         /* Scanner modal */
         .modal {
             display: none;
             position: fixed;
             inset: 0;
             background: #000;
-            z-index: 1000;
+            z-index: 2000;
             flex-direction: column;
         }
         .cam-view {
@@ -424,24 +457,27 @@
             width: 80%;
             height: 100px;
             border: 2px solid white;
-            border-radius: 16px;
+            border-radius: 20px;
             box-shadow: 0 0 0 4000px rgba(0,0,0,0.7);
         }
     </style>
 </head>
 <body>
 
-<!-- Station Card -->
-<div class="station-card">
-    <input type="text" id="sn" class="station-input" placeholder="STATION NAME" oninput="saveMem()">
-    <div class="price-grid">
-        <div class="price-item"><label>⛽ 91</label><input type="number" id="p91" step="0.01" oninput="doMath(); saveMem()"></div>
-        <div class="price-item"><label>⛽ 95</label><input type="number" id="p95" step="0.01" oninput="doMath(); saveMem()"></div>
-        <div class="price-item"><label>⛽ DIESEL</label><input type="number" id="pd" step="0.01" oninput="doMath(); saveMem()"></div>
+<!-- FROZEN HEADER - STICKS TO TOP -->
+<div class="frozen-header">
+    <div class="station-card">
+        <input type="text" id="sn" class="station-input" placeholder="STATION NAME" oninput="saveMem()">
+        <!-- COMPACT PRICE SECTION -->
+        <div class="price-row">
+            <div class="price-item"><label>91</label><input type="number" id="p91" step="0.01" oninput="doMath(); saveMem()"></div>
+            <div class="price-item"><label>95</label><input type="number" id="p95" step="0.01" oninput="doMath(); saveMem()"></div>
+            <div class="price-item"><label>DIESEL</label><input type="number" id="pd" step="0.01" oninput="doMath(); saveMem()"></div>
+        </div>
     </div>
 </div>
 
-<!-- Apps Card - Right after diesel -->
+<!-- Apps Section -->
 <div class="apps-card">
     <div class="apps-header">
         <button class="apps-btn" onclick="toggleApps()" id="appsToggleBtn"><i class="fa-solid fa-plus"></i> APPS</button>
@@ -451,13 +487,13 @@
         </div>
     </div>
     <div class="apps-grid" id="appsContainer">
-        <div class="app-input"><label>REBEN</label><input type="number" id="appReben" value="0" oninput="calculatePayments(); saveMem()"></div>
-        <div class="app-input"><label>PETRO</label><input type="number" id="appPetro" value="0" oninput="calculatePayments(); saveMem()"></div>
-        <div class="app-input"><label>SAYYARA</label><input type="number" id="appSayyara" value="0" oninput="calculatePayments(); saveMem()"></div>
-        <div class="app-input"><label>KAFARAT</label><input type="number" id="appKafarat" value="0" oninput="calculatePayments(); saveMem()"></div>
-        <div class="app-input"><label>OTHER</label><input type="number" id="appOther" value="0" oninput="calculatePayments(); saveMem()"></div>
-        <div class="app-input"><label>CREDIT</label><input type="number" id="appCredit" value="0" oninput="calculatePayments(); saveMem()"></div>
-        <div class="app-input"><label>DEBIT</label><input type="number" id="appDebit" value="0" oninput="calculatePayments(); saveMem()"></div>
+        <div class="app-item"><label>REBEN</label><input type="number" id="appReben" value="0" oninput="calculatePayments(); saveMem()"></div>
+        <div class="app-item"><label>PETRO</label><input type="number" id="appPetro" value="0" oninput="calculatePayments(); saveMem()"></div>
+        <div class="app-item"><label>SAYYARA</label><input type="number" id="appSayyara" value="0" oninput="calculatePayments(); saveMem()"></div>
+        <div class="app-item"><label>KAFARAT</label><input type="number" id="appKafarat" value="0" oninput="calculatePayments(); saveMem()"></div>
+        <div class="app-item"><label>OTHER</label><input type="number" id="appOther" value="0" oninput="calculatePayments(); saveMem()"></div>
+        <div class="app-item"><label>CREDIT</label><input type="number" id="appCredit" value="0" oninput="calculatePayments(); saveMem()"></div>
+        <div class="app-item"><label>DEBIT</label><input type="number" id="appDebit" value="0" oninput="calculatePayments(); saveMem()"></div>
     </div>
 </div>
 
@@ -467,19 +503,25 @@
 <!-- Footer -->
 <div class="footer">
     <div class="stats-row">
-        <div class="shift-info">
-            <span id="shift-text">DAY SHIFT</span>
-            <span id="shift-icon"><i class="fa-regular fa-sun"></i></span><br>
-            91 <span id="sum91" style="color:var(--91)">0</span> · 95 <span id="sum95" style="color:var(--95)">0</span> · D <span id="sumD">0</span>
+        <div>
+            <div class="shift-badge">
+                <span id="shift-text">DAY SHIFT (6AM-6PM)</span>
+                <span id="shift-icon"><i class="fa-regular fa-sun"></i></span>
+            </div>
+            <div class="fuel-mini">
+                <span>91: <span id="sum91" style="color:var(--91)">0</span></span>
+                <span>95: <span id="sum95" style="color:var(--95)">0</span></span>
+                <span>D: <span id="sumD">0</span></span>
+            </div>
         </div>
         <div class="grand-total" id="grandTotal">0.00</div>
     </div>
-    <div class="actions">
-        <button class="action-btn btn-add" onclick="addNewNozzle()"><i class="fa-solid fa-plus"></i></button>
-        <button class="action-btn btn-excel" onclick="exportExcel()"><b>EXCEL</b></button>
-        <button class="action-btn btn-next" id="btnNext" onclick="rotateShift()"><b>NEXT</b></button>
-        <button class="action-btn btn-pdf" onclick="exportPDF()"><b>PDF</b></button>
-        <button class="action-btn btn-wa" onclick="shareWA()"><i class="fa-brands fa-whatsapp"></i></button>
+    <div class="action-grid">
+        <button class="action btn-add" onclick="addNewNozzle()"><i class="fa-solid fa-plus"></i><span>ADD</span></button>
+        <button class="action btn-excel" onclick="exportExcel()"><b>EXCEL</b></button>
+        <button class="action btn-next" id="btnNext" onclick="rotateShift()"><b>NEXT SHIFT</b></button>
+        <button class="action btn-pdf" onclick="exportPDF()"><b>PDF</b></button>
+        <button class="action btn-wa" onclick="shareWA()"><i class="fa-brands fa-whatsapp"></i></button>
     </div>
 </div>
 
@@ -499,8 +541,6 @@
 
 <script>
     // ALL YOUR EXISTING JAVASCRIPT CODE REMAINS EXACTLY THE SAME
-    // (I'm preserving all your logic - only visual changes above)
-    
     let nozzleCount = 0, activeId = null, stream = null, isScanning = false, worker = null;
     let isDayTime = true;
     let torchOn = false;
@@ -564,35 +604,38 @@
         nozzleCount++;
         const id = nozzleCount;
         const div = document.createElement('div');
-        div.className = `nozzle-row row-${saved ? saved.type : '91'}`;
+        div.className = `nozzle-card card-${saved ? saved.type.toLowerCase() : '91'}`;
         div.id = `card-${id}`;
         
-        const labelI = isDayTime ? "6AM" : "6PM";
-        const labelF = isDayTime ? "6PM" : "6AM";
+        const labelI = isDayTime ? "INITIAL (6 AM)" : "INITIAL (6 PM)";
+        const labelF = isDayTime ? "FINAL (6 PM)" : "FINAL (6 AM)";
 
         div.innerHTML = `
-            <div class="row-header">
+            <div class="card-header">
                 <input class="nozzle-name" value="${saved ? saved.name : 'Nozzle ' + id}" id="name-${id}" oninput="saveMem()">
-                <select class="fuel-select" id="type-${id}" onchange="updateRowColor(${id}); saveMem()">
-                    <option value="91" ${saved?.type=='91'?'selected':''}>91</option>
-                    <option value="95" ${saved?.type=='95'?'selected':''}>95</option>
-                    <option value="D" ${saved?.type=='D'?'selected':''}>D</option>
+                <select class="fuel-badge" id="type-${id}" onchange="updateRowColor(${id}); saveMem()">
+                    <option value="91" ${saved?.type=='91'?'selected':''}>OCTANE 91</option>
+                    <option value="95" ${saved?.type=='95'?'selected':''}>OCTANE 95</option>
+                    <option value="D" ${saved?.type=='D'?'selected':''}>DIESEL</option>
                 </select>
                 <button class="delete-btn" onclick="this.parentElement.parentElement.remove(); doMath(); saveMem();"><i class="fa-solid fa-trash"></i></button>
             </div>
-            <div class="readings">
-                <div class="reading-group">
+            <!-- STACKED READINGS - EACH IN ITS OWN ROW -->
+            <div class="reading-stack">
+                <div class="reading-row">
                     <label>${labelI}</label>
-                    <input type="number" id="i${id}" class="reading-input" value="${saved?saved.init:''}" oninput="doMath(); saveMem()">
+                    <input type="number" id="i${id}" class="reading-field" value="${saved?saved.init:''}" oninput="doMath(); saveMem()">
                     <button class="cam-btn" onclick="startScan('i${id}')"><i class="fa-solid fa-camera"></i></button>
                 </div>
-                <div class="reading-group">
+                <div class="reading-row">
                     <label>${labelF}</label>
-                    <input type="number" id="f${id}" class="reading-input" value="${saved?saved.final:''}" oninput="doMath(); saveMem()">
+                    <input type="number" id="f${id}" class="reading-field" value="${saved?saved.final:''}" oninput="doMath(); saveMem()">
                     <button class="cam-btn" onclick="startScan('f${id}')"><i class="fa-solid fa-camera"></i></button>
                 </div>
             </div>
-            <div class="diff-tag" id="diff-${id}">Sales: 0.00 L</div>
+            <div style="display: flex; justify-content: flex-end;">
+                <div class="diff-badge" id="diff-${id}">Sales: 0.00 L</div>
+            </div>
         `;
         document.getElementById('list').appendChild(div);
         if(!saved) window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
@@ -639,7 +682,7 @@
             rows: []
         };
 
-        document.querySelectorAll('.nozzle-row').forEach(row => {
+        document.querySelectorAll('.nozzle-card').forEach(row => {
             const id = row.id.split('-')[1];
             const init = parseFloat(document.getElementById(`i${id}`).value) || 0;
             const final = parseFloat(document.getElementById(`f${id}`).value) || 0;
@@ -668,17 +711,17 @@
     }
 
     async function rotateShift() {
-        if(!confirm("Start Next Shift? Final values will become Initial values and data will sync to Google Sheet.")) return;
+        if(!confirm("Start Next Shift? Final values will become Initial values.")) return;
         
         const btn = document.getElementById('btnNext');
         btn.disabled = true;
         btn.classList.add('syncing');
-        btn.innerHTML = `<div class="spinner"></div><br><b>SYNC</b>`;
+        btn.innerHTML = `<div class="spinner"></div><span>SYNC</span>`;
 
         try {
             await syncToSheet();
             isDayTime = !isDayTime;
-            document.getElementById('shift-text').innerText = isDayTime ? "DAY SHIFT" : "NIGHT SHIFT";
+            document.getElementById('shift-text').innerText = isDayTime ? "DAY SHIFT (6AM-6PM)" : "NIGHT SHIFT (6PM-6AM)";
             
             if (isDayTime) {
                 document.body.classList.remove('night-mode');
@@ -688,12 +731,12 @@
                 document.getElementById('shift-icon').innerHTML = '<i class="fa-regular fa-moon"></i>';
             }
             
-            document.querySelectorAll('.nozzle-row').forEach(row => {
+            document.querySelectorAll('.nozzle-card').forEach(row => {
                 const id = row.id.split('-')[1];
                 document.getElementById(`i${id}`).value = document.getElementById(`f${id}`).value;
                 document.getElementById(`f${id}`).value = "";
-                row.querySelectorAll('label')[0].innerText = isDayTime ? "6AM" : "6PM";
-                row.querySelectorAll('label')[1].innerText = isDayTime ? "6PM" : "6AM";
+                row.querySelectorAll('label')[0].innerText = isDayTime ? "INITIAL (6 AM)" : "INITIAL (6 PM)";
+                row.querySelectorAll('label')[1].innerText = isDayTime ? "FINAL (6 PM)" : "FINAL (6 AM)";
             });
             doMath();
             saveMem();
@@ -702,7 +745,7 @@
         } finally {
             btn.disabled = false;
             btn.classList.remove('syncing');
-            btn.innerHTML = `<b>NEXT</b>`;
+            btn.innerHTML = `<b>NEXT SHIFT</b>`;
         }
     }
 
@@ -767,7 +810,7 @@
         const pr95 = parseFloat(document.getElementById('p95').value) || 0;
         const prd = parseFloat(document.getElementById('pd').value) || 0;
         
-        document.querySelectorAll('.nozzle-row').forEach(row => {
+        document.querySelectorAll('.nozzle-card').forEach(row => {
             const id = row.id.split('-')[1];
             const type = document.getElementById(`type-${id}`).value;
             const initVal = parseFloat(document.getElementById(`i${id}`).value) || 0;
@@ -860,7 +903,7 @@
             ["GRAND TOTAL", document.getElementById('grandTotal').innerText + " SAR"],
             [],
             ["FUEL SUMMARY"],
-            ["Fuel Type", "Liters", "SAR"],
+            ["Fuel", "Liters", "SAR"],
             ["91", document.getElementById('sum91').innerText, (parseFloat(document.getElementById('sum91').innerText) * parseFloat(document.getElementById('p91').value)).toFixed(2)],
             ["95", document.getElementById('sum95').innerText, (parseFloat(document.getElementById('sum95').innerText) * parseFloat(document.getElementById('p95').value)).toFixed(2)],
             ["D", document.getElementById('sumD').innerText, (parseFloat(document.getElementById('sumD').innerText) * parseFloat(document.getElementById('pd').value)).toFixed(2)],
@@ -882,7 +925,7 @@
         ];
         
         const nozzleData = [];
-        document.querySelectorAll('.nozzle-row').forEach(row => {
+        document.querySelectorAll('.nozzle-card').forEach(row => {
             const id = row.id.split('-')[1];
             nozzleData.push([
                 document.getElementById(`name-${id}`).value,
@@ -944,7 +987,7 @@
         }
 
         const rows = [];
-        document.querySelectorAll('.nozzle-row').forEach(row => {
+        document.querySelectorAll('.nozzle-card').forEach(row => {
             const id = row.id.split('-')[1];
             rows.push([
                 document.getElementById(`name-${id}`).value,
@@ -984,7 +1027,7 @@
             appDebit: document.getElementById('appDebit').value,
             nozzles: []
         };
-        document.querySelectorAll('.nozzle-row').forEach(row => {
+        document.querySelectorAll('.nozzle-card').forEach(row => {
             const id = row.id.split('-')[1];
             data.nozzles.push({
                 name: document.getElementById(`name-${id}`).value,
@@ -1022,18 +1065,18 @@
             if (isDayTime) {
                 document.body.classList.remove('night-mode');
                 document.getElementById('shift-icon').innerHTML = '<i class="fa-regular fa-sun"></i>';
-                document.getElementById('shift-text').innerText = "DAY SHIFT";
+                document.getElementById('shift-text').innerText = "DAY SHIFT (6AM-6PM)";
             } else {
                 document.body.classList.add('night-mode');
                 document.getElementById('shift-icon').innerHTML = '<i class="fa-regular fa-moon"></i>';
-                document.getElementById('shift-text').innerText = "NIGHT SHIFT";
+                document.getElementById('shift-text').innerText = "NIGHT SHIFT (6PM-6AM)";
             }
             data.nozzles.forEach(n => addNewNozzle(n));
             doMath();
             calculatePayments();
         } else { 
             addNewNozzle(); 
-            document.getElementById('shift-text').innerText = "DAY SHIFT";
+            document.getElementById('shift-text').innerText = "DAY SHIFT (6AM-6PM)";
             document.getElementById('appReben').value = "0";
             document.getElementById('appPetro').value = "0";
             document.getElementById('appSayyara').value = "0";
@@ -1046,7 +1089,7 @@
 
     function updateRowColor(id) {
         const type = document.getElementById(`type-${id}`).value;
-        document.getElementById(`card-${id}`).className = `nozzle-row row-${type.toLowerCase()}`;
+        document.getElementById(`card-${id}`).className = `nozzle-card card-${type.toLowerCase()}`;
         doMath();
     }
 
