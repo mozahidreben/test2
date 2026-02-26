@@ -59,7 +59,6 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Better touch targets for mobile */
         button, input, select {
             font-size: 16px;
             touch-action: manipulation;
@@ -98,7 +97,7 @@
             text-transform: uppercase;
         }
 
-        /* PRICE ROW with 4 boxes */
+        /* PRICE ROW */
         .price-row {
             display: flex;
             gap: 4px;
@@ -206,12 +205,15 @@
 
         .app-item label {
             display: block;
-            font-size: 6px;
+            font-size: 7px;
             font-weight: 700;
             color: var(--text-secondary);
             margin-bottom: 2px;
             text-align: center;
             letter-spacing: 0.3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .app-item input {
@@ -219,40 +221,41 @@
             border: none;
             background: transparent;
             font-weight: 800;
-            font-size: 12px;
+            font-size: 13px;
             text-align: center;
             color: var(--text-primary);
             outline: none;
         }
 
-        /* CASH BADGE */
+        /* CASH BADGE - Updated styling */
         .cash-inside-apps {
             background: var(--91);
             border-radius: 30px;
-            padding: 8px 16px;
+            padding: 10px 16px;
             display: flex;
             flex-direction: column;
             align-items: center;
             color: white;
-            margin-top: 10px;
+            margin-top: 12px;
             width: 100%;
             grid-column: span 2;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .cash-inside-apps span:first-child {
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 600;
             opacity: 0.9;
+            letter-spacing: 0.5px;
         }
         
         .cash-inside-apps span:last-child {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 800;
             line-height: 1.2;
         }
 
-        /* COMPACT NOZZLE CARDS */
+        /* Nozzle cards - compact */
         .nozzle-list {
             display: flex;
             flex-direction: column;
@@ -272,7 +275,6 @@
         .card-95 { border-left-color: var(--95); }
         .card-d { border-left-color: var(--d); }
 
-        /* More compact header */
         .card-header {
             display: flex;
             justify-content: space-between;
@@ -323,7 +325,6 @@
             background: var(--input-bg);
         }
 
-        /* More compact reading rows */
         .reading-stack {
             display: flex;
             flex-direction: column;
@@ -357,7 +358,6 @@
             outline: none;
         }
 
-        /* Smaller camera button */
         .cam-btn {
             position: absolute;
             bottom: 4px;
@@ -379,7 +379,6 @@
             background: #4b5563;
         }
 
-        /* Compact diff badge */
         .diff-badge {
             text-align: right;
             font-size: 10px;
@@ -561,16 +560,17 @@
     </div>
 </div>
 
-<!-- Apps Section -->
+<!-- Apps Section with UPDATED NAMES -->
 <div class="apps-card" id="appsMainCard">
     <div class="apps-grid" id="appsContainer">
-        <div class="app-item"><label>REBEN</label><input type="number" id="appReben" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
-        <div class="app-item"><label>PETRO</label><input type="number" id="appPetro" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
-        <div class="app-item"><label>SAYYARA</label><input type="number" id="appSayyara" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
-        <div class="app-item"><label>KAFARAT</label><input type="number" id="appKafarat" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
-        <div class="app-item"><label>OTHER</label><input type="number" id="appOther" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
-        <div class="app-item"><label>CREDIT</label><input type="number" id="appCredit" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
-        <div class="app-item"><label>DEBIT</label><input type="number" id="appDebit" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
+        <div class="app-item"><label>Reben App</label><input type="number" id="appReben" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
+        <div class="app-item"><label>Petro App</label><input type="number" id="appPetro" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
+        <div class="app-item"><label>Sayyarah App</label><input type="number" id="appSayyara" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
+        <div class="app-item"><label>Kafart Plus</label><input type="number" id="appKafarat" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
+        <div class="app-item"><label>V-Wallet</label><input type="number" id="appVwallet" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
+        <div class="app-item"><label>Car App</label><input type="number" id="appCar" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
+        <div class="app-item"><label>Other</label><input type="number" id="appOther" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
+        <!-- CASH BADGE - now appears after Other -->
         <div class="cash-inside-apps" id="cashInsideApps">
             <span>CASH</span>
             <span id="cashAmount">0.00</span>
@@ -578,7 +578,7 @@
     </div>
 </div>
 
-<!-- COMPACT NOZZLE LIST -->
+<!-- Nozzle List -->
 <div id="list" class="nozzle-list"></div>
 
 <!-- Footer -->
@@ -621,7 +621,7 @@
 </div>
 
 <script>
-    // ALL YOUR EXISTING JAVASCRIPT CODE REMAINS EXACTLY THE SAME
+    // ALL CALCULATION LOGIC REMAINS EXACTLY THE SAME - only UI labels changed
     let nozzleCount = 0, activeId = null, stream = null, isScanning = false, worker = null;
     let isDayTime = true;
     let torchOn = false;
@@ -668,17 +668,16 @@
         const p = parseFloat(document.getElementById('appPetro').value) || 0;
         const s = parseFloat(document.getElementById('appSayyara').value) || 0;
         const k = parseFloat(document.getElementById('appKafarat').value) || 0;
+        const v = parseFloat(document.getElementById('appVwallet').value) || 0;
+        const c = parseFloat(document.getElementById('appCar').value) || 0;
         const o = parseFloat(document.getElementById('appOther').value) || 0;
-        const c = parseFloat(document.getElementById('appCredit').value) || 0;
-        const d = parseFloat(document.getElementById('appDebit').value) || 0;
         
-        const appsTotal = r + p + s + k + o;
-        const creditDebitTotal = c + d;
-        const allPaymentsTotal = appsTotal + creditDebitTotal;
+        const appsTotal = r + p + s + k + v + c + o;
+        const allPaymentsTotal = appsTotal;
         const cash = total - allPaymentsTotal;
         
         document.getElementById('cashAmount').innerText = cash.toFixed(2);
-        return { total, appsTotal, creditDebitTotal, allPaymentsTotal, cash, r, p, s, k, o, c, d };
+        return { total, appsTotal, allPaymentsTotal, cash, r, p, s, k, v, c, o };
     }
 
     function validate() {
@@ -762,12 +761,10 @@
                     petro: payments.p,
                     sayyara: payments.s,
                     kafarat: payments.k,
+                    vwallet: payments.v,
+                    car: payments.c,
                     other: payments.o,
-                    credit: payments.c,
-                    debit: payments.d,
                     appsTotal: payments.appsTotal,
-                    creditDebitTotal: payments.creditDebitTotal,
-                    allPaymentsTotal: payments.allPaymentsTotal,
                     cash: payments.cash
                 }
             },
@@ -972,13 +969,13 @@
         msg += ` *💰Total:* ${document.getElementById('grandTotal').innerText} SAR%0A%0A`;
         
         msg += `---- PAYMENTS ----%0A`;
-        if(payments.r > 0) msg += `Reben: ${payments.r.toFixed(2)} SAR%0A`;
-        if(payments.p > 0) msg += `Petro: ${payments.p.toFixed(2)} SAR%0A`;
-        if(payments.s > 0) msg += `Sayyara: ${payments.s.toFixed(2)} SAR%0A`;
-        if(payments.k > 0) msg += `Kafarat: ${payments.k.toFixed(2)} SAR%0A`;
+        if(payments.r > 0) msg += `Reben App: ${payments.r.toFixed(2)} SAR%0A`;
+        if(payments.p > 0) msg += `Petro App: ${payments.p.toFixed(2)} SAR%0A`;
+        if(payments.s > 0) msg += `Sayyarah App: ${payments.s.toFixed(2)} SAR%0A`;
+        if(payments.k > 0) msg += `Kafart Plus: ${payments.k.toFixed(2)} SAR%0A`;
+        if(payments.v > 0) msg += `V-Wallet: ${payments.v.toFixed(2)} SAR%0A`;
+        if(payments.c > 0) msg += `Car App: ${payments.c.toFixed(2)} SAR%0A`;
         if(payments.o > 0) msg += `Other: ${payments.o.toFixed(2)} SAR%0A`;
-        if(payments.c > 0) msg += `Credit: ${payments.c.toFixed(2)} SAR%0A`;
-        if(payments.d > 0) msg += `Debit: ${payments.d.toFixed(2)} SAR%0A`;
         msg += `*💵 CASH:* ${payments.cash.toFixed(2)} SAR%0A%0A`;
 
         if (!isDayTime) {
@@ -1011,14 +1008,14 @@
             [],
             ["PAYMENTS"],
             ["Type", "Amount"],
-            ...(payments.r > 0 ? [["Reben", payments.r.toFixed(2)]] : []),
-            ...(payments.p > 0 ? [["Petro", payments.p.toFixed(2)]] : []),
-            ...(payments.s > 0 ? [["Sayyara", payments.s.toFixed(2)]] : []),
-            ...(payments.k > 0 ? [["Kafarat", payments.k.toFixed(2)]] : []),
+            ...(payments.r > 0 ? [["Reben App", payments.r.toFixed(2)]] : []),
+            ...(payments.p > 0 ? [["Petro App", payments.p.toFixed(2)]] : []),
+            ...(payments.s > 0 ? [["Sayyarah App", payments.s.toFixed(2)]] : []),
+            ...(payments.k > 0 ? [["Kafart Plus", payments.k.toFixed(2)]] : []),
+            ...(payments.v > 0 ? [["V-Wallet", payments.v.toFixed(2)]] : []),
+            ...(payments.c > 0 ? [["Car App", payments.c.toFixed(2)]] : []),
             ...(payments.o > 0 ? [["Other", payments.o.toFixed(2)]] : []),
-            ...(payments.c > 0 ? [["Credit", payments.c.toFixed(2)]] : []),
-            ...(payments.d > 0 ? [["Debit", payments.d.toFixed(2)]] : []),
-            ["TOTAL PAYMENTS", payments.allPaymentsTotal.toFixed(2)],
+            ["TOTAL PAYMENTS", payments.appsTotal.toFixed(2)],
             ["CASH", payments.cash.toFixed(2)],
             [],
             ["NOZZLE DETAILS"],
@@ -1066,16 +1063,16 @@
         ];
         doc.autoTable({ head: [summary[0]], body: summary.slice(1), startY: 40, theme: 'grid', styles: { fontSize: 8 } });
 
-        if (payments.allPaymentsTotal > 0) {
+        if (payments.appsTotal > 0) {
             const paymentRows = [];
-            if(payments.r > 0) paymentRows.push(["Reben", payments.r.toFixed(2)]);
-            if(payments.p > 0) paymentRows.push(["Petro", payments.p.toFixed(2)]);
-            if(payments.s > 0) paymentRows.push(["Sayyara", payments.s.toFixed(2)]);
-            if(payments.k > 0) paymentRows.push(["Kafarat", payments.k.toFixed(2)]);
+            if(payments.r > 0) paymentRows.push(["Reben App", payments.r.toFixed(2)]);
+            if(payments.p > 0) paymentRows.push(["Petro App", payments.p.toFixed(2)]);
+            if(payments.s > 0) paymentRows.push(["Sayyarah App", payments.s.toFixed(2)]);
+            if(payments.k > 0) paymentRows.push(["Kafart Plus", payments.k.toFixed(2)]);
+            if(payments.v > 0) paymentRows.push(["V-Wallet", payments.v.toFixed(2)]);
+            if(payments.c > 0) paymentRows.push(["Car App", payments.c.toFixed(2)]);
             if(payments.o > 0) paymentRows.push(["Other", payments.o.toFixed(2)]);
-            if(payments.c > 0) paymentRows.push(["Credit", payments.c.toFixed(2)]);
-            if(payments.d > 0) paymentRows.push(["Debit", payments.d.toFixed(2)]);
-            paymentRows.push(["TOTAL PAYMENTS", payments.allPaymentsTotal.toFixed(2)]);
+            paymentRows.push(["TOTAL PAYMENTS", payments.appsTotal.toFixed(2)]);
             paymentRows.push(["CASH", payments.cash.toFixed(2)]);
             
             doc.autoTable({ 
@@ -1123,9 +1120,9 @@
             appPetro: document.getElementById('appPetro').value,
             appSayyara: document.getElementById('appSayyara').value,
             appKafarat: document.getElementById('appKafarat').value,
+            appVwallet: document.getElementById('appVwallet').value,
+            appCar: document.getElementById('appCar').value,
             appOther: document.getElementById('appOther').value,
-            appCredit: document.getElementById('appCredit').value,
-            appDebit: document.getElementById('appDebit').value,
             nozzles: []
         };
         document.querySelectorAll('.nozzle-card').forEach(row => {
@@ -1152,9 +1149,9 @@
             document.getElementById('appPetro').value = data.appPetro || "0";
             document.getElementById('appSayyara').value = data.appSayyara || "0";
             document.getElementById('appKafarat').value = data.appKafarat || "0";
+            document.getElementById('appVwallet').value = data.appVwallet || "0";
+            document.getElementById('appCar').value = data.appCar || "0";
             document.getElementById('appOther').value = data.appOther || "0";
-            document.getElementById('appCredit').value = data.appCredit || "0";
-            document.getElementById('appDebit').value = data.appDebit || "0";
             
             if(data.appsVisible) {
                 document.getElementById('appsMainCard').classList.add('visible');
@@ -1182,9 +1179,9 @@
             document.getElementById('appPetro').value = "0";
             document.getElementById('appSayyara').value = "0";
             document.getElementById('appKafarat').value = "0";
+            document.getElementById('appVwallet').value = "0";
+            document.getElementById('appCar').value = "0";
             document.getElementById('appOther').value = "0";
-            document.getElementById('appCredit').value = "0";
-            document.getElementById('appDebit').value = "0";
         }
     }
 
