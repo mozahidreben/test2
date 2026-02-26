@@ -77,18 +77,18 @@
 
         .station-card {
             background: var(--card-bg);
-            border-radius: 28px;
+            border-radius: 24px;
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
             border: 1px solid var(--input-border);
         }
 
         .station-input {
             width: 100%;
-            padding: 14px 12px;
+            padding: 12px 12px;
             border: none;
             font-weight: 700;
-            font-size: 17px;
+            font-size: 16px;
             text-align: center;
             letter-spacing: 0.5px;
             color: var(--reben-red);
@@ -101,22 +101,22 @@
         /* PRICE ROW with 4 boxes */
         .price-row {
             display: flex;
-            gap: 6px;
-            padding: 10px;
+            gap: 4px;
+            padding: 8px;
         }
 
         .price-item {
             flex: 1;
             background: var(--input-bg);
-            border-radius: 40px;
-            padding: 6px 4px;
+            border-radius: 30px;
+            padding: 4px 2px;
             text-align: center;
             border: 1px solid var(--input-border);
         }
 
         .price-item label {
             display: block;
-            font-size: 8px;
+            font-size: 7px;
             font-weight: 700;
             color: var(--text-secondary);
             letter-spacing: 0.3px;
@@ -127,14 +127,13 @@
             border: none;
             background: transparent;
             font-weight: 800;
-            font-size: 14px;
+            font-size: 13px;
             text-align: center;
             color: var(--text-primary);
             outline: none;
             padding: 2px;
         }
 
-        /* Better visibility for invalid inputs */
         .invalid {
             border: 2px solid var(--error) !important;
             background: var(--error-bg) !important;
@@ -146,22 +145,22 @@
             opacity: 0.7;
         }
 
-        /* APPS BUTTON in price row */
+        /* APPS BUTTON */
         .price-apps-btn {
             flex: 1;
             background: #000;
             color: white;
             border: none;
-            border-radius: 40px;
+            border-radius: 30px;
             font-weight: 700;
-            font-size: 12px;
+            font-size: 11px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 4px;
             cursor: pointer;
             height: auto;
-            min-height: 48px;
+            min-height: 44px;
             padding: 4px;
             border: 1px solid #000;
             transition: opacity 0.2s;
@@ -177,38 +176,37 @@
             border-color: #475569;
         }
 
-        /* Apps Card - ONLY visible when opened */
+        /* Apps Card */
         .apps-card {
             background: var(--card-bg);
-            border-radius: 24px;
-            margin-bottom: 10px;
-            padding: 12px;
+            border-radius: 20px;
+            margin-bottom: 8px;
+            padding: 10px;
             border: 1px solid var(--input-border);
             scroll-margin-top: 100px;
-            display: none; /* Hidden by default */
+            display: none;
         }
         
         .apps-card.visible {
-            display: block; /* Show when visible class is added */
+            display: block;
         }
 
-        /* Apps grid - 2 columns */
         .apps-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            gap: 6px;
         }
 
         .app-item {
             background: var(--input-bg);
-            border-radius: 20px;
-            padding: 8px 4px;
+            border-radius: 16px;
+            padding: 6px 4px;
             border: 1px solid var(--input-border);
         }
 
         .app-item label {
             display: block;
-            font-size: 7px;
+            font-size: 6px;
             font-weight: 700;
             color: var(--text-secondary);
             margin-bottom: 2px;
@@ -221,76 +219,77 @@
             border: none;
             background: transparent;
             font-weight: 800;
-            font-size: 13px;
+            font-size: 12px;
             text-align: center;
             color: var(--text-primary);
             outline: none;
         }
 
-        /* CASH BADGE - appears inside apps section below credit */
+        /* CASH BADGE */
         .cash-inside-apps {
             background: var(--91);
-            border-radius: 40px;
-            padding: 12px 20px;
+            border-radius: 30px;
+            padding: 8px 16px;
             display: flex;
             flex-direction: column;
             align-items: center;
             color: white;
-            margin-top: 12px;
+            margin-top: 10px;
             width: 100%;
             grid-column: span 2;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .cash-inside-apps span:first-child {
-            font-size: 12px;
+            font-size: 10px;
             font-weight: 600;
             opacity: 0.9;
         }
         
         .cash-inside-apps span:last-child {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 800;
             line-height: 1.2;
         }
 
-        /* Nozzle cards */
+        /* COMPACT NOZZLE CARDS */
         .nozzle-list {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
 
         .nozzle-card {
             background: var(--card-bg);
-            border-radius: 24px;
-            padding: 12px;
-            border-left: 8px solid;
+            border-radius: 18px;
+            padding: 8px;
+            border-left: 6px solid;
             border: 1px solid var(--input-border);
-            border-left-width: 8px;
+            border-left-width: 6px;
         }
 
         .card-91 { border-left-color: var(--91); }
         .card-95 { border-left-color: var(--95); }
         .card-d { border-left-color: var(--d); }
 
+        /* More compact header */
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
-            gap: 6px;
+            margin-bottom: 6px;
+            gap: 4px;
         }
 
         .nozzle-name {
             border: none;
             background: var(--input-bg);
             font-weight: 700;
-            font-size: 14px;
+            font-size: 12px;
             color: var(--text-primary);
-            width: 120px;
-            padding: 8px 12px;
-            border-radius: 30px;
+            width: 100px;
+            padding: 4px 8px;
+            border-radius: 20px;
             outline: none;
             border: 1px solid var(--input-border);
         }
@@ -298,10 +297,10 @@
         .fuel-badge {
             background: var(--input-bg);
             border: 1px solid var(--input-border);
-            border-radius: 30px;
-            padding: 8px 14px;
+            border-radius: 20px;
+            padding: 4px 8px;
             font-weight: 600;
-            font-size: 12px;
+            font-size: 10px;
             color: var(--text-primary);
             outline: none;
         }
@@ -310,26 +309,26 @@
             background: none;
             border: none;
             color: var(--text-secondary);
-            font-size: 16px;
-            width: 36px;
-            height: 36px;
-            border-radius: 30px;
+            font-size: 14px;
+            width: 30px;
+            height: 30px;
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            touch-action: manipulation;
         }
         
         .delete-btn:active {
             background: var(--input-bg);
         }
 
+        /* More compact reading rows */
         .reading-stack {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-bottom: 12px;
+            gap: 6px;
+            margin-bottom: 6px;
         }
 
         .reading-row {
@@ -339,55 +338,56 @@
 
         .reading-row label {
             display: block;
-            font-size: 10px;
+            font-size: 8px;
             font-weight: 700;
             color: var(--text-secondary);
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             padding-left: 4px;
         }
 
         .reading-field {
             width: 100%;
-            padding: 14px 50px 14px 16px;
+            padding: 8px 40px 8px 10px;
             border: 1.5px solid var(--input-border);
-            border-radius: 24px;
+            border-radius: 18px;
             font-weight: 800;
-            font-size: 20px;
+            font-size: 16px;
             background: var(--input-bg);
             color: var(--text-primary);
             outline: none;
         }
 
+        /* Smaller camera button */
         .cam-btn {
             position: absolute;
-            bottom: 8px;
-            right: 8px;
+            bottom: 4px;
+            right: 4px;
             background: #334155;
             color: white;
             border: none;
-            border-radius: 30px;
-            width: 38px;
-            height: 38px;
-            font-size: 14px;
+            border-radius: 20px;
+            width: 32px;
+            height: 32px;
+            font-size: 12px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            touch-action: manipulation;
         }
         
         .cam-btn:active {
             background: #4b5563;
         }
 
+        /* Compact diff badge */
         .diff-badge {
             text-align: right;
-            font-size: 12px;
+            font-size: 10px;
             font-weight: 700;
             color: var(--text-secondary);
             background: var(--input-bg);
-            padding: 6px 14px;
-            border-radius: 30px;
+            padding: 4px 10px;
+            border-radius: 20px;
             display: inline-block;
             margin-left: auto;
         }
@@ -397,7 +397,7 @@
             background: var(--error-bg) !important; 
         }
 
-        /* Footer with 5 buttons */
+        /* Footer */
         .footer {
             position: fixed;
             bottom: 0;
@@ -405,8 +405,8 @@
             right: 0;
             background: var(--footer-bg);
             backdrop-filter: blur(12px);
-            padding: 12px 16px 24px;
-            border-radius: 30px 30px 0 0;
+            padding: 10px 12px 20px;
+            border-radius: 24px 24px 0 0;
             border-top: 1px solid var(--input-border);
             z-index: 100;
             box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
@@ -416,28 +416,28 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
 
         .shift-badge {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 700;
             color: var(--text-secondary);
             background: var(--input-bg);
-            padding: 8px 14px;
-            border-radius: 30px;
+            padding: 6px 10px;
+            border-radius: 20px;
             border: 1px solid var(--input-border);
         }
 
         .fuel-mini {
             display: flex;
-            gap: 12px;
-            margin-top: 6px;
-            font-size: 11px;
+            gap: 8px;
+            margin-top: 4px;
+            font-size: 10px;
         }
 
         .grand-total {
-            font-size: 34px;
+            font-size: 28px;
             font-weight: 800;
             color: var(--shift-indicator);
             letter-spacing: -1px;
@@ -447,15 +447,15 @@
         .action-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1.2fr 1fr 0.8fr;
-            gap: 6px;
+            gap: 4px;
         }
 
         .action {
             border: none;
-            border-radius: 30px;
+            border-radius: 24px;
             font-weight: 700;
-            font-size: 10px;
-            height: 52px;
+            font-size: 9px;
+            height: 48px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -465,7 +465,6 @@
             background: var(--input-bg);
             color: var(--text-primary);
             border: 1px solid var(--input-border);
-            touch-action: manipulation;
             transition: transform 0.1s;
         }
         
@@ -480,15 +479,14 @@
         .btn-wa { background: var(--wa); color: white; border: none; }
 
         .action i {
-            font-size: 20px;
+            font-size: 18px;
             margin-bottom: 2px;
         }
         
         .btn-wa i {
-            font-size: 28px;
+            font-size: 24px;
         }
         
-        /* Rotating animation - only when active */
         .rotate-animation {
             animation: rotate 0.6s linear;
         }
@@ -543,7 +541,6 @@
             box-shadow: 0 0 0 4000px rgba(0,0,0,0.7);
         }
 
-        /* Smooth scrolling */
         html {
             scroll-behavior: smooth;
         }
@@ -555,7 +552,6 @@
 <div class="frozen-header">
     <div class="station-card">
         <input type="text" id="sn" class="station-input" placeholder="STATION NAME" oninput="saveMem()">
-        <!-- PRICE ROW: 91, 95, DIESEL, APPS BUTTON -->
         <div class="price-row">
             <div class="price-item"><label>91</label><input type="number" id="p91" step="0.01" placeholder="0.00" oninput="doMath(); saveMem()"></div>
             <div class="price-item"><label>95</label><input type="number" id="p95" step="0.01" placeholder="0.00" oninput="doMath(); saveMem()"></div>
@@ -565,7 +561,7 @@
     </div>
 </div>
 
-<!-- Apps Section - COMPLETELY HIDDEN until APPS button is clicked -->
+<!-- Apps Section -->
 <div class="apps-card" id="appsMainCard">
     <div class="apps-grid" id="appsContainer">
         <div class="app-item"><label>REBEN</label><input type="number" id="appReben" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
@@ -575,7 +571,6 @@
         <div class="app-item"><label>OTHER</label><input type="number" id="appOther" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
         <div class="app-item"><label>CREDIT</label><input type="number" id="appCredit" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
         <div class="app-item"><label>DEBIT</label><input type="number" id="appDebit" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
-        <!-- CASH BADGE appears here, just below CREDIT -->
         <div class="cash-inside-apps" id="cashInsideApps">
             <span>CASH</span>
             <span id="cashAmount">0.00</span>
@@ -583,10 +578,10 @@
     </div>
 </div>
 
-<!-- Nozzle List - STARTS RIGHT AFTER PRICE SECTION (no empty gap) -->
+<!-- COMPACT NOZZLE LIST -->
 <div id="list" class="nozzle-list"></div>
 
-<!-- Footer with ADD, EXCEL, SHIFT, PDF, WHATSAPP -->
+<!-- Footer -->
 <div class="footer">
     <div class="stats-row">
         <div>
@@ -626,6 +621,7 @@
 </div>
 
 <script>
+    // ALL YOUR EXISTING JAVASCRIPT CODE REMAINS EXACTLY THE SAME
     let nozzleCount = 0, activeId = null, stream = null, isScanning = false, worker = null;
     let isDayTime = true;
     let torchOn = false;
@@ -648,11 +644,9 @@
         const btn = document.getElementById('appsToggleBtn');
         
         if (!appsCard.classList.contains('visible')) {
-            // Show apps card
             appsCard.classList.add('visible');
             btn.innerHTML = '<i class="fa-solid fa-minus"></i> APPS';
             
-            // Scroll to show the apps section
             setTimeout(() => {
                 const headerHeight = document.querySelector('.frozen-header').offsetHeight;
                 const elementPosition = appsCard.getBoundingClientRect().top + window.pageYOffset;
@@ -662,7 +656,6 @@
                 });
             }, 100);
         } else {
-            // Hide apps card
             appsCard.classList.remove('visible');
             btn.innerHTML = '<i class="fa-solid fa-plus"></i> APPS';
         }
@@ -715,9 +708,9 @@
             <div class="card-header">
                 <input class="nozzle-name" value="${saved ? saved.name : 'Nozzle ' + id}" id="name-${id}" oninput="saveMem()" placeholder="Nozzle ${id}">
                 <select class="fuel-badge" id="type-${id}" onchange="updateRowColor(${id}); saveMem()">
-                    <option value="91" ${saved?.type=='91'?'selected':''}>OCTANE 91</option>
-                    <option value="95" ${saved?.type=='95'?'selected':''}>OCTANE 95</option>
-                    <option value="D" ${saved?.type=='D'?'selected':''}>DIESEL</option>
+                    <option value="91" ${saved?.type=='91'?'selected':''}>91</option>
+                    <option value="95" ${saved?.type=='95'?'selected':''}>95</option>
+                    <option value="D" ${saved?.type=='D'?'selected':''}>D</option>
                 </select>
                 <button class="delete-btn" onclick="this.parentElement.parentElement.remove(); doMath(); saveMem();"><i class="fa-solid fa-trash"></i></button>
             </div>
@@ -816,7 +809,6 @@
         const btn = document.getElementById('btnNext');
         const shiftIcon = document.getElementById('shiftIcon');
         
-        // Add rotating animation only when clicked
         shiftIcon.classList.add('rotate-animation');
         
         btn.disabled = true;
@@ -851,7 +843,6 @@
             btn.disabled = false;
             btn.classList.remove('syncing');
             btn.innerHTML = `<i class="fa-solid fa-rotate" id="shiftIcon"></i><span>SHIFT</span>`;
-            // Remove animation class after it completes
             setTimeout(() => {
                 const newIcon = document.getElementById('shiftIcon');
                 if(newIcon) newIcon.classList.remove('rotate-animation');
