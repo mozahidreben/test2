@@ -227,7 +227,7 @@
             outline: none;
         }
 
-        /* CASH BADGE - Updated styling */
+        /* CASH BADGE */
         .cash-inside-apps {
             background: var(--91);
             border-radius: 30px;
@@ -560,7 +560,7 @@
     </div>
 </div>
 
-<!-- Apps Section with UPDATED NAMES -->
+<!-- Apps Section -->
 <div class="apps-card" id="appsMainCard">
     <div class="apps-grid" id="appsContainer">
         <div class="app-item"><label>Reben App</label><input type="number" id="appReben" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
@@ -570,7 +570,6 @@
         <div class="app-item"><label>V-Wallet</label><input type="number" id="appVwallet" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
         <div class="app-item"><label>Car App</label><input type="number" id="appCar" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
         <div class="app-item"><label>Other</label><input type="number" id="appOther" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
-        <!-- CASH BADGE - now appears after Other -->
         <div class="cash-inside-apps" id="cashInsideApps">
             <span>CASH</span>
             <span id="cashAmount">0.00</span>
@@ -590,9 +589,9 @@
                 <span id="shift-icon"><i class="fa-regular fa-sun"></i></span>
             </div>
             <div class="fuel-mini">
-                <span>91: <span id="sum91" style="color:var(--91)">0</span></span>
-                <span>95: <span id="sum95" style="color:var(--95)">0</span></span>
-                <span>D: <span id="sumD">0</span></span>
+                <span style="color:var(--91)">91: <span id="sum91">0</span></span>
+                <span style="color:var(--95)">95: <span id="sum95">0</span></span>
+                <span style="color:var(--d)">D: <span id="sumD">0</span></span>
             </div>
         </div>
         <div class="grand-total" id="grandTotal">0.00</div>
@@ -621,7 +620,6 @@
 </div>
 
 <script>
-    // ALL CALCULATION LOGIC REMAINS EXACTLY THE SAME - only UI labels changed
     let nozzleCount = 0, activeId = null, stream = null, isScanning = false, worker = null;
     let isDayTime = true;
     let torchOn = false;
@@ -673,11 +671,10 @@
         const o = parseFloat(document.getElementById('appOther').value) || 0;
         
         const appsTotal = r + p + s + k + v + c + o;
-        const allPaymentsTotal = appsTotal;
-        const cash = total - allPaymentsTotal;
+        const cash = total - appsTotal;
         
         document.getElementById('cashAmount').innerText = cash.toFixed(2);
-        return { total, appsTotal, allPaymentsTotal, cash, r, p, s, k, v, c, o };
+        return { total, appsTotal, cash, r, p, s, k, v, c, o };
     }
 
     function validate() {
@@ -937,7 +934,10 @@
     }
 
     function formatDate(date) {
-        return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, ' - ');
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = date.toLocaleString('en-US', { month: 'short' });
+        const year = date.getFullYear();
+        return `${day} - ${month} - ${year}`;
     }
 
     function getTopDateStr() {
@@ -954,34 +954,58 @@
         if(!validate()) { alert("Please complete Station Name and Prices"); return; }
         const station = document.getElementById('sn').value.toUpperCase();
         const shift = isDayTime ? "Day" : "Night";
-        const time = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+        
+        // Format date as "26 - Feb - 2026"
+        function formatDateForReport(date) {
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = date.toLocaleString('en-US', { month: 'short' });
+            const year = date.getFullYear();
+            return `${day} - ${month} - ${year}`;
+        }
+        
+        const currentDateStr = formatDateForReport(now);
         const payments = calculatePayments();
+        
+        // Get fuel totals with proper formatting
+        const sum91 = parseFloat(document.getElementById('sum91').innerText) || 0;
+        const sum95 = parseFloat(document.getElementById('sum95').innerText) || 0;
+        const sumD = parseFloat(document.getElementById('sumD').innerText) || 0;
+        const grandTotal = document.getElementById('grandTotal').innerText;
 
         let msg = `*⛽Station Report*%0A%0A`;
         msg += `    *${station}*%0A`;
-        msg += `     Date ${getTopDateStr()}%0A`;
+        msg += `     Date ${currentDateStr}%0A`;
         msg += `     Shift - ${shift}%0A`;
-        msg += `     Time - ${time}%0A%0A`;
+        msg += `     Reporting Time - ${timeStr}%0A%0A`;
         msg += `---- SUMMARY ----%0A%0A`;
-        msg += ` *91:* ${document.getElementById('sum91').innerText} L%0A`;
-        msg += ` *95:* ${document.getElementById('sum95').innerText} L%0A`;
-        msg += ` *D:* ${document.getElementById('sumD').innerText} L%0A`;
-        msg += ` *💰Total:* ${document.getElementById('grandTotal').innerText} SAR%0A%0A`;
+        msg += ` *🟢91 Total:* ${sum91.toFixed(2)} L%0A`;
+        msg += ` *🔴95 Total:* ${sum95.toFixed(2)} L%0A`;
+        msg += ` *🟡D   Total:* ${sumD.toFixed(2)} L%0A`;
+        msg += ` *💰Total Amount:* ${grandTotal} SAR%0A%0A`;
         
         msg += `---- PAYMENTS ----%0A`;
-        if(payments.r > 0) msg += `Reben App: ${payments.r.toFixed(2)} SAR%0A`;
-        if(payments.p > 0) msg += `Petro App: ${payments.p.toFixed(2)} SAR%0A`;
-        if(payments.s > 0) msg += `Sayyarah App: ${payments.s.toFixed(2)} SAR%0A`;
-        if(payments.k > 0) msg += `Kafart Plus: ${payments.k.toFixed(2)} SAR%0A`;
-        if(payments.v > 0) msg += `V-Wallet: ${payments.v.toFixed(2)} SAR%0A`;
-        if(payments.c > 0) msg += `Car App: ${payments.c.toFixed(2)} SAR%0A`;
-        if(payments.o > 0) msg += `Other: ${payments.o.toFixed(2)} SAR%0A`;
-        msg += `*💵 CASH:* ${payments.cash.toFixed(2)} SAR%0A%0A`;
+        if(payments.r > 0) msg += `     Reben App: ${payments.r.toFixed(2)} SAR%0A`;
+        if(payments.p > 0) msg += `     Petro App: ${payments.p.toFixed(2)} SAR%0A`;
+        if(payments.s > 0) msg += `     Sayyarah App: ${payments.s.toFixed(2)} SAR%0A`;
+        if(payments.k > 0) msg += `     Kafart Plus: ${payments.k.toFixed(2)} SAR%0A`;
+        if(payments.v > 0) msg += `     V-Wallet: ${payments.v.toFixed(2)} SAR%0A`;
+        if(payments.c > 0) msg += `     Car App: ${payments.c.toFixed(2)} SAR%0A`;
+        if(payments.o > 0) msg += `     Other: ${payments.o.toFixed(2)} SAR%0A`;
+        msg += `    *CASH💸:* ${payments.cash.toFixed(2)} SAR%0A%0A`;
 
+        // Add closing note for night shift
         if (!isDayTime) {
-            msg += `Note - Closing reading recorded%0A`;
-            msg += `     ${getNowStr()} Morning%0A%0A`;
+            const tomorrow = new Date(now);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowDateStr = formatDateForReport(tomorrow);
+            msg += `*Note* - Closing reading recorded%0A`;
+            msg += `     ${tomorrowDateStr} Morning Time%0A%0A`;
+        } else {
+            msg += `%0A`; // Just an empty line for day shift
         }
+
         msg += `*Thank you for being part of Reben!*`;
         window.open(`https://wa.me/?text=${msg}`, '_blank');
     }
