@@ -135,25 +135,30 @@
         }
 
         /* NEW SALES APP STYLES */
+        .app-section {
+            background: var(--card-bg);
+            margin: 0 12px 15px 12px;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+            transition: background-color 0.3s ease;
+        }
         .app-btn {
-            grid-column: span 3;
+            width: 100%;
             background: #000;
             color: #fff;
             border: none;
-            padding: 10px;
+            padding: 12px;
             border-radius: 12px;
             font-weight: 900;
-            font-size: 12px;
-            margin-top: 5px;
+            font-size: 14px;
             cursor: pointer;
+            margin-bottom: 10px;
         }
         .apps-container {
             display: none;
             grid-template-columns: 1fr 1fr;
             gap: 8px;
-            padding: 12px;
-            background: var(--card-bg);
-            grid-column: span 3;
         }
 
         .nozzle-list { padding: 0 12px; }
@@ -355,14 +360,25 @@
         <div class="p-input"><label>OCTANE 91</label><input type="number" id="p91" step="0.01" oninput="doMath(); saveMem()"></div>
         <div class="p-input"><label>OCTANE 95</label><input type="number" id="p95" step="0.01" oninput="doMath(); saveMem()"></div>
         <div class="p-input"><label>DIESEL</label><input type="number" id="pd" step="0.01" oninput="doMath(); saveMem()"></div>
-        <button class="app-btn" onclick="let c=document.getElementById('appsContainer'); c.style.display=c.style.display==='grid'?'none':'grid'">SALES APPS</button>
-        <div class="apps-container" id="appsContainer">
-            <div class="p-input"><label>Reben app</label><input type="number" id="appReben" placeholder="Reben app" oninput="saveMem()"></div>
-            <div class="p-input"><label>Petro App</label><input type="number" id="appPetro" placeholder="Petro App" oninput="saveMem()"></div>
-            <div class="p-input"><label>Sayyara App</label><input type="number" id="appSayyara" placeholder="Sayyara App" oninput="saveMem()"></div>
-            <div class="p-input"><label>Kafarat Plus</label><input type="number" id="appKafarat" placeholder="Kafarat Plus" oninput="saveMem()"></div>
-            <div class="p-input" style="grid-column: span 2;"><label>Other</label><input type="number" id="appOther" placeholder="Other" oninput="saveMem()"></div>
-        </div>
+    </div>
+</div>
+
+<!-- MOVED APP BUTTON HERE - RIGHT AFTER DIESEL PRICE BOX -->
+<div class="app-section">
+    <button class="app-btn" onclick="toggleApps()" id="appsToggleBtn"><i class="fa-solid fa-plus"></i> SALES APPS</button>
+    <div class="apps-container" id="appsContainer">
+        <div class="p-input"><label>Reben app</label><input type="number" id="appReben" placeholder="Reben app" oninput="calculatePayments(); saveMem()"></div>
+        <div class="p-input"><label>Petro App</label><input type="number" id="appPetro" placeholder="Petro App" oninput="calculatePayments(); saveMem()"></div>
+        <div class="p-input"><label>Sayyara App</label><input type="number" id="appSayyara" placeholder="Sayyara App" oninput="calculatePayments(); saveMem()"></div>
+        <div class="p-input"><label>Kafarat Plus</label><input type="number" id="appKafarat" placeholder="Kafarat Plus" oninput="calculatePayments(); saveMem()"></div>
+        <div class="p-input"><label>Other</label><input type="number" id="appOther" placeholder="Other" oninput="calculatePayments(); saveMem()"></div>
+        <!-- NEW CREDIT AND DEBIT BOXES -->
+        <div class="p-input"><label>Credit</label><input type="number" id="appCredit" placeholder="Credit" oninput="calculatePayments(); saveMem()"></div>
+        <div class="p-input"><label>Debit</label><input type="number" id="appDebit" placeholder="Debit" oninput="calculatePayments(); saveMem()"></div>
+    </div>
+    <div id="cashDisplay" style="margin-top: 10px; padding-top: 10px; border-top: 2px dashed var(--input-border); display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-weight: 800; color: var(--text-primary);">CASH:</span>
+        <span id="cashAmount" style="color: var(--91); font-size: 24px; font-weight: 900;">0.00</span>
     </div>
 </div>
 
@@ -379,7 +395,7 @@
     </div>
     <div class="action-row">
         <button class="tool-btn btn-add" onclick="addNewNozzle()"><i class="fa-solid fa-plus"></i></button>
-        <button class="tool-btn btn-xl" onclick="exportExcel() binary"><b>EXCEL</b></button>
+        <button class="tool-btn btn-xl" onclick="exportExcel()"><b>EXCEL</b></button>
         <button class="tool-btn btn-next" id="btnNext" onclick="rotateShift()"><b>NEXT SHIFT</b></button>
         <button class="tool-btn btn-pdf" onclick="exportPDF()"><b>PDF</b></button>
         <button class="tool-btn btn-wa" onclick="shareWA()"><i class="fa-brands fa-whatsapp"></i></button>
@@ -420,6 +436,42 @@
         });
     }
     initAI();
+
+    // NEW FUNCTION TO TOGGLE APPS
+    function toggleApps() {
+        const container = document.getElementById('appsContainer');
+        const btn = document.getElementById('appsToggleBtn');
+        if (container.style.display === 'none' || container.style.display === '') {
+            container.style.display = 'grid';
+            btn.innerHTML = '<i class="fa-solid fa-minus"></i> HIDE APPS';
+        } else {
+            container.style.display = 'none';
+            btn.innerHTML = '<i class="fa-solid fa-plus"></i> SALES APPS';
+        }
+        saveMem();
+    }
+
+    // NEW FUNCTION TO CALCULATE ALL PAYMENTS AND CASH
+    function calculatePayments() {
+        const total = parseFloat(document.getElementById('grandTotal').innerText.replace(/,/g, '')) || 0;
+        
+        const r = parseFloat(document.getElementById('appReben').value) || 0;
+        const p = parseFloat(document.getElementById('appPetro').value) || 0;
+        const s = parseFloat(document.getElementById('appSayyara').value) || 0;
+        const k = parseFloat(document.getElementById('appKafarat').value) || 0;
+        const o = parseFloat(document.getElementById('appOther').value) || 0;
+        const c = parseFloat(document.getElementById('appCredit').value) || 0;
+        const d = parseFloat(document.getElementById('appDebit').value) || 0;
+        
+        const appsTotal = r + p + s + k + o;
+        const creditDebitTotal = c + d;
+        const allPaymentsTotal = appsTotal + creditDebitTotal;
+        const cash = total - allPaymentsTotal;
+        
+        document.getElementById('cashAmount').innerText = cash.toFixed(2);
+        
+        return { total, appsTotal, creditDebitTotal, allPaymentsTotal, cash, r, p, s, k, o, c, d };
+    }
 
     function validate() {
         const fields = [document.getElementById('sn'), document.getElementById('p91'), document.getElementById('p95'), document.getElementById('pd')];
@@ -481,6 +533,8 @@
         const q95 = parseFloat(document.getElementById('sum95').innerText) || 0;
         const qd = parseFloat(document.getElementById('sumD').innerText) || 0;
         
+        const payments = calculatePayments();
+        
         const payload = {
             summary: {
                 q91: q91,
@@ -489,7 +543,20 @@
                 totalAmt: document.getElementById('grandTotal').innerText,
                 amt91: (q91 * p91).toFixed(2),
                 amt95: (q95 * p95).toFixed(2),
-                amtD: (qd * pd).toFixed(2)
+                amtD: (qd * pd).toFixed(2),
+                payments: {
+                    reben: payments.r,
+                    petro: payments.p,
+                    sayyara: payments.s,
+                    kafarat: payments.k,
+                    other: payments.o,
+                    credit: payments.c,
+                    debit: payments.d,
+                    appsTotal: payments.appsTotal,
+                    creditDebitTotal: payments.creditDebitTotal,
+                    allPaymentsTotal: payments.allPaymentsTotal,
+                    cash: payments.cash
+                }
             },
             prices: { p91, p95, pd },
             rows: []
@@ -662,6 +729,9 @@
         document.getElementById('sum95').innerText = q95.toFixed(2);
         document.getElementById('sumD').innerText = qd.toFixed(2);
         document.getElementById('grandTotal').innerText = total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        
+        // Update cash calculation
+        calculatePayments();
     }
 
     function formatDate(date) {
@@ -684,14 +754,7 @@
         const shift = isDayTime ? "Day" : "Night";
         const time = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
         
-        const r = parseFloat(document.getElementById('appReben').value) || 0;
-        const p = parseFloat(document.getElementById('appPetro').value) || 0;
-        const s = parseFloat(document.getElementById('appSayyara').value) || 0;
-        const k = parseFloat(document.getElementById('appKafarat').value) || 0;
-        const o = parseFloat(document.getElementById('appOther').value) || 0;
-        const appTotal = r + p + s + k + o;
-        const grandTotal = parseFloat(document.getElementById('grandTotal').innerText.replace(/,/g, '')) || 0;
-        const cashAmt = grandTotal - appTotal;
+        const payments = calculatePayments();
 
         let msg = `*⛽Station Report*%0A%0A`;
         msg += `    *${station}*%0A`;
@@ -705,12 +768,14 @@
         msg += ` *💰Total Amount:* ${document.getElementById('grandTotal').innerText} SAR%0A%0A`;
         
         msg += `---- PAYMENTS ----%0A`;
-        if(r > 0) msg += `Reben app: ${r.toFixed(2)} SAR%0A`;
-        if(p > 0) msg += `Petro App: ${p.toFixed(2)} SAR%0A`;
-        if(s > 0) msg += `Sayyara App: ${s.toFixed(2)} SAR%0A`;
-        if(k > 0) msg += `Kafarat Plus: ${k.toFixed(2)} SAR%0A`;
-        if(o > 0) msg += `Other: ${o.toFixed(2)} SAR%0A`;
-        msg += `*💵 CASH:* ${cashAmt.toFixed(2)} SAR%0A%0A`;
+        if(payments.r > 0) msg += `Reben app: ${payments.r.toFixed(2)} SAR%0A`;
+        if(payments.p > 0) msg += `Petro App: ${payments.p.toFixed(2)} SAR%0A`;
+        if(payments.s > 0) msg += `Sayyara App: ${payments.s.toFixed(2)} SAR%0A`;
+        if(payments.k > 0) msg += `Kafarat Plus: ${payments.k.toFixed(2)} SAR%0A`;
+        if(payments.o > 0) msg += `Other: ${payments.o.toFixed(2)} SAR%0A`;
+        if(payments.c > 0) msg += `Credit: ${payments.c.toFixed(2)} SAR%0A`;
+        if(payments.d > 0) msg += `Debit: ${payments.d.toFixed(2)} SAR%0A`;
+        msg += `*💵 CASH:* ${payments.cash.toFixed(2)} SAR%0A%0A`;
 
         if (!isDayTime) {
             msg += `Note - Closing reading recorded%0A`;
@@ -724,6 +789,10 @@
     function exportExcel() {
         if(!validate()) return;
         const station = document.getElementById('sn').value.toUpperCase();
+        
+        // Get all payment values
+        const payments = calculatePayments();
+        
         const headerInfo = [
             ["STATION", station],
             ["DATE", getTopDateStr()],
@@ -733,6 +802,28 @@
             ["D PRICE", document.getElementById('pd').value],
             ["GRAND TOTAL", document.getElementById('grandTotal').innerText + " SAR"],
             [],
+            ["FUEL SUMMARY"],
+            ["Fuel Type", "Total Liters", "Total SAR"],
+            ["Octane 91", document.getElementById('sum91').innerText, 
+                (parseFloat(document.getElementById('sum91').innerText) * parseFloat(document.getElementById('p91').value)).toFixed(2)],
+            ["Octane 95", document.getElementById('sum95').innerText, 
+                (parseFloat(document.getElementById('sum95').innerText) * parseFloat(document.getElementById('p95').value)).toFixed(2)],
+            ["Diesel", document.getElementById('sumD').innerText, 
+                (parseFloat(document.getElementById('sumD').innerText) * parseFloat(document.getElementById('pd').value)).toFixed(2)],
+            [],
+            ["PAYMENT SUMMARY"],
+            ["Payment Type", "Amount (SAR)"],
+            ...(payments.r > 0 ? [["Reben App", payments.r.toFixed(2)]] : []),
+            ...(payments.p > 0 ? [["Petro App", payments.p.toFixed(2)]] : []),
+            ...(payments.s > 0 ? [["Sayyara App", payments.s.toFixed(2)]] : []),
+            ...(payments.k > 0 ? [["Kafarat Plus", payments.k.toFixed(2)]] : []),
+            ...(payments.o > 0 ? [["Other", payments.o.toFixed(2)]] : []),
+            ...(payments.c > 0 ? [["Credit", payments.c.toFixed(2)]] : []),
+            ...(payments.d > 0 ? [["Debit", payments.d.toFixed(2)]] : []),
+            ["TOTAL PAYMENTS", payments.allPaymentsTotal.toFixed(2)],
+            ["CASH", payments.cash.toFixed(2)],
+            [],
+            ["NOZZLE DETAILS"],
             ["NOZZLE", "FUEL", "INITIAL", "FINAL", "LITERS"]
         ];
         
@@ -751,6 +842,16 @@
         });
 
         const ws = XLSX.utils.aoa_to_sheet([...headerInfo, ...nozzleData]);
+        
+        // Style the worksheet
+        ws['!cols'] = [
+            { wch: 15 }, // NOZZLE
+            { wch: 10 }, // FUEL
+            { wch: 12 }, // INITIAL
+            { wch: 12 }, // FINAL
+            { wch: 10 }  // LITERS
+        ];
+        
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Report");
         XLSX.writeFile(wb, `${station}_Report.xlsx`);
@@ -763,14 +864,9 @@
         const station = document.getElementById('sn').value.toUpperCase();
         const shift = isDayTime ? "Day" : "Night";
         const time = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-        const r = parseFloat(document.getElementById('appReben').value) || 0;
-        const p = parseFloat(document.getElementById('appPetro').value) || 0;
-        const s = parseFloat(document.getElementById('appSayyara').value) || 0;
-        const k = parseFloat(document.getElementById('appKafarat').value) || 0;
-        const o = parseFloat(document.getElementById('appOther').value) || 0;
-        const grandTotal = parseFloat(document.getElementById('grandTotal').innerText.replace(/,/g, '')) || 0;
-        const cashAmt = grandTotal - (r+p+s+k+o);
+        
+        // Get all payment values
+        const payments = calculatePayments();
 
         doc.setFontSize(18); doc.text(`STATION: ${station}`, 14, 20);
         doc.setFontSize(10);
@@ -782,20 +878,30 @@
             ["Octane 91", document.getElementById('sum91').innerText, (parseFloat(document.getElementById('sum91').innerText) * parseFloat(document.getElementById('p91').value)).toFixed(2)],
             ["Octane 95", document.getElementById('sum95').innerText, (parseFloat(document.getElementById('sum95').innerText) * parseFloat(document.getElementById('p95').value)).toFixed(2)],
             ["Diesel", document.getElementById('sumD').innerText, (parseFloat(document.getElementById('sumD').innerText) * parseFloat(document.getElementById('pd').value)).toFixed(2)],
-            ["GRAND TOTAL", "", document.getElementById('grandTotal').innerText + " SAR"]
+            ["GRAND TOTAL", "", payments.total.toFixed(2) + " SAR"]
         ];
         doc.autoTable({ head: [summary[0]], body: summary.slice(1), startY: 40, theme: 'grid' });
 
-        const payments = [
-            ["Payment Method", "Amount (SAR)"],
-            ["Reben app", r.toFixed(2)],
-            ["Petro App", p.toFixed(2)],
-            ["Sayyara App", s.toFixed(2)],
-            ["Kafarat Plus", k.toFixed(2)],
-            ["Other", o.toFixed(2)],
-            ["CASH", cashAmt.toFixed(2)]
-        ];
-        doc.autoTable({ head: [payments[0]], body: payments.slice(1), startY: doc.lastAutoTable.finalY + 10, theme: 'grid' });
+        // Add Payment table if any payments have values
+        if (payments.r > 0 || payments.p > 0 || payments.s > 0 || payments.k > 0 || payments.o > 0 || payments.c > 0 || payments.d > 0) {
+            const paymentRows = [];
+            if(payments.r > 0) paymentRows.push(["Reben App", payments.r.toFixed(2)]);
+            if(payments.p > 0) paymentRows.push(["Petro App", payments.p.toFixed(2)]);
+            if(payments.s > 0) paymentRows.push(["Sayyara App", payments.s.toFixed(2)]);
+            if(payments.k > 0) paymentRows.push(["Kafarat Plus", payments.k.toFixed(2)]);
+            if(payments.o > 0) paymentRows.push(["Other", payments.o.toFixed(2)]);
+            if(payments.c > 0) paymentRows.push(["Credit", payments.c.toFixed(2)]);
+            if(payments.d > 0) paymentRows.push(["Debit", payments.d.toFixed(2)]);
+            paymentRows.push(["TOTAL PAYMENTS", payments.allPaymentsTotal.toFixed(2)]);
+            paymentRows.push(["CASH", payments.cash.toFixed(2)]);
+            
+            doc.autoTable({ 
+                head: [["Payment Type", "Amount (SAR)"]], 
+                body: paymentRows, 
+                startY: doc.lastAutoTable.finalY + 10,
+                theme: 'grid'
+            });
+        }
 
         const rows = [];
         document.querySelectorAll('.nozzle-row').forEach(row => {
@@ -826,20 +932,28 @@
 
     function saveMem() {
         const data = {
-            sn: document.getElementById('sn').value, p91: document.getElementById('p91').value,
-            p95: document.getElementById('p95').value, pd: document.getElementById('pd').value,
+            sn: document.getElementById('sn').value,
+            p91: document.getElementById('p91').value,
+            p95: document.getElementById('p95').value,
+            pd: document.getElementById('pd').value,
+            day: isDayTime,
+            appsVisible: document.getElementById('appsContainer').style.display === 'grid',
             appReben: document.getElementById('appReben').value,
             appPetro: document.getElementById('appPetro').value,
             appSayyara: document.getElementById('appSayyara').value,
             appKafarat: document.getElementById('appKafarat').value,
             appOther: document.getElementById('appOther').value,
-            day: isDayTime, nozzles: []
+            appCredit: document.getElementById('appCredit').value,
+            appDebit: document.getElementById('appDebit').value,
+            nozzles: []
         };
         document.querySelectorAll('.nozzle-row').forEach(row => {
             const id = row.id.split('-')[1];
             data.nozzles.push({
-                name: document.getElementById(`name-${id}`).value, type: document.getElementById(`type-${id}`).value,
-                init: document.getElementById(`i${id}`).value, final: document.getElementById(`f${id}`).value
+                name: document.getElementById(`name-${id}`).value,
+                type: document.getElementById(`type-${id}`).value,
+                init: document.getElementById(`i${id}`).value,
+                final: document.getElementById(`f${id}`).value
             });
         });
         localStorage.setItem('reben_v3_premium', JSON.stringify(data));
@@ -858,6 +972,15 @@
             document.getElementById('appSayyara').value = data.appSayyara || "";
             document.getElementById('appKafarat').value = data.appKafarat || "";
             document.getElementById('appOther').value = data.appOther || "";
+            document.getElementById('appCredit').value = data.appCredit || "";
+            document.getElementById('appDebit').value = data.appDebit || "";
+            
+            // Restore apps visibility
+            if(data.appsVisible) {
+                document.getElementById('appsContainer').style.display = 'grid';
+                document.getElementById('appsToggleBtn').innerHTML = '<i class="fa-solid fa-minus"></i> HIDE APPS';
+            }
+            
             isDayTime = data.day !== undefined ? data.day : true;
             
             if (isDayTime) {
@@ -871,9 +994,18 @@
             }
             data.nozzles.forEach(n => addNewNozzle(n));
             doMath();
+            calculatePayments();
         } else { 
             addNewNozzle(); 
             document.getElementById('shift-text').innerText = "DAY SHIFT (6AM-6PM)";
+            // Initialize all app values to 0
+            document.getElementById('appReben').value = "0";
+            document.getElementById('appPetro').value = "0";
+            document.getElementById('appSayyara').value = "0";
+            document.getElementById('appKafarat').value = "0";
+            document.getElementById('appOther').value = "0";
+            document.getElementById('appCredit').value = "0";
+            document.getElementById('appDebit').value = "0";
         }
     }
 
