@@ -1232,6 +1232,16 @@
         const shift = isDayTime ? "Day" : "Night";
         const time = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
         const payments = calculatePayments();
+        
+        // Get today's date for night shift note
+        const now = new Date();
+        function formatDateForReport(date) {
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = date.toLocaleString('en-US', { month: 'short' });
+            const year = date.getFullYear();
+            return `${day} - ${month} - ${year}`;
+        }
+        const todayDateStr = formatDateForReport(now);
 
         doc.setFontSize(16); doc.text(`${station}`, 14, 20);
         doc.setFontSize(8);
@@ -1285,7 +1295,7 @@
         if (!isDayTime) {
             doc.setFontSize(8);
             doc.text("Note - Closing reading recorded", 14, finalY);
-            doc.text(getNowStr(), 14, finalY + 4);
+            doc.text(`${todayDateStr} Morning Time`, 14, finalY + 4);
             finalY += 10;
         }
         doc.setFontSize(9); doc.text("Thank you for being part of Reben!", 14, finalY);
