@@ -36,6 +36,8 @@
             --error-bg: #fee2e2;
             --error-text: #b91c1c;
             --mic-active: #4CAF50;
+            --sync-pending: #f59e0b;
+            --sync-success: #10b981;
         }
 
         body.night-mode {
@@ -450,6 +452,22 @@
             padding: 6px 10px;
             border-radius: 20px;
             border: 1px solid var(--input-border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sync-status {
+            font-size: 8px;
+            padding: 2px 6px;
+            border-radius: 12px;
+            background: var(--sync-pending);
+            color: white;
+            display: inline-block;
+        }
+        
+        .sync-status.success {
+            background: var(--sync-success);
         }
 
         .fuel-mini {
@@ -469,7 +487,7 @@
 
         .action-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1.2fr 1fr 0.8fr;
+            grid-template-columns: 1fr 1fr 1fr 1fr 1fr 0.8fr;
             gap: 4px;
         }
 
@@ -500,6 +518,7 @@
         .btn-next { background: #fff3e0; color: #ef6c00; }
         .btn-pdf { background: #ffebee; color: #c62828; }
         .btn-wa { background: var(--wa); color: white; border: none; }
+        .btn-history { background: #e0f2fe; color: #0369a1; }
 
         .action i {
             font-size: 18px;
@@ -523,6 +542,7 @@
         body.night-mode .btn-next { background: #1e293b; color: #fbbf24; border: 1px solid #fbbf24; }
         body.night-mode .btn-pdf { background: #1e293b; color: #f87171; border: 1px solid #f87171; }
         body.night-mode .btn-wa { background: #25D366; color: white; border: none; }
+        body.night-mode .btn-history { background: #1e293b; color: #7dd3fc; border: 1px solid #7dd3fc; }
 
         .spinner {
             width: 14px;
@@ -561,6 +581,98 @@
             border: 2px solid white;
             border-radius: 20px;
             box-shadow: 0 0 0 4000px rgba(0,0,0,0.7);
+        }
+
+        .history-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: var(--primary-bg);
+            z-index: 2000;
+            flex-direction: column;
+            padding: 20px 16px;
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .history-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .history-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            width: 44px;
+            height: 44px;
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .history-close:active {
+            background: var(--input-bg);
+        }
+        
+        .history-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .history-item {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 12px;
+            border: 1px solid var(--input-border);
+            cursor: pointer;
+        }
+        
+        .history-item:active {
+            background: var(--input-bg);
+        }
+        
+        .history-item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+        
+        .history-item-date {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .history-item-shift {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: var(--input-bg);
+            color: var(--text-secondary);
+        }
+        
+        .history-item-station {
+            font-size: 12px;
+            color: var(--reben-red);
+            margin-bottom: 4px;
+        }
+        
+        .history-item-total {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--shift-indicator);
         }
 
         html {
@@ -607,6 +719,7 @@
             <div class="shift-badge">
                 <span id="shift-text">DAY SHIFT (6AM-6PM)</span>
                 <span id="shift-icon"><i class="fa-regular fa-sun"></i></span>
+                <span id="syncStatus" class="sync-status">✓ Saved</span>
             </div>
             <div class="fuel-mini">
                 <span style="color:var(--91)">91: <span id="sum91">0</span></span>
@@ -618,6 +731,7 @@
     </div>
     <div class="action-grid">
         <button class="action btn-add" onclick="addNewNozzle()"><i class="fa-solid fa-plus"></i><span>ADD</span></button>
+        <button class="action btn-history" onclick="showHistory()"><i class="fa-solid fa-clock-rotate-left"></i><span>HISTORY</span></button>
         <button class="action btn-excel" onclick="exportExcel()"><i class="fa-solid fa-file-excel"></i><span>EXCEL</span></button>
         <button class="action btn-next" id="btnNext" onclick="rotateShift()"><i class="fa-solid fa-rotate" id="shiftIcon"></i><span>SHIFT</span></button>
         <button class="action btn-pdf" onclick="exportPDF()"><i class="fa-solid fa-file-pdf"></i><span>PDF</span></button>
@@ -636,6 +750,16 @@
         </div>
     </div>
     <canvas id="c" style="display:none"></canvas>
+</div>
+
+<div class="history-modal" id="historyModal">
+    <div class="history-header">
+        <span class="history-title">📋 Last 90 Days</span>
+        <button class="history-close" onclick="closeHistory()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="history-list" id="historyList">
+        <!-- History items will be populated here -->
+    </div>
 </div>
 
 <script>
@@ -682,22 +806,25 @@
 
     // Function to play beep sound
     function playBeep() {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-        
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 0.1);
-        
-        // Resume audio context if it's suspended
-        if (audioContext.state === 'suspended') {
-            audioContext.resume();
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.1);
+            
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        } catch (e) {
+            console.log('Beep not supported');
         }
     }
 
@@ -709,10 +836,7 @@
     }
 
     function startVoice(inputId, buttonElement) {
-        // Remove active class from previous mic button
         removeMicActiveClass();
-        
-        // Add active class to current mic button
         buttonElement.classList.add('listening');
         currentActiveMicButton = buttonElement;
         
@@ -725,7 +849,6 @@
         }
         
         try {
-            // Set up event handlers
             recognition.onstart = function() {
                 console.log('Voice recognition started');
             };
@@ -733,7 +856,6 @@
             recognition.onresult = function(event) {
                 const transcript = event.results[0][0].transcript;
                 console.log('Heard:', transcript);
-                // Extract numbers including decimals
                 const numbers = transcript.match(/\d+\.?\d*/g);
                 if (numbers && numbers.length > 0) {
                     document.getElementById(inputId).value = numbers[0];
@@ -762,7 +884,6 @@
                 removeMicActiveClass();
             };
             
-            // Start recognition - this will automatically request microphone permission
             recognition.start();
             
         } catch (error) {
@@ -778,12 +899,10 @@
         document.getElementById('scanner').style.display = 'flex'; 
         
         try {
-            // Stop any existing stream
             if (stream) {
                 stream.getTracks().forEach(t => t.stop());
             }
             
-            // Request camera with specific constraints for better OCR
             stream = await navigator.mediaDevices.getUserMedia({ 
                 video: { 
                     facingMode: 'environment',
@@ -795,7 +914,6 @@
             const videoElement = document.getElementById('v');
             videoElement.srcObject = stream;
             
-            // Wait for video to be ready
             videoElement.onloadedmetadata = () => {
                 videoElement.play();
                 tick();
@@ -835,7 +953,6 @@
     }
 
     function sanitizeOCR(text) {
-        // Clean up OCR text - keep only numbers and dots
         return text.replace(/[^\d.]/g, '');
     }
 
@@ -853,7 +970,6 @@
             const height = v.videoHeight;
             
             if (width && height) {
-                // Capture center area where meter reading likely is
                 const captureWidth = width * 0.8;
                 const captureHeight = height * 0.2;
                 const captureX = (width - captureWidth) / 2;
@@ -862,7 +978,6 @@
                 c.width = captureWidth;
                 c.height = captureHeight;
                 
-                // Enhance image for OCR
                 ctx.filter = 'contrast(1.5) grayscale(1) brightness(1.1)';
                 ctx.drawImage(v, captureX, captureY, captureWidth, captureHeight, 0, 0, captureWidth, captureHeight);
                 
@@ -871,22 +986,15 @@
                         let { data: { text, confidence } } = await worker.recognize(c);
                         text = sanitizeOCR(text);
                         
-                        // Look for number pattern (including decimals)
                         const match = text.match(/\d+\.?\d*/g);
                         
                         if (match && match.length > 0 && confidence > 50) {
-                            // Flash effect
                             document.getElementById('flash').style.animation = 'flashAnim 0.3s ease-out';
-                            
-                            // Play beep sound
                             playBeep();
-                            
-                            // Set value
                             document.getElementById(activeId).value = match[0];
                             doMath();
                             saveMem();
                             
-                            // Stop after success
                             setTimeout(() => { 
                                 document.getElementById('flash').style.animation = ''; 
                                 stopCam(); 
@@ -900,7 +1008,6 @@
             }
         }
         
-        // Continue scanning
         if (isScanning) setTimeout(tick, 200);
     }
 
@@ -1003,8 +1110,157 @@
         if(!saved) window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }
 
+    // Save current shift to history
+    function saveShiftToHistory() {
+        const station = document.getElementById('sn').value.toUpperCase();
+        if (!station) return;
+        
+        const now = new Date();
+        const shiftData = {
+            id: Date.now(),
+            timestamp: now.toISOString(),
+            date: formatDateForHistory(now),
+            shift: isDayTime ? "Day" : "Night",
+            station: station,
+            prices: {
+                p91: document.getElementById('p91').value,
+                p95: document.getElementById('p95').value,
+                pd: document.getElementById('pd').value
+            },
+            summary: {
+                q91: document.getElementById('sum91').innerText,
+                q95: document.getElementById('sum95').innerText,
+                qD: document.getElementById('sumD').innerText,
+                total: document.getElementById('grandTotal').innerText
+            },
+            payments: calculatePayments(),
+            nozzles: []
+        };
+        
+        document.querySelectorAll('.nozzle-card').forEach(row => {
+            const id = row.id.split('-')[1];
+            shiftData.nozzles.push({
+                name: document.getElementById(`name-${id}`).value,
+                type: document.getElementById(`type-${id}`).value,
+                init: document.getElementById(`i${id}`).value,
+                final: document.getElementById(`f${id}`).value,
+                diff: document.getElementById(`diff-${id}`).innerText
+            });
+        });
+        
+        // Get existing history
+        let history = JSON.parse(localStorage.getItem('reben_history')) || [];
+        
+        // Add new shift
+        history.unshift(shiftData);
+        
+        // Keep only last 90 days
+        const ninetyDaysAgo = new Date();
+        ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+        history = history.filter(item => new Date(item.timestamp) > ninetyDaysAgo);
+        
+        // Save back to localStorage
+        localStorage.setItem('reben_history', JSON.stringify(history));
+        
+        // Update sync status
+        document.getElementById('syncStatus').innerText = '✓ Saved';
+        document.getElementById('syncStatus').classList.add('success');
+    }
+
+    function formatDateForHistory(date) {
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = date.toLocaleString('en-US', { month: 'short' });
+        const year = date.getFullYear();
+        return `${day} - ${month} - ${year}`;
+    }
+
+    function showHistory() {
+        const history = JSON.parse(localStorage.getItem('reben_history')) || [];
+        const historyList = document.getElementById('historyList');
+        
+        if (history.length === 0) {
+            historyList.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">No history available</div>';
+        } else {
+            historyList.innerHTML = history.map(item => `
+                <div class="history-item" onclick="viewHistoryItem(${item.id})">
+                    <div class="history-item-header">
+                        <span class="history-item-date">${item.date}</span>
+                        <span class="history-item-shift">${item.shift}</span>
+                    </div>
+                    <div class="history-item-station">${item.station}</div>
+                    <div class="history-item-total">${item.summary.total} SAR</div>
+                </div>
+            `).join('');
+        }
+        
+        document.getElementById('historyModal').style.display = 'flex';
+    }
+
+    function viewHistoryItem(id) {
+        const history = JSON.parse(localStorage.getItem('reben_history')) || [];
+        const item = history.find(h => h.id === id);
+        if (!item) return;
+        
+        // Load the shift data into current view
+        document.getElementById('sn').value = item.station;
+        document.getElementById('p91').value = item.prices.p91;
+        document.getElementById('p95').value = item.prices.p95;
+        document.getElementById('pd').value = item.prices.pd;
+        
+        document.getElementById('appReben').value = item.payments.r;
+        document.getElementById('appPetro').value = item.payments.p;
+        document.getElementById('appSayyara').value = item.payments.s;
+        document.getElementById('appKafarat').value = item.payments.k;
+        document.getElementById('appVwallet').value = item.payments.v;
+        document.getElementById('appCar').value = item.payments.c;
+        document.getElementById('appOther').value = item.payments.o;
+        
+        // Clear existing nozzles
+        document.getElementById('list').innerHTML = '';
+        nozzleCount = 0;
+        
+        // Add nozzles from history
+        item.nozzles.forEach(n => {
+            addNewNozzle({
+                name: n.name,
+                type: n.type,
+                init: n.init,
+                final: n.final
+            });
+        });
+        
+        // Set shift mode
+        isDayTime = item.shift === "Day";
+        document.getElementById('shift-text').innerText = isDayTime ? "DAY SHIFT (6AM-6PM)" : "NIGHT SHIFT (6PM-6AM)";
+        if (isDayTime) {
+            document.body.classList.remove('night-mode');
+            document.getElementById('shift-icon').innerHTML = '<i class="fa-regular fa-sun"></i>';
+        } else {
+            document.body.classList.add('night-mode');
+            document.getElementById('shift-icon').innerHTML = '<i class="fa-regular fa-moon"></i>';
+        }
+        
+        doMath();
+        calculatePayments();
+        closeHistory();
+    }
+
+    function closeHistory() {
+        document.getElementById('historyModal').style.display = 'none';
+    }
+
     async function syncToSheet() {
+        // Always save to history first (offline)
+        saveShiftToHistory();
+        
+        // Try online sync if URL is valid and online
         if (!GOOGLE_SHEET_URL || GOOGLE_SHEET_URL.includes('YOUR_GOOGLE_SCRIPT_URL_HERE')) return;
+        
+        if (!navigator.onLine) {
+            document.getElementById('syncStatus').innerText = '⏳ Pending';
+            document.getElementById('syncStatus').classList.remove('success');
+            return;
+        }
         
         const station = document.getElementById('sn').value.toUpperCase();
         const p91 = parseFloat(document.getElementById('p91').value) || 0;
@@ -1067,7 +1323,13 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-        } catch (e) { console.error("Sync Error:", e); }
+            document.getElementById('syncStatus').innerText = '✓ Synced';
+            document.getElementById('syncStatus').classList.add('success');
+        } catch (e) { 
+            console.error("Sync Error:", e);
+            document.getElementById('syncStatus').innerText = '⏳ Pending';
+            document.getElementById('syncStatus').classList.remove('success');
+        }
     }
 
     async function rotateShift() {
@@ -1182,12 +1444,9 @@
             return `${day} - ${month} - ${year}`;
         }
         
-        // Get yesterday's date for night shift
         const yesterday = new Date(now);
         yesterday.setDate(yesterday.getDate() - 1);
         const yesterdayDateStr = formatDateForReport(yesterday);
-        
-        // Get today's date for night shift note
         const todayDateStr = formatDateForReport(now);
         
         const payments = calculatePayments();
@@ -1200,7 +1459,6 @@
         let msg = `*⛽Station Report*%0A%0A`;
         msg += `    *${station}*%0A`;
         
-        // Use yesterday's date for night shift, today's date for day shift
         if (!isDayTime) {
             msg += `     Date ${yesterdayDateStr}%0A`;
         } else {
@@ -1299,7 +1557,6 @@
         const time = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
         const payments = calculatePayments();
         
-        // Get today's date for night shift note
         const now = new Date();
         function formatDateForReport(date) {
             const day = date.getDate().toString().padStart(2, '0');
@@ -1450,6 +1707,16 @@
         document.getElementById(`card-${id}`).className = `nozzle-card card-${type.toLowerCase()}`;
         doMath();
     }
+
+    // Check online status periodically
+    window.addEventListener('online', function() {
+        document.getElementById('syncStatus').innerText = '✓ Saved';
+    });
+    
+    window.addEventListener('offline', function() {
+        document.getElementById('syncStatus').innerText = '📴 Offline';
+        document.getElementById('syncStatus').classList.remove('success');
+    });
 
     window.onload = loadMem;
 </script>
