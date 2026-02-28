@@ -560,14 +560,15 @@
     </div>
 </div>
 
+<!-- UPDATED APP SECTION - Renamed boxes in specified sequence -->
 <div class="apps-card" id="appsMainCard">
     <div class="apps-grid" id="appsContainer">
-        <div class="app-item"><label>Reben App</label><input type="number" id="appReben" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
-        <div class="app-item"><label>Petro App</label><input type="number" id="appPetro" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
-        <div class="app-item"><label>Sayyarah App</label><input type="number" id="appSayyara" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
-        <div class="app-item"><label>Kafart Plus</label><input type="number" id="appKafarat" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
-        <div class="app-item"><label>V-Wallet</label><input type="number" id="appVwallet" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
-        <div class="app-item"><label>Car App</label><input type="number" id="appCar" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
+        <div class="app-item"><label>ATM</label><input type="number" id="appReben" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
+        <div class="app-item"><label>Reben APP</label><input type="number" id="appPetro" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
+        <div class="app-item"><label>Petro APP</label><input type="number" id="appSayyara" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
+        <div class="app-item"><label>Sayyarah APP</label><input type="number" id="appKafarat" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
+        <div class="app-item"><label>Kafart Plus</label><input type="number" id="appVwallet" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
+        <div class="app-item"><label>V-Wallet</label><input type="number" id="appCar" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
         <div class="app-item"><label>Other</label><input type="number" id="appOther" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
         <div class="cash-inside-apps" id="cashInsideApps">
             <span>CASH</span>
@@ -1135,12 +1136,12 @@
         msg += ` *💰Total Amount:* ${grandTotal} SAR%0A%0A`;
         
         msg += `---- PAYMENTS ----%0A`;
-        if(payments.r > 0) msg += `     Reben App: ${payments.r.toFixed(2)} SAR%0A`;
-        if(payments.p > 0) msg += `     Petro App: ${payments.p.toFixed(2)} SAR%0A`;
-        if(payments.s > 0) msg += `     Sayyarah App: ${payments.s.toFixed(2)} SAR%0A`;
-        if(payments.k > 0) msg += `     Kafart Plus: ${payments.k.toFixed(2)} SAR%0A`;
-        if(payments.v > 0) msg += `     V-Wallet: ${payments.v.toFixed(2)} SAR%0A`;
-        if(payments.c > 0) msg += `     Car App: ${payments.c.toFixed(2)} SAR%0A`;
+        if(payments.r > 0) msg += `     ATM: ${payments.r.toFixed(2)} SAR%0A`;
+        if(payments.p > 0) msg += `     Reben APP: ${payments.p.toFixed(2)} SAR%0A`;
+        if(payments.s > 0) msg += `     Petro APP: ${payments.s.toFixed(2)} SAR%0A`;
+        if(payments.k > 0) msg += `     Sayyarah APP: ${payments.k.toFixed(2)} SAR%0A`;
+        if(payments.v > 0) msg += `     Kafart Plus: ${payments.v.toFixed(2)} SAR%0A`;
+        if(payments.c > 0) msg += `     V-Wallet: ${payments.c.toFixed(2)} SAR%0A`;
         if(payments.o > 0) msg += `     Other: ${payments.o.toFixed(2)} SAR%0A`;
         msg += `    *CASH💸:* ${payments.cash.toFixed(2)} SAR%0A%0A`;
 
@@ -1180,12 +1181,12 @@
             [],
             ["PAYMENTS"],
             ["Type", "Amount"],
-            ...(payments.r > 0 ? [["Reben App", payments.r.toFixed(2)]] : []),
-            ...(payments.p > 0 ? [["Petro App", payments.p.toFixed(2)]] : []),
-            ...(payments.s > 0 ? [["Sayyarah App", payments.s.toFixed(2)]] : []),
-            ...(payments.k > 0 ? [["Kafart Plus", payments.k.toFixed(2)]] : []),
-            ...(payments.v > 0 ? [["V-Wallet", payments.v.toFixed(2)]] : []),
-            ...(payments.c > 0 ? [["Car App", payments.c.toFixed(2)]] : []),
+            ...(payments.r > 0 ? [["ATM", payments.r.toFixed(2)]] : []),
+            ...(payments.p > 0 ? [["Reben APP", payments.p.toFixed(2)]] : []),
+            ...(payments.s > 0 ? [["Petro APP", payments.s.toFixed(2)]] : []),
+            ...(payments.k > 0 ? [["Sayyarah APP", payments.k.toFixed(2)]] : []),
+            ...(payments.v > 0 ? [["Kafart Plus", payments.v.toFixed(2)]] : []),
+            ...(payments.c > 0 ? [["V-Wallet", payments.c.toFixed(2)]] : []),
             ...(payments.o > 0 ? [["Other", payments.o.toFixed(2)]] : []),
             ["TOTAL PAYMENTS", payments.appsTotal.toFixed(2)],
             ["CASH", payments.cash.toFixed(2)],
@@ -1237,12 +1238,12 @@
 
         if (payments.appsTotal > 0) {
             const paymentRows = [];
-            if(payments.r > 0) paymentRows.push(["Reben App", payments.r.toFixed(2)]);
-            if(payments.p > 0) paymentRows.push(["Petro App", payments.p.toFixed(2)]);
-            if(payments.s > 0) paymentRows.push(["Sayyarah App", payments.s.toFixed(2)]);
-            if(payments.k > 0) paymentRows.push(["Kafart Plus", payments.k.toFixed(2)]);
-            if(payments.v > 0) paymentRows.push(["V-Wallet", payments.v.toFixed(2)]);
-            if(payments.c > 0) paymentRows.push(["Car App", payments.c.toFixed(2)]);
+            if(payments.r > 0) paymentRows.push(["ATM", payments.r.toFixed(2)]);
+            if(payments.p > 0) paymentRows.push(["Reben APP", payments.p.toFixed(2)]);
+            if(payments.s > 0) paymentRows.push(["Petro APP", payments.s.toFixed(2)]);
+            if(payments.k > 0) paymentRows.push(["Sayyarah APP", payments.k.toFixed(2)]);
+            if(payments.v > 0) paymentRows.push(["Kafart Plus", payments.v.toFixed(2)]);
+            if(payments.c > 0) paymentRows.push(["V-Wallet", payments.c.toFixed(2)]);
             if(payments.o > 0) paymentRows.push(["Other", payments.o.toFixed(2)]);
             paymentRows.push(["TOTAL PAYMENTS", payments.appsTotal.toFixed(2)]);
             paymentRows.push(["CASH", payments.cash.toFixed(2)]);
