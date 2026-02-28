@@ -1116,7 +1116,14 @@
             return `${day} - ${month} - ${year}`;
         }
         
-        const currentDateStr = formatDateForReport(now);
+        // Get yesterday's date for night shift
+        const yesterday = new Date(now);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayDateStr = formatDateForReport(yesterday);
+        
+        // Get today's date for night shift note
+        const todayDateStr = formatDateForReport(now);
+        
         const payments = calculatePayments();
         
         const sum91 = parseFloat(document.getElementById('sum91').innerText) || 0;
@@ -1126,7 +1133,14 @@
 
         let msg = `*⛽Station Report*%0A%0A`;
         msg += `    *${station}*%0A`;
-        msg += `     Date ${currentDateStr}%0A`;
+        
+        // Use yesterday's date for night shift, today's date for day shift
+        if (!isDayTime) {
+            msg += `     Date ${yesterdayDateStr}%0A`;
+        } else {
+            msg += `     Date ${todayDateStr}%0A`;
+        }
+        
         msg += `     Shift - ${shift}%0A`;
         msg += `     Reporting Time - ${timeStr}%0A%0A`;
         msg += `---- SUMMARY ----%0A%0A`;
@@ -1146,11 +1160,8 @@
         msg += `    *CASH💸:* ${payments.cash.toFixed(2)} SAR%0A%0A`;
 
         if (!isDayTime) {
-            const tomorrow = new Date(now);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            const tomorrowDateStr = formatDateForReport(tomorrow);
             msg += `*Note* - Closing reading recorded%0A`;
-            msg += `     ${tomorrowDateStr} Morning Time%0A%0A`;
+            msg += `     ${todayDateStr} Morning Time%0A%0A`;
         } else {
             msg += `%0A`;
         }
