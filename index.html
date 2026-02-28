@@ -35,6 +35,7 @@
             --error: #ef4444;
             --error-bg: #fee2e2;
             --error-text: #b91c1c;
+            --mic-active: #4CAF50;
         }
 
         body.night-mode {
@@ -48,6 +49,7 @@
             --shift-indicator: #fbbf24;
             --error-bg: #451a1a;
             --error-text: #fca5a5;
+            --mic-active: #4CAF50;
         }
 
         body {
@@ -378,8 +380,28 @@
             background: #4b5563;
         }
         
+        .mic-btn.listening {
+            background: var(--mic-active);
+            animation: pulse 1.5s infinite;
+        }
+        
         .cam-btn:active, .mic-btn:active {
             opacity: 0.7;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+            }
+            50% {
+                transform: scale(1.1);
+                box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+            }
         }
 
         .diff-badge {
@@ -621,6 +643,7 @@
     let isDayTime = true;
     let torchOn = false;
     let recognition = null;
+    let currentActiveMicButton = null;
     
     const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbyLrGK3QJ2OJbA421kNuY68KLjSjkAVqm7GDdnctrTaRPwpjlwXORv6PyWc14Uek-Qfpg/exec';
 
@@ -657,10 +680,46 @@
     }
     initAI();
 
-    function startVoice(inputId) {
+    // Function to play beep sound
+    function playBeep() {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.1);
+        
+        // Resume audio context if it's suspended
+        if (audioContext.state === 'suspended') {
+            audioContext.resume();
+        }
+    }
+
+    function removeMicActiveClass() {
+        if (currentActiveMicButton) {
+            currentActiveMicButton.classList.remove('listening');
+            currentActiveMicButton = null;
+        }
+    }
+
+    function startVoice(inputId, buttonElement) {
+        // Remove active class from previous mic button
+        removeMicActiveClass();
+        
+        // Add active class to current mic button
+        buttonElement.classList.add('listening');
+        currentActiveMicButton = buttonElement;
+        
         if (!recognition) {
             if (!initSpeechRecognition()) {
                 alert("Voice recognition is not supported in this browser. Please use Chrome, Edge, or Safari.");
+                removeMicActiveClass();
                 return;
             }
         }
@@ -683,6 +742,7 @@
                 } else {
                     alert("No numbers detected. Please say the number clearly.");
                 }
+                removeMicActiveClass();
             };
             
             recognition.onerror = function(event) {
@@ -694,10 +754,12 @@
                 } else {
                     alert("Voice recognition error: " + event.error);
                 }
+                removeMicActiveClass();
             };
             
             recognition.onend = function() {
                 console.log('Voice recognition ended');
+                removeMicActiveClass();
             };
             
             // Start recognition - this will automatically request microphone permission
@@ -706,6 +768,7 @@
         } catch (error) {
             console.error('Voice start error:', error);
             alert("Could not start voice recognition. Please check microphone permissions.");
+            removeMicActiveClass();
         }
     }
 
@@ -815,6 +878,9 @@
                             // Flash effect
                             document.getElementById('flash').style.animation = 'flashAnim 0.3s ease-out';
                             
+                            // Play beep sound
+                            playBeep();
+                            
                             // Set value
                             document.getElementById(activeId).value = match[0];
                             doMath();
@@ -916,7 +982,7 @@
                     <label>${labelI}</label>
                     <input type="number" id="i${id}" class="reading-field" value="${saved?saved.init:''}" placeholder="0.00" oninput="doMath(); saveMem()">
                     <div class="action-buttons">
-                        <button class="mic-btn" onclick="startVoice('i${id}')" type="button"><i class="fa-solid fa-microphone"></i></button>
+                        <button class="mic-btn" onclick="startVoice('i${id}', this)" type="button"><i class="fa-solid fa-microphone"></i></button>
                         <button class="cam-btn" onclick="startScan('i${id}')" type="button"><i class="fa-solid fa-camera"></i></button>
                     </div>
                 </div>
@@ -924,7 +990,7 @@
                     <label>${labelF}</label>
                     <input type="number" id="f${id}" class="reading-field" value="${saved?saved.final:''}" placeholder="0.00" oninput="doMath(); saveMem()">
                     <div class="action-buttons">
-                        <button class="mic-btn" onclick="startVoice('f${id}')" type="button"><i class="fa-solid fa-microphone"></i></button>
+                        <button class="mic-btn" onclick="startVoice('f${id}', this)" type="button"><i class="fa-solid fa-microphone"></i></button>
                         <button class="cam-btn" onclick="startScan('f${id}')" type="button"><i class="fa-solid fa-camera"></i></button>
                     </div>
                 </div>
