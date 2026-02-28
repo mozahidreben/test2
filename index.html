@@ -64,7 +64,6 @@
             touch-action: manipulation;
         }
 
-        /* FROZEN HEADER */
         .frozen-header {
             position: sticky;
             top: 0;
@@ -97,7 +96,6 @@
             text-transform: uppercase;
         }
 
-        /* PRICE ROW */
         .price-row {
             display: flex;
             gap: 4px;
@@ -144,7 +142,6 @@
             opacity: 0.7;
         }
 
-        /* APPS BUTTON */
         .price-apps-btn {
             flex: 1;
             background: #000;
@@ -175,7 +172,6 @@
             border-color: #475569;
         }
 
-        /* Apps Card */
         .apps-card {
             background: var(--card-bg);
             border-radius: 20px;
@@ -227,7 +223,6 @@
             outline: none;
         }
 
-        /* CASH BADGE */
         .cash-inside-apps {
             background: var(--91);
             border-radius: 30px;
@@ -255,7 +250,6 @@
             line-height: 1.2;
         }
 
-        /* Nozzle cards - compact */
         .nozzle-list {
             display: flex;
             flex-direction: column;
@@ -348,7 +342,7 @@
 
         .reading-field {
             width: 100%;
-            padding: 8px 40px 8px 10px;
+            padding: 8px 70px 8px 10px;
             border: 1.5px solid var(--input-border);
             border-radius: 18px;
             font-weight: 800;
@@ -358,10 +352,15 @@
             outline: none;
         }
 
-        .cam-btn {
+        .action-buttons {
             position: absolute;
             bottom: 4px;
             right: 4px;
+            display: flex;
+            gap: 4px;
+        }
+
+        .cam-btn, .mic-btn {
             background: #334155;
             color: white;
             border: none;
@@ -375,8 +374,12 @@
             justify-content: center;
         }
         
-        .cam-btn:active {
+        .mic-btn {
             background: #4b5563;
+        }
+        
+        .cam-btn:active, .mic-btn:active {
+            opacity: 0.7;
         }
 
         .diff-badge {
@@ -396,7 +399,6 @@
             background: var(--error-bg) !important; 
         }
 
-        /* Footer */
         .footer {
             position: fixed;
             bottom: 0;
@@ -511,7 +513,6 @@
         
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Scanner modal */
         .modal {
             display: none;
             position: fixed;
@@ -547,7 +548,6 @@
 </head>
 <body>
 
-<!-- FROZEN HEADER -->
 <div class="frozen-header">
     <div class="station-card">
         <input type="text" id="sn" class="station-input" placeholder="STATION NAME" oninput="saveMem()">
@@ -560,7 +560,6 @@
     </div>
 </div>
 
-<!-- Apps Section -->
 <div class="apps-card" id="appsMainCard">
     <div class="apps-grid" id="appsContainer">
         <div class="app-item"><label>Reben App</label><input type="number" id="appReben" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
@@ -577,10 +576,8 @@
     </div>
 </div>
 
-<!-- Nozzle List -->
 <div id="list" class="nozzle-list"></div>
 
-<!-- Footer -->
 <div class="footer">
     <div class="stats-row">
         <div>
@@ -605,7 +602,6 @@
     </div>
 </div>
 
-<!-- Scanner Modal -->
 <div class="modal" id="scanner">
     <div class="cam-view">
         <div id="flash" style="position:absolute; inset:0; background:var(--wa); opacity:0; z-index:15; pointer-events:none;"></div>
@@ -623,19 +619,230 @@
     let nozzleCount = 0, activeId = null, stream = null, isScanning = false, worker = null;
     let isDayTime = true;
     let torchOn = false;
+    let recognition = null;
     
     const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbyLrGK3QJ2OJbA421kNuY68KLjSjkAVqm7GDdnctrTaRPwpjlwXORv6PyWc14Uek-Qfpg/exec';
 
+    // Initialize speech recognition with better error handling
+    function initSpeechRecognition() {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+            recognition.maxAlternatives = 1;
+            return true;
+        }
+        return false;
+    }
+    
+    initSpeechRecognition();
+
     async function initAI() {
-        worker = await Tesseract.createWorker();
-        await worker.loadLanguage('eng');
-        await worker.initialize('eng');
-        await worker.setParameters({ 
-            tessedit_char_whitelist: '0123456789.', 
-            tessedit_pageseg_mode: '7'
-        });
+        try {
+            worker = await Tesseract.createWorker();
+            await worker.loadLanguage('eng');
+            await worker.initialize('eng');
+            await worker.setParameters({ 
+                tessedit_char_whitelist: '0123456789.', 
+                tessedit_pageseg_mode: '7'
+            });
+            console.log('OCR initialized');
+        } catch (error) {
+            console.error('OCR init error:', error);
+            alert('Camera OCR initialization failed. Please refresh.');
+        }
     }
     initAI();
+
+    function startVoice(inputId) {
+        if (!recognition) {
+            if (!initSpeechRecognition()) {
+                alert("Voice recognition is not supported in this browser. Please use Chrome, Edge, or Safari.");
+                return;
+            }
+        }
+        
+        // Request microphone permission explicitly
+        try {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(function(stream) {
+                    // Stop all tracks immediately - we just needed permission
+                    stream.getTracks().forEach(track => track.stop());
+                    
+                    // Now start recognition
+                    recognition.onstart = function() {
+                        console.log('Voice recognition started');
+                    };
+                    
+                    recognition.onresult = function(event) {
+                        const transcript = event.results[0][0].transcript;
+                        console.log('Heard:', transcript);
+                        // Extract numbers including decimals
+                        const numbers = transcript.match(/\d+\.?\d*/g);
+                        if (numbers && numbers.length > 0) {
+                            document.getElementById(inputId).value = numbers[0];
+                            doMath();
+                            saveMem();
+                        } else {
+                            alert("No numbers detected. Please say the number clearly.");
+                        }
+                    };
+                    
+                    recognition.onerror = function(event) {
+                        console.error('Speech error:', event.error);
+                        if (event.error === 'not-allowed') {
+                            alert("Microphone access denied. Please allow microphone access in your browser settings.");
+                        } else {
+                            alert("Voice recognition error: " + event.error);
+                        }
+                    };
+                    
+                    recognition.onend = function() {
+                        console.log('Voice recognition ended');
+                    };
+                    
+                    recognition.start();
+                })
+                .catch(function(err) {
+                    console.error('Microphone permission error:', err);
+                    alert("Microphone access is required for voice input. Please allow microphone access.");
+                });
+        } catch (error) {
+            console.error('Voice start error:', error);
+            alert("Could not access microphone. Please check permissions.");
+        }
+    }
+
+    async function startScan(id) { 
+        activeId = id; 
+        isScanning = true; 
+        document.getElementById('scanner').style.display = 'flex'; 
+        
+        try {
+            // Stop any existing stream
+            if (stream) {
+                stream.getTracks().forEach(t => t.stop());
+            }
+            
+            // Request camera with specific constraints for better OCR
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: 'environment',
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 }
+                } 
+            });
+            
+            const videoElement = document.getElementById('v');
+            videoElement.srcObject = stream;
+            
+            // Wait for video to be ready
+            videoElement.onloadedmetadata = () => {
+                videoElement.play();
+                tick();
+            };
+            
+        } catch (error) {
+            console.error('Camera error:', error);
+            alert("Could not access camera. Please ensure camera permissions are granted.");
+            stopCam();
+        }
+    }
+
+    function stopCam() { 
+        isScanning = false; 
+        if (stream) {
+            stream.getTracks().forEach(t => t.stop());
+            stream = null;
+        }
+        document.getElementById('scanner').style.display = 'none'; 
+        torchOn = false;
+    }
+
+    async function toggleTorch() {
+        if (!stream) return;
+        
+        try {
+            const track = stream.getVideoTracks()[0];
+            if (track && track.getCapabilities().torch) {
+                torchOn = !torchOn;
+                await track.applyConstraints({ advanced: [{ torch: torchOn }] });
+            } else {
+                alert("Torch not available on this device");
+            }
+        } catch (error) {
+            console.error('Torch error:', error);
+        }
+    }
+
+    function sanitizeOCR(text) {
+        // Clean up OCR text - keep only numbers and dots
+        return text.replace(/[^\d.]/g, '');
+    }
+
+    async function tick() {
+        if (!isScanning) return;
+        
+        const v = document.getElementById('v');
+        const c = document.getElementById('c');
+        
+        if (!v || !c) return;
+        
+        if (v.readyState === v.HAVE_ENOUGH_DATA) {
+            const ctx = c.getContext('2d');
+            const width = v.videoWidth;
+            const height = v.videoHeight;
+            
+            if (width && height) {
+                // Capture center area where meter reading likely is
+                const captureWidth = width * 0.8;
+                const captureHeight = height * 0.2;
+                const captureX = (width - captureWidth) / 2;
+                const captureY = (height - captureHeight) / 2;
+                
+                c.width = captureWidth;
+                c.height = captureHeight;
+                
+                // Enhance image for OCR
+                ctx.filter = 'contrast(1.5) grayscale(1) brightness(1.1)';
+                ctx.drawImage(v, captureX, captureY, captureWidth, captureHeight, 0, 0, captureWidth, captureHeight);
+                
+                try {
+                    if (worker) {
+                        let { data: { text, confidence } } = await worker.recognize(c);
+                        text = sanitizeOCR(text);
+                        
+                        // Look for number pattern (including decimals)
+                        const match = text.match(/\d+\.?\d*/g);
+                        
+                        if (match && match.length > 0 && confidence > 50) {
+                            // Flash effect
+                            document.getElementById('flash').style.animation = 'flashAnim 0.3s ease-out';
+                            
+                            // Set value
+                            document.getElementById(activeId).value = match[0];
+                            doMath();
+                            saveMem();
+                            
+                            // Stop after success
+                            setTimeout(() => { 
+                                document.getElementById('flash').style.animation = ''; 
+                                stopCam(); 
+                            }, 300);
+                            return;
+                        }
+                    }
+                } catch (err) {
+                    console.error('OCR error:', err);
+                }
+            }
+        }
+        
+        // Continue scanning
+        if (isScanning) setTimeout(tick, 200);
+    }
 
     function toggleApps() {
         const appsCard = document.getElementById('appsMainCard');
@@ -714,12 +921,18 @@
                 <div class="reading-row">
                     <label>${labelI}</label>
                     <input type="number" id="i${id}" class="reading-field" value="${saved?saved.init:''}" placeholder="0.00" oninput="doMath(); saveMem()">
-                    <button class="cam-btn" onclick="startScan('i${id}')"><i class="fa-solid fa-camera"></i></button>
+                    <div class="action-buttons">
+                        <button class="mic-btn" onclick="startVoice('i${id}')" type="button"><i class="fa-solid fa-microphone"></i></button>
+                        <button class="cam-btn" onclick="startScan('i${id}')" type="button"><i class="fa-solid fa-camera"></i></button>
+                    </div>
                 </div>
                 <div class="reading-row">
                     <label>${labelF}</label>
                     <input type="number" id="f${id}" class="reading-field" value="${saved?saved.final:''}" placeholder="0.00" oninput="doMath(); saveMem()">
-                    <button class="cam-btn" onclick="startScan('f${id}')"><i class="fa-solid fa-camera"></i></button>
+                    <div class="action-buttons">
+                        <button class="mic-btn" onclick="startVoice('f${id}')" type="button"><i class="fa-solid fa-microphone"></i></button>
+                        <button class="cam-btn" onclick="startScan('f${id}')" type="button"><i class="fa-solid fa-camera"></i></button>
+                    </div>
                 </div>
             </div>
             <div style="display: flex; justify-content: flex-end;">
@@ -844,61 +1057,6 @@
         }
     }
 
-    async function startScan(id) { 
-        activeId = id; isScanning = true; 
-        document.getElementById('scanner').style.display = 'flex'; 
-        try { 
-            stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: 'environment', width: { ideal: 1280 } } 
-            }); 
-            document.getElementById('v').srcObject = stream; 
-            tick(); 
-        } catch (e) { stopCam(); } 
-    }
-
-    function stopCam() { 
-        isScanning = false; 
-        if(stream) stream.getTracks().forEach(t => t.stop()); 
-        document.getElementById('scanner').style.display = 'none'; 
-        torchOn = false;
-    }
-
-    async function toggleTorch() {
-        const track = stream.getVideoTracks()[0];
-        torchOn = !torchOn;
-        try { await track.applyConstraints({ advanced: [{ torch: torchOn }] }); } catch (e) {}
-    }
-
-    function sanitizeOCR(text) {
-        return text.replace(/[S]/g, '5').replace(/[O]/g, '0').replace(/[I|l]/g, '1').replace(/[B]/g, '8').replace(/[Z]/g, '2').replace(/[^0-9.]/g, '');
-    }
-
-    async function tick() {
-        if (!isScanning) return;
-        const v = document.getElementById('v'), c = document.getElementById('c'), ctx = c.getContext('2d');
-        if (v.readyState === v.HAVE_ENOUGH_DATA) {
-            const ratio = v.videoWidth / v.clientWidth;
-            const w = v.videoWidth * 0.8, h = 80 * ratio;
-            const x = (v.videoWidth - w) / 2, y = (v.videoHeight - h) / 2;
-            c.width = w; c.height = h;
-            ctx.filter = 'contrast(1.5) grayscale(1) brightness(1.1)';
-            ctx.drawImage(v, x, y, w, h, 0, 0, w, h);
-            try {
-                let { data: { text, confidence } } = await worker.recognize(c);
-                text = sanitizeOCR(text);
-                const match = text.match(/\d+\.\d{1,3}/) || text.match(/\d{3,}/);
-                if (match && confidence > 70) { 
-                    document.getElementById('flash').style.animation = 'flashAnim 0.3s ease-out';
-                    document.getElementById(activeId).value = match[0]; 
-                    doMath(); saveMem();
-                    setTimeout(() => { document.getElementById('flash').style.animation = ''; stopCam(); }, 300);
-                    return; 
-                }
-            } catch (err) {}
-        }
-        if (isScanning) setTimeout(tick, 150);
-    }
-
     function doMath() {
         let total = 0, q91 = 0, q95 = 0, qd = 0;
         const pr91 = parseFloat(document.getElementById('p91').value) || 0;
@@ -957,7 +1115,6 @@
         const now = new Date();
         const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
         
-        // Format date as "26 - Feb - 2026"
         function formatDateForReport(date) {
             const day = date.getDate().toString().padStart(2, '0');
             const month = date.toLocaleString('en-US', { month: 'short' });
@@ -968,7 +1125,6 @@
         const currentDateStr = formatDateForReport(now);
         const payments = calculatePayments();
         
-        // Get fuel totals with proper formatting
         const sum91 = parseFloat(document.getElementById('sum91').innerText) || 0;
         const sum95 = parseFloat(document.getElementById('sum95').innerText) || 0;
         const sumD = parseFloat(document.getElementById('sumD').innerText) || 0;
@@ -995,7 +1151,6 @@
         if(payments.o > 0) msg += `     Other: ${payments.o.toFixed(2)} SAR%0A`;
         msg += `    *CASH💸:* ${payments.cash.toFixed(2)} SAR%0A%0A`;
 
-        // Add closing note for night shift
         if (!isDayTime) {
             const tomorrow = new Date(now);
             tomorrow.setDate(tomorrow.getDate() + 1);
@@ -1003,7 +1158,7 @@
             msg += `*Note* - Closing reading recorded%0A`;
             msg += `     ${tomorrowDateStr} Morning Time%0A%0A`;
         } else {
-            msg += `%0A`; // Just an empty line for day shift
+            msg += `%0A`;
         }
 
         msg += `*Thank you for being part of Reben!*`;
