@@ -664,54 +664,47 @@
             }
         }
         
-        // Request microphone permission explicitly
         try {
-            navigator.mediaDevices.getUserMedia({ audio: true })
-                .then(function(stream) {
-                    // Stop all tracks immediately - we just needed permission
-                    stream.getTracks().forEach(track => track.stop());
-                    
-                    // Now start recognition
-                    recognition.onstart = function() {
-                        console.log('Voice recognition started');
-                    };
-                    
-                    recognition.onresult = function(event) {
-                        const transcript = event.results[0][0].transcript;
-                        console.log('Heard:', transcript);
-                        // Extract numbers including decimals
-                        const numbers = transcript.match(/\d+\.?\d*/g);
-                        if (numbers && numbers.length > 0) {
-                            document.getElementById(inputId).value = numbers[0];
-                            doMath();
-                            saveMem();
-                        } else {
-                            alert("No numbers detected. Please say the number clearly.");
-                        }
-                    };
-                    
-                    recognition.onerror = function(event) {
-                        console.error('Speech error:', event.error);
-                        if (event.error === 'not-allowed') {
-                            alert("Microphone access denied. Please allow microphone access in your browser settings.");
-                        } else {
-                            alert("Voice recognition error: " + event.error);
-                        }
-                    };
-                    
-                    recognition.onend = function() {
-                        console.log('Voice recognition ended');
-                    };
-                    
-                    recognition.start();
-                })
-                .catch(function(err) {
-                    console.error('Microphone permission error:', err);
-                    alert("Microphone access is required for voice input. Please allow microphone access.");
-                });
+            // Set up event handlers
+            recognition.onstart = function() {
+                console.log('Voice recognition started');
+            };
+            
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                console.log('Heard:', transcript);
+                // Extract numbers including decimals
+                const numbers = transcript.match(/\d+\.?\d*/g);
+                if (numbers && numbers.length > 0) {
+                    document.getElementById(inputId).value = numbers[0];
+                    doMath();
+                    saveMem();
+                } else {
+                    alert("No numbers detected. Please say the number clearly.");
+                }
+            };
+            
+            recognition.onerror = function(event) {
+                console.error('Speech error:', event.error);
+                if (event.error === 'not-allowed') {
+                    alert("Microphone access denied. Please allow microphone access in your browser settings and try again.");
+                } else if (event.error === 'no-speech') {
+                    alert("No speech detected. Please try again.");
+                } else {
+                    alert("Voice recognition error: " + event.error);
+                }
+            };
+            
+            recognition.onend = function() {
+                console.log('Voice recognition ended');
+            };
+            
+            // Start recognition - this will automatically request microphone permission
+            recognition.start();
+            
         } catch (error) {
             console.error('Voice start error:', error);
-            alert("Could not access microphone. Please check permissions.");
+            alert("Could not start voice recognition. Please check microphone permissions.");
         }
     }
 
