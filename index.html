@@ -1523,7 +1523,7 @@
             ...(payments.v > 0 ? [["Kafart Plus", payments.v.toFixed(2)]] : []),
             ...(payments.c > 0 ? [["V-Wallet", payments.c.toFixed(2)]] : []),
             ...(payments.o > 0 ? [["Other", payments.o.toFixed(2)]] : []),
-            ["TOTAL PAYMENTS", payments.appsTotal.toFixed(2)],
+            ["TOTAL DIGITAL PAYMENTS", payments.appsTotal.toFixed(2)],
             ["CASH", payments.cash.toFixed(2)],
             [],
             ["NOZZLE DETAILS"],
@@ -1589,7 +1589,7 @@
             if(payments.v > 0) paymentRows.push(["Kafart Plus", payments.v.toFixed(2)]);
             if(payments.c > 0) paymentRows.push(["V-Wallet", payments.c.toFixed(2)]);
             if(payments.o > 0) paymentRows.push(["Other", payments.o.toFixed(2)]);
-            paymentRows.push(["TOTAL PAYMENTS", payments.appsTotal.toFixed(2)]);
+            paymentRows.push(["TOTAL DIGITAL PAYMENTS", payments.appsTotal.toFixed(2)]);
             paymentRows.push(["CASH", payments.cash.toFixed(2)]);
             
             doc.autoTable({ 
