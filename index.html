@@ -31,6 +31,8 @@
             --91: #059669;
             --95: #dc2626;
             --d: #f59e0b;
+            --98: #7c3aed;
+            --k: #0ea5e9;
             --wa: #25D366;
             --error: #ef4444;
             --error-bg: #fee2e2;
@@ -102,7 +104,7 @@
 
         .price-row {
             display: flex;
-            gap: 4px;
+            gap: 3px;
             padding: 8px;
         }
 
@@ -272,6 +274,8 @@
         .card-91 { border-left-color: var(--91); }
         .card-95 { border-left-color: var(--95); }
         .card-d { border-left-color: var(--d); }
+        .card-98 { border-left-color: var(--98); }
+        .card-k { border-left-color: var(--k); }
 
         .card-header {
             display: flex;
@@ -472,7 +476,8 @@
 
         .fuel-mini {
             display: flex;
-            gap: 8px;
+            flex-wrap: wrap;
+            gap: 6px;
             margin-top: 4px;
             font-size: 10px;
         }
@@ -678,6 +683,53 @@
         html {
             scroll-behavior: smooth;
         }
+
+        /* ===== MOBILE POLISH ===== */
+        html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; overscroll-behavior-y: none; }
+        body { min-height: 100vh; min-height: 100dvh; padding-left: max(8px, env(safe-area-inset-left)); padding-right: max(8px, env(safe-area-inset-right)); }
+        .frozen-header { padding-top: calc(8px + env(safe-area-inset-top)); }
+
+        /* 16px inputs stop iOS/Android from zooming the page on focus */
+        .price-item input, .app-item input { font-size: 16px; min-width: 0; }
+        .price-item label, .app-item label { font-size: 10px; }
+        .reading-row label { font-size: 10px; }
+        .price-item { min-width: 0; padding: 3px 1px; }
+        .price-apps-btn { flex: 1.1; min-width: 0; font-size: 11px; }
+
+        /* Nozzle card header: bigger, easier to tap */
+        .nozzle-name { font-size: 16px; width: auto; flex: 1; min-width: 0; padding: 6px 10px; }
+        .fuel-badge { font-size: 16px; padding: 6px 8px; min-height: 36px; }
+        .delete-btn { width: 40px; height: 40px; font-size: 16px; flex-shrink: 0; }
+        .cam-btn, .mic-btn { width: 36px; height: 36px; font-size: 14px; }
+        .reading-field { padding-right: 90px; }
+
+        /* Keep the focused field visible between header and footer */
+        .reading-field { scroll-margin-top: 150px; scroll-margin-bottom: 170px; }
+
+        /* Footer: respect home-indicator area, easier buttons */
+        .footer { padding: 10px 10px calc(12px + env(safe-area-inset-bottom)); transition: transform 0.2s ease; }
+        .footer.kb-hidden { transform: translateY(110%); }
+        .action { font-size: 10px; height: 52px; min-width: 0; letter-spacing: 0; }
+        .action-grid { gap: 4px; }
+        .fuel-mini { font-size: 11px; font-weight: 700; }
+        .diff-badge { font-size: 11px; }
+
+        /* Modals */
+        .history-modal { padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom)); }
+        .history-list { -webkit-overflow-scrolling: touch; }
+        .history-item { padding: 14px; }
+
+        @media (max-width: 360px) {
+            .price-row { padding: 6px 4px; gap: 2px; }
+            .price-item input, .app-item input { font-size: 15px; }
+            .action i { font-size: 16px; }
+            .grand-total { font-size: 24px; }
+        }
+        @media (min-width: 700px) {
+            body { max-width: 640px; margin: 0 auto; }
+            .footer { left: 50%; right: auto; width: 640px; transform: translateX(-50%); }
+            .footer.kb-hidden { transform: translateX(-50%) translateY(110%); }
+        }
     </style>
 </head>
 <body>
@@ -688,7 +740,9 @@
         <div class="price-row">
             <div class="price-item"><label>91</label><input type="number" id="p91" step="0.01" placeholder="0.00" oninput="doMath(); saveMem()"></div>
             <div class="price-item"><label>95</label><input type="number" id="p95" step="0.01" placeholder="0.00" oninput="doMath(); saveMem()"></div>
-            <div class="price-item"><label>DIESEL</label><input type="number" id="pd" step="0.01" placeholder="0.00" oninput="doMath(); saveMem()"></div>
+            <div class="price-item"><label>98</label><input type="number" id="p98" step="0.01" placeholder="0.00" oninput="doMath(); saveMem()"></div>
+            <div class="price-item"><label>D</label><input type="number" id="pd" step="0.01" placeholder="0.00" oninput="doMath(); saveMem()"></div>
+            <div class="price-item"><label>K</label><input type="number" id="pk" step="0.01" placeholder="0.00" oninput="doMath(); saveMem()"></div>
             <button class="price-apps-btn" onclick="toggleApps()" id="appsToggleBtn"><i class="fa-solid fa-plus"></i> APPS</button>
         </div>
     </div>
@@ -724,7 +778,9 @@
             <div class="fuel-mini">
                 <span style="color:var(--91)">91: <span id="sum91">0</span></span>
                 <span style="color:var(--95)">95: <span id="sum95">0</span></span>
+                <span id="wrap98" style="color:var(--98); display:none">98: <span id="sum98">0</span></span>
                 <span style="color:var(--d)">D: <span id="sumD">0</span></span>
+                <span id="wrapK" style="color:var(--k); display:none">K: <span id="sumK">0</span></span>
             </div>
         </div>
         <div class="grand-total" id="grandTotal">0.00</div>
@@ -744,7 +800,7 @@
         <div id="flash" style="position:absolute; inset:0; background:var(--wa); opacity:0; z-index:15; pointer-events:none;"></div>
         <video id="v" autoplay playsinline></video>
         <div class="guide"></div>
-        <div style="position:absolute; bottom:40px; left:0; right:0; display:flex; justify-content:center; gap:20px; z-index:20;">
+        <div style="position:absolute; bottom:calc(40px + env(safe-area-inset-bottom)); left:0; right:0; display:flex; justify-content:center; gap:20px; z-index:20;">
             <button onclick="toggleTorch()" style="width:56px; height:56px; border-radius:50%; background:rgba(255,255,255,0.2); border:none; color:white; font-size:20px; backdrop-filter:blur(4px);"><i class="fa-solid fa-bolt"></i></button>
             <button onclick="stopCam()" style="width:56px; height:56px; border-radius:50%; background:rgba(255,0,0,0.4); border:none; color:white; font-size:20px; backdrop-filter:blur(4px);"><i class="fa-solid fa-xmark"></i></button>
         </div>
@@ -1061,6 +1117,16 @@
                 valid = false; 
             }
         });
+        // 98 and Kerosene prices are only required when a nozzle uses that fuel
+        [['98','p98'],['K','pk']].forEach(([t,pid]) => {
+            const f = document.getElementById(pid);
+            f.classList.remove('invalid');
+            const used = Array.from(document.querySelectorAll('.nozzle-card')).some(row => {
+                const id = row.id.split('-')[1];
+                return document.getElementById(`type-${id}`).value === t;
+            });
+            if (used && (!f.value || parseFloat(f.value) <= 0)) { f.classList.add('invalid'); valid = false; }
+        });
         return valid;
     }
 
@@ -1080,9 +1146,11 @@
                 <select class="fuel-badge" id="type-${id}" onchange="updateRowColor(${id}); saveMem()">
                     <option value="91" ${saved?.type=='91'?'selected':''}>91</option>
                     <option value="95" ${saved?.type=='95'?'selected':''}>95</option>
+                    <option value="98" ${saved?.type=='98'?'selected':''}>98</option>
                     <option value="D" ${saved?.type=='D'?'selected':''}>D</option>
+                    <option value="K" ${saved?.type=='K'?'selected':''}>K</option>
                 </select>
-                <button class="delete-btn" onclick="this.parentElement.parentElement.remove(); doMath(); saveMem();"><i class="fa-solid fa-trash"></i></button>
+                <button class="delete-btn" onclick="if(!confirm('Delete this nozzle?')) return; this.parentElement.parentElement.remove(); doMath(); saveMem();"><i class="fa-solid fa-trash"></i></button>
             </div>
             <div class="reading-stack">
                 <div class="reading-row">
@@ -1125,12 +1193,16 @@
             prices: {
                 p91: document.getElementById('p91').value,
                 p95: document.getElementById('p95').value,
-                pd: document.getElementById('pd').value
+                p98: document.getElementById('p98').value,
+                pd: document.getElementById('pd').value,
+                pk: document.getElementById('pk').value
             },
             summary: {
                 q91: document.getElementById('sum91').innerText,
                 q95: document.getElementById('sum95').innerText,
+                q98: document.getElementById('sum98').innerText,
                 qD: document.getElementById('sumD').innerText,
+                qK: document.getElementById('sumK').innerText,
                 total: document.getElementById('grandTotal').innerText
             },
             payments: calculatePayments(),
@@ -1205,7 +1277,9 @@
         document.getElementById('sn').value = item.station;
         document.getElementById('p91').value = item.prices.p91;
         document.getElementById('p95').value = item.prices.p95;
+        document.getElementById('p98').value = item.prices.p98 || "";
         document.getElementById('pd').value = item.prices.pd;
+        document.getElementById('pk').value = item.prices.pk || "";
         
         document.getElementById('appReben').value = item.payments.r;
         document.getElementById('appPetro').value = item.payments.p;
@@ -1265,11 +1339,15 @@
         const station = document.getElementById('sn').value.toUpperCase();
         const p91 = parseFloat(document.getElementById('p91').value) || 0;
         const p95 = parseFloat(document.getElementById('p95').value) || 0;
+        const p98 = parseFloat(document.getElementById('p98').value) || 0;
         const pd = parseFloat(document.getElementById('pd').value) || 0;
+        const pk = parseFloat(document.getElementById('pk').value) || 0;
         
         const q91 = parseFloat(document.getElementById('sum91').innerText) || 0;
         const q95 = parseFloat(document.getElementById('sum95').innerText) || 0;
+        const q98 = parseFloat(document.getElementById('sum98').innerText) || 0;
         const qd = parseFloat(document.getElementById('sumD').innerText) || 0;
+        const qk = parseFloat(document.getElementById('sumK').innerText) || 0;
         
         const payments = calculatePayments();
         
@@ -1277,11 +1355,15 @@
             summary: {
                 q91: q91,
                 q95: q95,
+                q98: q98,
                 qd: qd,
+                qk: qk,
                 totalAmt: document.getElementById('grandTotal').innerText,
                 amt91: (q91 * p91).toFixed(2),
                 amt95: (q95 * p95).toFixed(2),
+                amt98: (q98 * p98).toFixed(2),
                 amtD: (qd * pd).toFixed(2),
+                amtK: (qk * pk).toFixed(2),
                 payments: {
                     reben: payments.r,
                     petro: payments.p,
@@ -1294,7 +1376,7 @@
                     cash: payments.cash
                 }
             },
-            prices: { p91, p95, pd },
+            prices: { p91, p95, p98, pd, pk },
             rows: []
         };
 
@@ -1332,8 +1414,22 @@
         }
     }
 
-    async function rotateShift() {
-        if(!confirm("Start Next Shift? Final values will become Initial values.")) return;
+    // Shift period index: even = day (6AM-6PM), odd = night (6PM-6AM), in local time
+    function shiftPeriod(date) {
+        const localMs = date.getTime() - date.getTimezoneOffset() * 60000;
+        return Math.floor((localMs - 6 * 3600000) / (12 * 3600000));
+    }
+
+    async function rotateShift(auto = false) {
+        if (auto !== true) {
+            const missing = Array.from(document.querySelectorAll('.nozzle-card')).filter(row => {
+                const id = row.id.split('-')[1];
+                return document.getElementById(`f${id}`).value.trim() === '';
+            }).length;
+            let q = "Start Next Shift? Final values will become Initial values.";
+            if (missing > 0) q += `\n\n${missing} nozzle(s) have no FINAL reading - their INITIAL reading will stay as it is.`;
+            if(!confirm(q)) return;
+        }
         
         const btn = document.getElementById('btnNext');
         const shiftIcon = document.getElementById('shiftIcon');
@@ -1345,8 +1441,9 @@
         btn.innerHTML = `<div class="spinner"></div><span>SYNC</span>`;
 
         try {
-            await syncToSheet();
-            isDayTime = !isDayTime;
+            // Sync/history must never block the shift change
+            try { await syncToSheet(); } catch (e) { console.error('Sync failed, continuing shift change', e); }
+            isDayTime = (auto === true) ? (((shiftPeriod(new Date()) % 2) + 2) % 2 === 0) : !isDayTime;
             document.getElementById('shift-text').innerText = isDayTime ? "DAY SHIFT (6AM-6PM)" : "NIGHT SHIFT (6PM-6AM)";
             
             if (isDayTime) {
@@ -1359,7 +1456,9 @@
             
             document.querySelectorAll('.nozzle-card').forEach(row => {
                 const id = row.id.split('-')[1];
-                document.getElementById(`i${id}`).value = document.getElementById(`f${id}`).value;
+                const finalVal = document.getElementById(`f${id}`).value.trim();
+                // Move FINAL -> INITIAL only when a final reading exists (never wipe the old initial)
+                if (finalVal !== "") document.getElementById(`i${id}`).value = finalVal;
                 document.getElementById(`f${id}`).value = "";
                 row.querySelectorAll('label')[0].innerText = isDayTime ? "INITIAL (6 AM)" : "INITIAL (6 PM)";
                 row.querySelectorAll('label')[1].innerText = isDayTime ? "FINAL (6 PM)" : "FINAL (6 AM)";
@@ -1380,10 +1479,12 @@
     }
 
     function doMath() {
-        let total = 0, q91 = 0, q95 = 0, qd = 0;
+        let total = 0, q91 = 0, q95 = 0, q98 = 0, qd = 0, qk = 0;
         const pr91 = parseFloat(document.getElementById('p91').value) || 0;
         const pr95 = parseFloat(document.getElementById('p95').value) || 0;
+        const pr98 = parseFloat(document.getElementById('p98').value) || 0;
         const prd = parseFloat(document.getElementById('pd').value) || 0;
+        const prk = parseFloat(document.getElementById('pk').value) || 0;
         
         document.querySelectorAll('.nozzle-card').forEach(row => {
             const id = row.id.split('-')[1];
@@ -1403,12 +1504,18 @@
                 
                 if(type === '91') { q91 += actualDiff; total += actualDiff * pr91; }
                 else if(type === '95') { q95 += actualDiff; total += actualDiff * pr95; }
+                else if(type === '98') { q98 += actualDiff; total += actualDiff * pr98; }
+                else if(type === 'K') { qk += actualDiff; total += actualDiff * prk; }
                 else { qd += actualDiff; total += actualDiff * prd; }
             }
         });
         document.getElementById('sum91').innerText = q91.toFixed(2);
         document.getElementById('sum95').innerText = q95.toFixed(2);
+        document.getElementById('sum98').innerText = q98.toFixed(2);
         document.getElementById('sumD').innerText = qd.toFixed(2);
+        document.getElementById('sumK').innerText = qk.toFixed(2);
+        document.getElementById('wrap98').style.display = q98 > 0 ? '' : 'none';
+        document.getElementById('wrapK').style.display = qk > 0 ? '' : 'none';
         document.getElementById('grandTotal').innerText = total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
         calculatePayments();
     }
@@ -1453,7 +1560,9 @@
         
         const sum91 = parseFloat(document.getElementById('sum91').innerText) || 0;
         const sum95 = parseFloat(document.getElementById('sum95').innerText) || 0;
+        const sum98 = parseFloat(document.getElementById('sum98').innerText) || 0;
         const sumD = parseFloat(document.getElementById('sumD').innerText) || 0;
+        const sumK = parseFloat(document.getElementById('sumK').innerText) || 0;
         const grandTotal = document.getElementById('grandTotal').innerText;
 
         let msg = `*⛽Station Report*%0A%0A`;
@@ -1470,7 +1579,9 @@
         msg += `---- SUMMARY ----%0A%0A`;
         msg += ` *🟢91 Total:* ${sum91.toFixed(2)} L%0A`;
         msg += ` *🔴95 Total:* ${sum95.toFixed(2)} L%0A`;
+        if (sum98 > 0) msg += ` *🟣98 Total:* ${sum98.toFixed(2)} L%0A`;
         msg += ` *🟡D   Total:* ${sumD.toFixed(2)} L%0A`;
+        if (sumK > 0) msg += ` *🔵K   Total:* ${sumK.toFixed(2)} L%0A`;
         msg += ` *💰Total Amount:* ${grandTotal} SAR%0A%0A`;
         
         msg += `---- PAYMENTS ----%0A`;
@@ -1496,6 +1607,8 @@
 
     function exportExcel() {
         if(!validate()) return;
+        const has98 = (parseFloat(document.getElementById('sum98').innerText) || 0) > 0;
+        const hasK = (parseFloat(document.getElementById('sumK').innerText) || 0) > 0;
         const station = document.getElementById('sn').value.toUpperCase();
         const payments = calculatePayments();
         
@@ -1505,14 +1618,18 @@
             ["SHIFT", isDayTime ? "Day" : "Night"],
             ["91 PRICE", document.getElementById('p91').value],
             ["95 PRICE", document.getElementById('p95').value],
+            ...(has98 ? [["98 PRICE", document.getElementById('p98').value]] : []),
             ["D PRICE", document.getElementById('pd').value],
+            ...(hasK ? [["KEROSENE PRICE", document.getElementById('pk').value]] : []),
             ["GRAND TOTAL", document.getElementById('grandTotal').innerText + " SAR"],
             [],
             ["FUEL SUMMARY"],
             ["Fuel", "Liters", "SAR"],
             ["91", document.getElementById('sum91').innerText, (parseFloat(document.getElementById('sum91').innerText) * parseFloat(document.getElementById('p91').value)).toFixed(2)],
             ["95", document.getElementById('sum95').innerText, (parseFloat(document.getElementById('sum95').innerText) * parseFloat(document.getElementById('p95').value)).toFixed(2)],
+            ...(has98 ? [["98", document.getElementById('sum98').innerText, ((parseFloat(document.getElementById('sum98').innerText) || 0) * (parseFloat(document.getElementById('p98').value) || 0)).toFixed(2)]] : []),
             ["D", document.getElementById('sumD').innerText, (parseFloat(document.getElementById('sumD').innerText) * parseFloat(document.getElementById('pd').value)).toFixed(2)],
+            ...(hasK ? [["K", document.getElementById('sumK').innerText, ((parseFloat(document.getElementById('sumK').innerText) || 0) * (parseFloat(document.getElementById('pk').value) || 0)).toFixed(2)]] : []),
             [],
             ["PAYMENTS"],
             ["Type", "Amount"],
@@ -1550,6 +1667,8 @@
 
     function exportPDF() {
         if(!validate()) return;
+        const has98 = (parseFloat(document.getElementById('sum98').innerText) || 0) > 0;
+        const hasK = (parseFloat(document.getElementById('sumK').innerText) || 0) > 0;
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         const station = document.getElementById('sn').value.toUpperCase();
@@ -1569,13 +1688,15 @@
         doc.setFontSize(16); doc.text(`${station}`, 14, 20);
         doc.setFontSize(8);
         doc.text(`${getTopDateStr()} | ${shift} | ${time}`, 14, 28);
-        doc.text(`91:${document.getElementById('p91').value} 95:${document.getElementById('p95').value} D:${document.getElementById('pd').value}`, 14, 34);
+        doc.text(`91:${document.getElementById('p91').value} 95:${document.getElementById('p95').value} ${has98 ? '98:' + document.getElementById('p98').value + ' ' : ''}D:${document.getElementById('pd').value}${hasK ? ' K:' + document.getElementById('pk').value : ''}`, 14, 34);
         
         const summary = [
             ["Fuel", "Liters", "SAR"],
             ["91", document.getElementById('sum91').innerText, (parseFloat(document.getElementById('sum91').innerText) * parseFloat(document.getElementById('p91').value)).toFixed(2)],
             ["95", document.getElementById('sum95').innerText, (parseFloat(document.getElementById('sum95').innerText) * parseFloat(document.getElementById('p95').value)).toFixed(2)],
+            ...(has98 ? [["98", document.getElementById('sum98').innerText, ((parseFloat(document.getElementById('sum98').innerText) || 0) * (parseFloat(document.getElementById('p98').value) || 0)).toFixed(2)]] : []),
             ["D", document.getElementById('sumD').innerText, (parseFloat(document.getElementById('sumD').innerText) * parseFloat(document.getElementById('pd').value)).toFixed(2)],
+            ...(hasK ? [["K", document.getElementById('sumK').innerText, ((parseFloat(document.getElementById('sumK').innerText) || 0) * (parseFloat(document.getElementById('pk').value) || 0)).toFixed(2)]] : []),
             ["TOTAL", "", payments.total.toFixed(2)]
         ];
         doc.autoTable({ head: [summary[0]], body: summary.slice(1), startY: 40, theme: 'grid', styles: { fontSize: 8 } });
@@ -1630,8 +1751,11 @@
             sn: document.getElementById('sn').value,
             p91: document.getElementById('p91').value,
             p95: document.getElementById('p95').value,
+            p98: document.getElementById('p98').value,
             pd: document.getElementById('pd').value,
+            pk: document.getElementById('pk').value,
             day: isDayTime,
+            savedAt: Date.now(),
             appsVisible: document.getElementById('appsMainCard').classList.contains('visible'),
             appReben: document.getElementById('appReben').value,
             appPetro: document.getElementById('appPetro').value,
@@ -1661,7 +1785,9 @@
             document.getElementById('sn').value = data.sn || "";
             document.getElementById('p91').value = data.p91 || "";
             document.getElementById('p95').value = data.p95 || "";
+            document.getElementById('p98').value = data.p98 || "";
             document.getElementById('pd').value = data.pd || "";
+            document.getElementById('pk').value = data.pk || "";
             document.getElementById('appReben').value = data.appReben || "0";
             document.getElementById('appPetro').value = data.appPetro || "0";
             document.getElementById('appSayyara').value = data.appSayyara || "0";
@@ -1689,6 +1815,18 @@
             data.nozzles.forEach(n => addNewNozzle(n));
             doMath();
             calculatePayments();
+
+            // Reopened in a new shift without pressing SHIFT? Offer to carry readings forward.
+            try {
+                const hasFinal = (data.nozzles || []).some(n => String(n.final || '').trim() !== '');
+                if (data.savedAt && hasFinal && shiftPeriod(new Date()) !== shiftPeriod(new Date(data.savedAt))) {
+                    setTimeout(() => {
+                        if (confirm("A new shift has started since your last entry.\n\nMove the FINAL readings to INITIAL for the new shift now?")) {
+                            rotateShift(true);
+                        }
+                    }, 500);
+                }
+            } catch (e) { console.error(e); }
         } else { 
             addNewNozzle(); 
             document.getElementById('shift-text').innerText = "DAY SHIFT (6AM-6PM)";
@@ -1717,6 +1855,31 @@
         document.getElementById('syncStatus').innerText = '📴 Offline';
         document.getElementById('syncStatus').classList.remove('success');
     });
+
+    // ---- Mobile helpers ----
+    (function mobileLayout() {
+        const footer = document.querySelector('.footer');
+        function fitPadding() {
+            document.body.style.paddingBottom = (footer.offsetHeight + 16) + 'px';
+        }
+        if ('ResizeObserver' in window) new ResizeObserver(fitPadding).observe(footer);
+        window.addEventListener('resize', fitPadding);
+        window.addEventListener('load', fitPadding);
+        fitPadding();
+
+        // Android: hide the footer while the keyboard is open so fields have room
+        if (window.visualViewport) {
+            const base = () => Math.max(window.innerHeight, screen.height * 0.5);
+            let fullH = window.visualViewport.height;
+            window.addEventListener('orientationchange', () => { setTimeout(() => { fullH = window.visualViewport.height; }, 400); });
+            window.visualViewport.addEventListener('resize', () => {
+                const h = window.visualViewport.height;
+                if (h > fullH) fullH = h;
+                const typing = /INPUT|SELECT|TEXTAREA/.test((document.activeElement || {}).tagName || '');
+                footer.classList.toggle('kb-hidden', typing && h < fullH * 0.75);
+            });
+        }
+    })();
 
     window.onload = loadMem;
 </script>
