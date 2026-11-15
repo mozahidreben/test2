@@ -689,24 +689,20 @@
         body { min-height: 100vh; min-height: 100dvh; padding-left: max(8px, env(safe-area-inset-left)); padding-right: max(8px, env(safe-area-inset-right)); }
         .frozen-header { padding-top: calc(8px + env(safe-area-inset-top)); }
 
-        /* 16px inputs stop iOS/Android from zooming the page on focus */
         .price-item input, .app-item input { font-size: 16px; min-width: 0; }
         .price-item label, .app-item label { font-size: 10px; }
         .reading-row label { font-size: 10px; }
         .price-item { min-width: 0; padding: 3px 1px; }
         .price-apps-btn { flex: 1.1; min-width: 0; font-size: 11px; }
 
-        /* Nozzle card header: bigger, easier to tap */
         .nozzle-name { font-size: 16px; width: auto; flex: 1; min-width: 0; padding: 6px 10px; }
         .fuel-badge { font-size: 16px; padding: 6px 8px; min-height: 36px; }
         .delete-btn { width: 40px; height: 40px; font-size: 16px; flex-shrink: 0; }
         .cam-btn, .mic-btn { width: 36px; height: 36px; font-size: 14px; }
         .reading-field { padding-right: 90px; }
 
-        /* Keep the focused field visible between header and footer */
         .reading-field { scroll-margin-top: 150px; scroll-margin-bottom: 170px; }
 
-        /* Footer: respect home-indicator area, easier buttons */
         .footer { padding: 10px 10px calc(12px + env(safe-area-inset-bottom)); transition: transform 0.2s ease; }
         .footer.kb-hidden { transform: translateY(110%); }
         .action { font-size: 10px; height: 52px; min-width: 0; letter-spacing: 0; }
@@ -714,7 +710,6 @@
         .fuel-mini { font-size: 11px; font-weight: 700; }
         .diff-badge { font-size: 11px; }
 
-        /* Modals */
         .history-modal { padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom)); }
         .history-list { -webkit-overflow-scrolling: touch; }
         .history-item { padding: 14px; }
@@ -748,7 +743,6 @@
     </div>
 </div>
 
-<!-- UPDATED APP SECTION - Renamed boxes in specified sequence -->
 <div class="apps-card" id="appsMainCard">
     <div class="apps-grid" id="appsContainer">
         <div class="app-item"><label>ATM</label><input type="number" id="appReben" value="0" step="0.01" oninput="calculatePayments(); saveMem()"></div>
@@ -813,9 +807,7 @@
         <span class="history-title">📋 Last 90 Days</span>
         <button class="history-close" onclick="closeHistory()"><i class="fa-solid fa-xmark"></i></button>
     </div>
-    <div class="history-list" id="historyList">
-        <!-- History items will be populated here -->
-    </div>
+    <div class="history-list" id="historyList"></div>
 </div>
 
 <script>
@@ -827,7 +819,45 @@
     
     const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbyLrGK3QJ2OJbA421kNuY68KLjSjkAVqm7GDdnctrTaRPwpjlwXORv6PyWc14Uek-Qfpg/exec';
 
-    // Initialize speech recognition with better error handling
+    // Preload logo.png with exact aspect ratio preservation
+    let cachedLogoInfo = null;
+    function loadCompanyLogo() {
+        return new Promise((resolve) => {
+            if (cachedLogoInfo) return resolve(cachedLogoInfo);
+            const img = new Image();
+            img.crossOrigin = 'Anonymous';
+            img.onload = function () {
+                try {
+                    const w = img.naturalWidth || img.width;
+                    const h = img.naturalHeight || img.height;
+                    // Downscale to a print-sharp but small size (max 480px on the long side)
+                    // so the PDF stays tiny instead of embedding the full-resolution logo.
+                    const MAX_LOGO_PX = 480;
+                    const scale = Math.min(1, MAX_LOGO_PX / Math.max(w, h));
+                    const cw = Math.max(1, Math.round(w * scale));
+                    const ch = Math.max(1, Math.round(h * scale));
+                    const canvas = document.createElement('canvas');
+                    canvas.width = cw;
+                    canvas.height = ch;
+                    const ctx = canvas.getContext('2d');
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
+                    ctx.drawImage(img, 0, 0, cw, ch);
+                    cachedLogoInfo = {
+                        dataUrl: canvas.toDataURL('image/png'),
+                        aspectRatio: w && h ? (w / h) : 1
+                    };
+                    resolve(cachedLogoInfo);
+                } catch (e) {
+                    resolve(null);
+                }
+            };
+            img.onerror = function () { resolve(null); };
+            img.src = 'logo.png';
+        });
+    }
+    window.addEventListener('DOMContentLoaded', loadCompanyLogo);
+
     function initSpeechRecognition() {
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -852,36 +882,25 @@
                 tessedit_char_whitelist: '0123456789.', 
                 tessedit_pageseg_mode: '7'
             });
-            console.log('OCR initialized');
         } catch (error) {
             console.error('OCR init error:', error);
-            alert('Camera OCR initialization failed. Please refresh.');
         }
     }
     initAI();
 
-    // Function to play beep sound
     function playBeep() {
         try {
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
-            
             oscillator.connect(gainNode);
             gainNode.connect(audioContext.destination);
-            
             oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
             gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            
             oscillator.start();
             oscillator.stop(audioContext.currentTime + 0.1);
-            
-            if (audioContext.state === 'suspended') {
-                audioContext.resume();
-            }
-        } catch (e) {
-            console.log('Beep not supported');
-        }
+            if (audioContext.state === 'suspended') audioContext.resume();
+        } catch (e) {}
     }
 
     function removeMicActiveClass() {
@@ -898,53 +917,29 @@
         
         if (!recognition) {
             if (!initSpeechRecognition()) {
-                alert("Voice recognition is not supported in this browser. Please use Chrome, Edge, or Safari.");
+                alert("Voice recognition is not supported in this browser.");
                 removeMicActiveClass();
                 return;
             }
         }
         
         try {
-            recognition.onstart = function() {
-                console.log('Voice recognition started');
-            };
-            
             recognition.onresult = function(event) {
                 const transcript = event.results[0][0].transcript;
-                console.log('Heard:', transcript);
                 const numbers = transcript.match(/\d+\.?\d*/g);
                 if (numbers && numbers.length > 0) {
                     document.getElementById(inputId).value = numbers[0];
                     doMath();
                     saveMem();
                 } else {
-                    alert("No numbers detected. Please say the number clearly.");
+                    alert("No numbers detected.");
                 }
                 removeMicActiveClass();
             };
-            
-            recognition.onerror = function(event) {
-                console.error('Speech error:', event.error);
-                if (event.error === 'not-allowed') {
-                    alert("Microphone access denied. Please allow microphone access in your browser settings and try again.");
-                } else if (event.error === 'no-speech') {
-                    alert("No speech detected. Please try again.");
-                } else {
-                    alert("Voice recognition error: " + event.error);
-                }
-                removeMicActiveClass();
-            };
-            
-            recognition.onend = function() {
-                console.log('Voice recognition ended');
-                removeMicActiveClass();
-            };
-            
+            recognition.onerror = function() { removeMicActiveClass(); };
+            recognition.onend = function() { removeMicActiveClass(); };
             recognition.start();
-            
         } catch (error) {
-            console.error('Voice start error:', error);
-            alert("Could not start voice recognition. Please check microphone permissions.");
             removeMicActiveClass();
         }
     }
@@ -953,31 +948,19 @@
         activeId = id; 
         isScanning = true; 
         document.getElementById('scanner').style.display = 'flex'; 
-        
         try {
-            if (stream) {
-                stream.getTracks().forEach(t => t.stop());
-            }
-            
+            if (stream) stream.getTracks().forEach(t => t.stop());
             stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { 
-                    facingMode: 'environment',
-                    width: { ideal: 1920 },
-                    height: { ideal: 1080 }
-                } 
+                video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } } 
             });
-            
             const videoElement = document.getElementById('v');
             videoElement.srcObject = stream;
-            
             videoElement.onloadedmetadata = () => {
                 videoElement.play();
                 tick();
             };
-            
         } catch (error) {
-            console.error('Camera error:', error);
-            alert("Could not access camera. Please ensure camera permissions are granted.");
+            alert("Could not access camera.");
             stopCam();
         }
     }
@@ -994,18 +977,13 @@
 
     async function toggleTorch() {
         if (!stream) return;
-        
         try {
             const track = stream.getVideoTracks()[0];
             if (track && track.getCapabilities().torch) {
                 torchOn = !torchOn;
                 await track.applyConstraints({ advanced: [{ torch: torchOn }] });
-            } else {
-                alert("Torch not available on this device");
             }
-        } catch (error) {
-            console.error('Torch error:', error);
-        }
+        } catch (error) {}
     }
 
     function sanitizeOCR(text) {
@@ -1014,10 +992,8 @@
 
     async function tick() {
         if (!isScanning) return;
-        
         const v = document.getElementById('v');
         const c = document.getElementById('c');
-        
         if (!v || !c) return;
         
         if (v.readyState === v.HAVE_ENOUGH_DATA) {
@@ -1033,7 +1009,6 @@
                 
                 c.width = captureWidth;
                 c.height = captureHeight;
-                
                 ctx.filter = 'contrast(1.5) grayscale(1) brightness(1.1)';
                 ctx.drawImage(v, captureX, captureY, captureWidth, captureHeight, 0, 0, captureWidth, captureHeight);
                 
@@ -1041,7 +1016,6 @@
                     if (worker) {
                         let { data: { text, confidence } } = await worker.recognize(c);
                         text = sanitizeOCR(text);
-                        
                         const match = text.match(/\d+\.?\d*/g);
                         
                         if (match && match.length > 0 && confidence > 50) {
@@ -1050,7 +1024,6 @@
                             document.getElementById(activeId).value = match[0];
                             doMath();
                             saveMem();
-                            
                             setTimeout(() => { 
                                 document.getElementById('flash').style.animation = ''; 
                                 stopCam(); 
@@ -1058,12 +1031,9 @@
                             return;
                         }
                     }
-                } catch (err) {
-                    console.error('OCR error:', err);
-                }
+                } catch (err) {}
             }
         }
-        
         if (isScanning) setTimeout(tick, 200);
     }
 
@@ -1074,14 +1044,10 @@
         if (!appsCard.classList.contains('visible')) {
             appsCard.classList.add('visible');
             btn.innerHTML = '<i class="fa-solid fa-minus"></i> APPS';
-            
             setTimeout(() => {
                 const headerHeight = document.querySelector('.frozen-header').offsetHeight;
                 const elementPosition = appsCard.getBoundingClientRect().top + window.pageYOffset;
-                window.scrollTo({
-                    top: elementPosition - headerHeight - 20,
-                    behavior: 'smooth'
-                });
+                window.scrollTo({ top: elementPosition - headerHeight - 20, behavior: 'smooth' });
             }, 100);
         } else {
             appsCard.classList.remove('visible');
@@ -1107,7 +1073,6 @@
         return { total, appsTotal, cash, r, p, s, k, v, c, o };
     }
 
-    // A fuel counts as "used" when a nozzle of that type has an initial or final reading entered
     function fuelUsed(type) {
         return Array.from(document.querySelectorAll('.nozzle-card')).some(row => {
             const id = row.id.split('-')[1];
@@ -1126,7 +1091,6 @@
         sn.classList.remove('invalid');
         if (!sn.value || sn.value.trim() === "") { sn.classList.add('invalid'); valid = false; }
 
-        // Price is required only for fuels that have readings
         let anyUsed = false;
         [['91','p91'],['95','p95'],['98','p98'],['D','pd'],['K','pk']].forEach(([t,pid]) => {
             const f = document.getElementById(pid);
@@ -1191,7 +1155,6 @@
         if(!saved) window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }
 
-    // Save current shift to history
     function saveShiftToHistory() {
         const station = document.getElementById('sn').value.toUpperCase();
         if (!station) return;
@@ -1233,21 +1196,14 @@
             });
         });
         
-        // Get existing history
         let history = JSON.parse(localStorage.getItem('reben_history')) || [];
-        
-        // Add new shift
         history.unshift(shiftData);
         
-        // Keep only last 90 days
         const ninetyDaysAgo = new Date();
         ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
         history = history.filter(item => new Date(item.timestamp) > ninetyDaysAgo);
         
-        // Save back to localStorage
         localStorage.setItem('reben_history', JSON.stringify(history));
-        
-        // Update sync status
         document.getElementById('syncStatus').innerText = '✓ Saved';
         document.getElementById('syncStatus').classList.add('success');
     }
@@ -1277,7 +1233,6 @@
                 </div>
             `).join('');
         }
-        
         document.getElementById('historyModal').style.display = 'flex';
     }
 
@@ -1286,7 +1241,6 @@
         const item = history.find(h => h.id === id);
         if (!item) return;
         
-        // Load the shift data into current view
         document.getElementById('sn').value = item.station;
         document.getElementById('p91').value = item.prices.p91;
         document.getElementById('p95').value = item.prices.p95;
@@ -1302,21 +1256,13 @@
         document.getElementById('appCar').value = item.payments.c;
         document.getElementById('appOther').value = item.payments.o;
         
-        // Clear existing nozzles
         document.getElementById('list').innerHTML = '';
         nozzleCount = 0;
         
-        // Add nozzles from history
         item.nozzles.forEach(n => {
-            addNewNozzle({
-                name: n.name,
-                type: n.type,
-                init: n.init,
-                final: n.final
-            });
+            addNewNozzle({ name: n.name, type: n.type, init: n.init, final: n.final });
         });
         
-        // Set shift mode
         isDayTime = item.shift === "Day";
         document.getElementById('shift-text').innerText = isDayTime ? "DAY SHIFT (6AM-6PM)" : "NIGHT SHIFT (6PM-6AM)";
         if (isDayTime) {
@@ -1337,12 +1283,8 @@
     }
 
     async function syncToSheet() {
-        // Always save to history first (offline)
         saveShiftToHistory();
-        
-        // Try online sync if URL is valid and online
         if (!GOOGLE_SHEET_URL || GOOGLE_SHEET_URL.includes('YOUR_GOOGLE_SCRIPT_URL_HERE')) return;
-        
         if (!navigator.onLine) {
             document.getElementById('syncStatus').innerText = '⏳ Pending';
             document.getElementById('syncStatus').classList.remove('success');
@@ -1361,16 +1303,11 @@
         const q98 = parseFloat(document.getElementById('sum98').innerText) || 0;
         const qd = parseFloat(document.getElementById('sumD').innerText) || 0;
         const qk = parseFloat(document.getElementById('sumK').innerText) || 0;
-        
         const payments = calculatePayments();
         
         const payload = {
             summary: {
-                q91: q91,
-                q95: q95,
-                q98: q98,
-                qd: qd,
-                qk: qk,
+                q91, q95, q98, qd, qk,
                 totalAmt: document.getElementById('grandTotal').innerText,
                 amt91: (q91 * p91).toFixed(2),
                 amt95: (q95 * p95).toFixed(2),
@@ -1378,15 +1315,9 @@
                 amtD: (qd * pd).toFixed(2),
                 amtK: (qk * pk).toFixed(2),
                 payments: {
-                    reben: payments.r,
-                    petro: payments.p,
-                    sayyara: payments.s,
-                    kafarat: payments.k,
-                    vwallet: payments.v,
-                    car: payments.c,
-                    other: payments.o,
-                    appsTotal: payments.appsTotal,
-                    cash: payments.cash
+                    reben: payments.r, petro: payments.p, sayyara: payments.s,
+                    kafarat: payments.k, vwallet: payments.v, car: payments.c,
+                    other: payments.o, appsTotal: payments.appsTotal, cash: payments.cash
                 }
             },
             prices: { p91, p95, p98, pd, pk },
@@ -1412,22 +1343,18 @@
 
         try {
             await fetch(GOOGLE_SHEET_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                cache: 'no-cache',
+                method: 'POST', mode: 'no-cors', cache: 'no-cache',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
             document.getElementById('syncStatus').innerText = '✓ Synced';
             document.getElementById('syncStatus').classList.add('success');
         } catch (e) { 
-            console.error("Sync Error:", e);
             document.getElementById('syncStatus').innerText = '⏳ Pending';
             document.getElementById('syncStatus').classList.remove('success');
         }
     }
 
-    // Shift period index: even = day (6AM-6PM), odd = night (6PM-6AM), in local time
     function shiftPeriod(date) {
         const localMs = date.getTime() - date.getTimezoneOffset() * 60000;
         return Math.floor((localMs - 6 * 3600000) / (12 * 3600000));
@@ -1446,16 +1373,12 @@
         
         const btn = document.getElementById('btnNext');
         const shiftIcon = document.getElementById('shiftIcon');
-        
         shiftIcon.classList.add('rotate-animation');
-        
         btn.disabled = true;
-        btn.classList.add('syncing');
         btn.innerHTML = `<div class="spinner"></div><span>SYNC</span>`;
 
         try {
-            // Sync/history must never block the shift change
-            try { await syncToSheet(); } catch (e) { console.error('Sync failed, continuing shift change', e); }
+            try { await syncToSheet(); } catch (e) {}
             isDayTime = (auto === true) ? (((shiftPeriod(new Date()) % 2) + 2) % 2 === 0) : !isDayTime;
             document.getElementById('shift-text').innerText = isDayTime ? "DAY SHIFT (6AM-6PM)" : "NIGHT SHIFT (6PM-6AM)";
             
@@ -1470,7 +1393,6 @@
             document.querySelectorAll('.nozzle-card').forEach(row => {
                 const id = row.id.split('-')[1];
                 const finalVal = document.getElementById(`f${id}`).value.trim();
-                // Move FINAL -> INITIAL only when a final reading exists (never wipe the old initial)
                 if (finalVal !== "") document.getElementById(`i${id}`).value = finalVal;
                 document.getElementById(`f${id}`).value = "";
                 row.querySelectorAll('label')[0].innerText = isDayTime ? "INITIAL (6 AM)" : "INITIAL (6 PM)";
@@ -1478,11 +1400,8 @@
             });
             doMath();
             saveMem();
-        } catch (err) {
-            console.error(err);
         } finally {
             btn.disabled = false;
-            btn.classList.remove('syncing');
             btn.innerHTML = `<i class="fa-solid fa-rotate" id="shiftIcon"></i><span>SHIFT</span>`;
             setTimeout(() => {
                 const newIcon = document.getElementById('shiftIcon');
@@ -1547,10 +1466,6 @@
         return formatDate(d);
     }
 
-    function getNowStr() {
-        return formatDate(new Date());
-    }
-
     function shareWA() {
         if(!validate()) { alert(validateMsg); return; }
         const station = document.getElementById('sn').value.toUpperCase();
@@ -1571,7 +1486,6 @@
         const todayDateStr = formatDateForReport(now);
         
         const payments = calculatePayments();
-        
         const sum91 = parseFloat(document.getElementById('sum91').innerText) || 0;
         const sum95 = parseFloat(document.getElementById('sum95').innerText) || 0;
         const sum98 = parseFloat(document.getElementById('sum98').innerText) || 0;
@@ -1581,13 +1495,7 @@
 
         let msg = `*⛽Station Report*%0A%0A`;
         msg += `    *${station}*%0A`;
-        
-        if (!isDayTime) {
-            msg += `     Date ${yesterdayDateStr}%0A`;
-        } else {
-            msg += `     Date ${todayDateStr}%0A`;
-        }
-        
+        msg += `     Date ${!isDayTime ? yesterdayDateStr : todayDateStr}%0A`;
         msg += `     Shift - ${shift}%0A`;
         msg += `     Reporting Time - ${timeStr}%0A%0A`;
         msg += `---- SUMMARY ----%0A%0A`;
@@ -1609,12 +1517,8 @@
         msg += `    *CASH💸:* ${payments.cash.toFixed(2)} SAR%0A%0A`;
 
         if (!isDayTime) {
-            msg += `*Note* - Closing reading recorded%0A`;
-            msg += `     ${todayDateStr} Morning Time%0A%0A`;
-        } else {
-            msg += `%0A`;
+            msg += `*Note* - Closing reading recorded%0A     ${todayDateStr} Morning Time%0A%0A`;
         }
-
         msg += `*Thank you for being part of Reben!*`;
         window.open(`https://wa.me/?text=${msg}`, '_blank');
     }
@@ -1678,90 +1582,456 @@
         XLSX.writeFile(wb, `${station}_Report.xlsx`);
     }
 
-    function exportPDF() {
-        if(!validate()) { alert(validateMsg); return; }
+    // ==========================================
+    // SAMPLE 4 — AMBER & CHARCOAL AUDIT (A4 PORTRAIT REPORT)
+    // ==========================================
+    async function exportPDF() {
+        if (!validate()) { alert(validateMsg); return; }
+
         const has91 = fuelUsed('91'), has95 = fuelUsed('95'), has98 = fuelUsed('98'), hasD = fuelUsed('D'), hasK = fuelUsed('K');
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        const station = document.getElementById('sn').value.toUpperCase();
-        const shift = isDayTime ? "Day" : "Night";
-        const time = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+        // A4 Portrait: 210mm x 297mm | 18mm left/right margins (174mm printable width)
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
+        const pageWidth = doc.internal.pageSize.getWidth();   // 210mm
+        const pageHeight = doc.internal.pageSize.getHeight(); // 297mm
+        const margin = 18;
+        const contentWidth = pageWidth - (margin * 2);        // 174mm
+
+        // Amber & Charcoal palette
+        const C_CHAR      = [38, 38, 38];     // Charcoal (title, table headers, rules)
+        const C_INK       = [30, 41, 59];     // Body text
+        const C_SLATE     = [71, 85, 105];    // Secondary text
+        const C_MUTED     = [100, 116, 139];  // Muted labels
+        const C_AMBER     = [245, 158, 11];   // Amber accent bars
+        const C_AMBER_TXT = [217, 119, 6];    // Shift label (orange)
+        const C_KPI_VAL   = [21, 83, 45];     // KPI values (deep green)
+        const C_NET       = [180, 83, 9];     // Net cash value
+        const C_KPI_BG    = [240, 250, 244];  // KPI card fill (very light green)
+        const C_KPI_LINE  = [187, 229, 202];  // KPI card border (soft green)
+        const C_NOTE_LINE = [253, 230, 138];  // Note box border (amber)
+        const C_NOTE_BG   = [254, 243, 199];  // Note box fill
+        const C_NOTE_TXT  = [146, 64, 14];    // Note box text
+        const C_BAR_BG    = [248, 250, 252];  // Unit-rate bar fill
+        const C_BAR_LINE  = [226, 232, 240];  // Unit-rate bar border
+        const C_ROW_LINE  = [229, 231, 235];  // Table row hairline
+        const C_DASH      = [191, 205, 224];  // Signature dashed line
+
+        const fmt2 = (n) => Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        const station = document.getElementById('sn').value.toUpperCase().trim();
+        const shiftShort = isDayTime ? "DAY SHIFT (6 AM - 6 PM)" : "NIGHT SHIFT (6 PM - 6 AM)";
+        const time = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
         const payments = calculatePayments();
-        
-        const now = new Date();
-        function formatDateForReport(date) {
-            const day = date.getDate().toString().padStart(2, '0');
-            const month = date.toLocaleString('en-US', { month: 'short' });
-            const year = date.getFullYear();
-            return `${day} - ${month} - ${year}`;
-        }
-        const todayDateStr = formatDateForReport(now);
+        const todayDateStr = formatDate(new Date());
+        const reportDateStr = getTopDateStr();
 
-        doc.setFontSize(16); doc.text(`${station}`, 14, 20);
-        doc.setFontSize(8);
-        doc.text(`${getTopDateStr()} | ${shift} | ${time}`, 14, 28);
-        doc.text([
-            has91 ? '91:' + document.getElementById('p91').value : '',
-            has95 ? '95:' + document.getElementById('p95').value : '',
-            has98 ? '98:' + document.getElementById('p98').value : '',
-            hasD ? 'D:' + document.getElementById('pd').value : '',
-            hasK ? 'K:' + document.getElementById('pk').value : ''
-        ].filter(Boolean).join('  '), 14, 34);
-        
-        const summary = [
-            ["Fuel", "Liters", "SAR"],
-            ...(has91 ? [["91", document.getElementById('sum91').innerText, (parseFloat(document.getElementById('sum91').innerText) * parseFloat(document.getElementById('p91').value)).toFixed(2)]] : []),
-            ...(has95 ? [["95", document.getElementById('sum95').innerText, (parseFloat(document.getElementById('sum95').innerText) * parseFloat(document.getElementById('p95').value)).toFixed(2)]] : []),
-            ...(has98 ? [["98", document.getElementById('sum98').innerText, ((parseFloat(document.getElementById('sum98').innerText) || 0) * (parseFloat(document.getElementById('p98').value) || 0)).toFixed(2)]] : []),
-            ...(hasD ? [["D", document.getElementById('sumD').innerText, (parseFloat(document.getElementById('sumD').innerText) * parseFloat(document.getElementById('pd').value)).toFixed(2)]] : []),
-            ...(hasK ? [["K", document.getElementById('sumK').innerText, ((parseFloat(document.getElementById('sumK').innerText) || 0) * (parseFloat(document.getElementById('pk').value) || 0)).toFixed(2)]] : []),
-            ["TOTAL", "", payments.total.toFixed(2)]
+        const logoInfo = await loadCompanyLogo();
+
+        doc.setProperties({
+            title: `${station} - Shift Audit Report - ${reportDateStr}`,
+            subject: 'Official Station Shift Audit Record',
+            author: 'Reben Petroleum',
+            creator: 'Reben Station Reports'
+        });
+
+        // Section title with amber vertical accent
+        function drawSectionHeader(title, yPos) {
+            doc.setFillColor(...C_AMBER);
+            doc.rect(margin, yPos - 3.2, 1.1, 4, 'F');
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(10.5);
+            doc.setTextColor(...C_CHAR);
+            doc.text(title, margin + 3, yPos);
+        }
+
+        // Make header/footer cells follow the column alignment (right-aligned numbers)
+        let colAligns = [];
+        let gradeCol = -1;   // which column holds the fuel grade (color-coded), -1 = none
+        const GRADE_COLORS = {
+            '91': [5, 150, 105],    // Green
+            '95': [220, 38, 38],    // Red
+            '98': [124, 58, 237],   // Purple
+            'D':  [180, 83, 9],     // Amber / Brown
+            'K':  [2, 132, 199]     // Blue
+        };
+        function gradeKey(t) {
+            t = String(t).trim();
+            if (t === '91' || /\b91\b/.test(t)) return '91';
+            if (t === '95' || /\b95\b/.test(t)) return '95';
+            if (t === '98' || /\b98\b/.test(t)) return '98';
+            if (t === 'D' || /\(D\)/.test(t)) return 'D';
+            if (t === 'K' || /\(K\)/.test(t)) return 'K';
+            return null;
+        }
+        function alignHeadFoot(data) {
+            if (data.section === 'head' || data.section === 'foot') {
+                const al = colAligns[data.column.index];
+                if (al) data.cell.styles.halign = al;
+            }
+            if (data.section === 'head') {
+                data.cell.text = data.cell.text.map(t => String(t).toUpperCase());
+            }
+            if (data.section === 'body' && data.column.index === gradeCol) {
+                const gk = gradeKey(data.cell.raw);
+                if (gk && GRADE_COLORS[gk]) {
+                    data.cell.styles.textColor = GRADE_COLORS[gk];
+                    data.cell.styles.fontStyle = 'bold';
+                }
+            }
+        }
+
+        // Shared table look: charcoal header, white body, hairline row separators
+        const baseTable = {
+            margin: { left: margin, right: margin, top: 18 },
+            theme: 'plain',
+            styles: { font: 'helvetica', fontSize: 9.2, cellPadding: { top: 1.3, bottom: 1.3, left: 2, right: 2 }, textColor: C_INK, lineWidth: 0, valign: 'middle' },
+            headStyles: { fillColor: C_CHAR, textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 7.4, cellPadding: { top: 1.5, bottom: 1.5, left: 2, right: 2 } },
+            footStyles: { fillColor: false, textColor: C_CHAR, fontStyle: 'bold' },
+            didParseCell: function (data) { alignHeadFoot(data); },
+            didDrawCell: function (data) {
+                const cx = data.cell.x, cy = data.cell.y, cw = data.cell.width, ch = data.cell.height;
+                if (data.section === 'body' || data.section === 'foot') {
+                    // Clean light hairline under every row (totals row included)
+                    doc.setDrawColor(...C_ROW_LINE);
+                    doc.setLineWidth(0.2);
+                    doc.line(cx, cy + ch, cx + cw, cy + ch);
+                }
+            }
+        };
+
+        // ------------------------------------------
+        // 1. HEADER (logo + station left, date/shift/generated right)
+        // ------------------------------------------
+        let titleX = margin;
+        const logoTopY = 14.5;
+        const maxLogoH = 13;
+        const maxLogoW = 30;
+
+        if (logoInfo && logoInfo.dataUrl) {
+            let drawW = maxLogoH * logoInfo.aspectRatio;
+            let drawH = maxLogoH;
+            if (drawW > maxLogoW) {
+                drawW = maxLogoW;
+                drawH = maxLogoW / logoInfo.aspectRatio;
+            }
+            const offsetY = logoTopY + (maxLogoH - drawH) / 2;
+            doc.addImage(logoInfo.dataUrl, 'PNG', margin, offsetY, drawW, drawH, 'reben-logo', 'FAST');
+            titleX = margin + drawW + 4;
+        }
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(16);
+        doc.setTextColor(...C_CHAR);
+        doc.text(station, titleX, 22.8);
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(7.2);
+        doc.setTextColor(...C_MUTED);
+        doc.text("STATION SHIFT AUDIT REPORT", titleX, 27.2);
+
+        // Right block: "Date:" (bold) + value (regular)
+        const rightX = pageWidth - margin;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        const dateValW = doc.getTextWidth(reportDateStr);
+        doc.setTextColor(...C_SLATE);
+        doc.text(reportDateStr, rightX, 18.3, { align: 'right' });
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(...C_CHAR);
+        doc.text("Date: ", rightX - dateValW, 18.3, { align: 'right' });
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9);
+        doc.setTextColor(...C_AMBER_TXT);
+        doc.text(shiftShort, rightX, 22.8, { align: 'right' });
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.6);
+        doc.setTextColor(...C_SLATE);
+        doc.text(`Generated: ${todayDateStr}, ${time}`, rightX, 27.2, { align: 'right' });
+
+        // Thick charcoal rule
+        doc.setDrawColor(...C_CHAR);
+        doc.setLineWidth(0.5);
+        doc.line(margin, 31, pageWidth - margin, 31);
+
+        // ------------------------------------------
+        // 2. UNIT RATES BAR
+        // ------------------------------------------
+        const barY = 35.3, barH = 7.4;
+        doc.setFillColor(...C_BAR_BG);
+        doc.setDrawColor(...C_BAR_LINE);
+        doc.setLineWidth(0.25);
+        doc.roundedRect(margin, barY, contentWidth, barH, 1, 1, 'FD');
+
+        const rateParts = [
+            has91 ? `91: ${parseFloat(document.getElementById('p91').value).toFixed(2)}` : '',
+            has95 ? `95: ${parseFloat(document.getElementById('p95').value).toFixed(2)}` : '',
+            has98 ? `98: ${parseFloat(document.getElementById('p98').value).toFixed(2)}` : '',
+            hasD  ? `D: ${parseFloat(document.getElementById('pd').value).toFixed(2)}` : '',
+            hasK  ? `K: ${parseFloat(document.getElementById('pk').value).toFixed(2)}` : ''
+        ].filter(Boolean).join('  |  ');
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8.6);
+        doc.setTextColor(...C_CHAR);
+        const rateLabel = "UNIT RATES (SAR/L):";
+        doc.text(rateLabel, margin + 3, barY + 4.7);
+        const rateLabelW = doc.getTextWidth(rateLabel);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(...C_SLATE);
+        doc.text(`  ${rateParts}`, margin + 3 + rateLabelW, barY + 4.7);
+
+        // ------------------------------------------
+        // 3. THREE AMBER KPI CARDS
+        // ------------------------------------------
+        const kpiY = 46.6;
+        const q91 = parseFloat(document.getElementById('sum91').innerText) || 0;
+        const q95 = parseFloat(document.getElementById('sum95').innerText) || 0;
+        const q98 = parseFloat(document.getElementById('sum98').innerText) || 0;
+        const qD  = parseFloat(document.getElementById('sumD').innerText) || 0;
+        const qK  = parseFloat(document.getElementById('sumK').innerText) || 0;
+        const totalLiters = q91 + q95 + q98 + qD + qK;
+
+        const cardGap = 2.8;
+        const cardW = (contentWidth - (cardGap * 2)) / 3;
+        const cardH = 15.5;
+
+        const kpis = [
+            { label: "TOTAL SHIFT REVENUE",  value: `${fmt2(payments.total)} SAR` },
+            { label: "TOTAL FUEL DISPENSED", value: `${fmt2(totalLiters)} L` },
+            { label: "NET CASH COLLECTED",   value: `${fmt2(payments.cash)} SAR` }
         ];
-        doc.autoTable({ head: [summary[0]], body: summary.slice(1), startY: 40, theme: 'grid', styles: { fontSize: 8 } });
 
-        if (payments.appsTotal > 0) {
-            const paymentRows = [];
-            if(payments.r > 0) paymentRows.push(["ATM", payments.r.toFixed(2)]);
-            if(payments.p > 0) paymentRows.push(["Reben APP", payments.p.toFixed(2)]);
-            if(payments.s > 0) paymentRows.push(["Petro APP", payments.s.toFixed(2)]);
-            if(payments.k > 0) paymentRows.push(["Sayyarah APP", payments.k.toFixed(2)]);
-            if(payments.v > 0) paymentRows.push(["Kafart Plus", payments.v.toFixed(2)]);
-            if(payments.c > 0) paymentRows.push(["V-Wallet", payments.c.toFixed(2)]);
-            if(payments.o > 0) paymentRows.push(["Other", payments.o.toFixed(2)]);
-            paymentRows.push(["TOTAL DIGITAL PAYMENTS", payments.appsTotal.toFixed(2)]);
-            paymentRows.push(["CASH", payments.cash.toFixed(2)]);
-            
-            doc.autoTable({ 
-                head: [["Payment", "SAR"]], 
-                body: paymentRows, 
-                startY: doc.lastAutoTable.finalY + 5,
-                theme: 'grid',
-                styles: { fontSize: 8 }
-            });
+        kpis.forEach((kpi, idx) => {
+            const x = margin + idx * (cardW + cardGap);
+            doc.setFillColor(...C_KPI_BG);
+            doc.setDrawColor(...C_KPI_LINE);
+            doc.setLineWidth(0.45);
+            doc.roundedRect(x, kpiY, cardW, cardH, 1.6, 1.6, 'FD');
+
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(7.2);
+            doc.setTextColor(...C_MUTED);
+            doc.text(kpi.label, x + 3.2, kpiY + 5.2);
+
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(13.5);
+            doc.setTextColor(...C_KPI_VAL);
+            doc.text(kpi.value, x + 3.2, kpiY + 12);
+        });
+
+        // ------------------------------------------
+        // 4. SECTION 1: FUEL SALES SUMMARY
+        // ------------------------------------------
+        let currentY = kpiY + cardH + 7;
+        drawSectionHeader("1. FUEL SALES SUMMARY", currentY);
+
+        const fuelBody = [];
+        if (has91) fuelBody.push(["Gasoline 91", `${parseFloat(document.getElementById('p91').value).toFixed(2)}`, `${fmt2(q91)}`, fmt2(q91 * (parseFloat(document.getElementById('p91').value) || 0))]);
+        if (has95) fuelBody.push(["Gasoline 95", `${parseFloat(document.getElementById('p95').value).toFixed(2)}`, `${fmt2(q95)}`, fmt2(q95 * (parseFloat(document.getElementById('p95').value) || 0))]);
+        if (has98) fuelBody.push(["Gasoline 98", `${parseFloat(document.getElementById('p98').value).toFixed(2)}`, `${fmt2(q98)}`, fmt2(q98 * (parseFloat(document.getElementById('p98').value) || 0))]);
+        if (hasD)  fuelBody.push(["Diesel (D)",  `${parseFloat(document.getElementById('pd').value).toFixed(2)}`,  `${fmt2(qD)}`,  fmt2(qD  * (parseFloat(document.getElementById('pd').value)  || 0))]);
+        if (hasK)  fuelBody.push(["Kerosene (K)",`${parseFloat(document.getElementById('pk').value).toFixed(2)}`,  `${fmt2(qK)}`,  fmt2(qK  * (parseFloat(document.getElementById('pk').value)  || 0))]);
+
+        colAligns = ['left', 'right', 'right', 'right'];
+        gradeCol = 0;
+        doc.autoTable({
+            ...baseTable,
+            head: [["Fuel Type", "Unit Price (SAR)", "Volume Sold (L)", "Total Sales (SAR)"]],
+            body: fuelBody,
+            foot: [["TOTAL FUEL SALES", "--", fmt2(totalLiters), fmt2(payments.total)]],
+            startY: currentY + 2.5,
+            columnStyles: {
+                0: { cellWidth: 40 },
+                1: { cellWidth: 42, halign: 'right' },
+                2: { cellWidth: 39, halign: 'right' },
+                3: { cellWidth: 53, halign: 'right' }
+            }
+        });
+
+        // ------------------------------------------
+        // 5. SECTION 2: PAYMENT & CASH RECONCILIATION (2-COLUMN PAIRED GRID)
+        // ------------------------------------------
+        currentY = doc.lastAutoTable.finalY + 7;
+        drawSectionHeader("2. PAYMENT & CASH RECONCILIATION", currentY);
+
+        const activeDigital = [];
+        if (payments.r > 0) activeDigital.push(["ATM / POS", fmt2(payments.r)]);
+        if (payments.p > 0) activeDigital.push(["Reben APP", fmt2(payments.p)]);
+        if (payments.s > 0) activeDigital.push(["Petro APP", fmt2(payments.s)]);
+        if (payments.k > 0) activeDigital.push(["Sayyarah APP", fmt2(payments.k)]);
+        if (payments.v > 0) activeDigital.push(["Kafart Plus", fmt2(payments.v)]);
+        if (payments.c > 0) activeDigital.push(["V-Wallet", fmt2(payments.c)]);
+        if (payments.o > 0) activeDigital.push(["Other Digital", fmt2(payments.o)]);
+
+        const pairedPayRows = [];
+        for (let i = 0; i < activeDigital.length; i += 2) {
+            const left = activeDigital[i];
+            const right = activeDigital[i + 1] || ["", ""];
+            pairedPayRows.push([left[0], left[1], right[0], right[1]]);
+        }
+        if (pairedPayRows.length === 0) {
+            pairedPayRows.push(["No Digital / App Payments", "0.00", "", ""]);
         }
 
-        const rows = [];
+        colAligns = ['left', 'right', 'left', 'right'];
+        gradeCol = -1;
+        doc.autoTable({
+            ...baseTable,
+            head: [["Payment Channel", "Amount (SAR)", "Payment Channel", "Amount (SAR)"]],
+            body: pairedPayRows,
+            foot: [[
+                "Total Digital / Apps",
+                fmt2(payments.appsTotal),
+                "NET CASH IN HAND",
+                fmt2(payments.cash)
+            ]],
+            startY: currentY + 2.5,
+            columnStyles: {
+                0: { cellWidth: 50 },
+                1: { cellWidth: 36, halign: 'right' },
+                2: { cellWidth: 50 },
+                3: { cellWidth: 38, halign: 'right' }
+            },
+            didParseCell: function (data) {
+                alignHeadFoot(data);
+                if (data.section === 'foot' && data.column.index === 3) {
+                    data.cell.styles.textColor = C_NET;
+                }
+            }
+        });
+
+        // ------------------------------------------
+        // 6. SECTION 3: NOZZLE METER READINGS LOG
+        // ------------------------------------------
+        currentY = doc.lastAutoTable.finalY + 7;
+        drawSectionHeader("3. NOZZLE METER READINGS LOG", currentY);
+
+        const nozzleRows = [];
         document.querySelectorAll('.nozzle-card').forEach(row => {
             const id = row.id.split('-')[1];
-            rows.push([
+            const type = document.getElementById(`type-${id}`).value;
+            const initVal = parseFloat(document.getElementById(`i${id}`).value) || 0;
+            const finalVal = parseFloat(document.getElementById(`f${id}`).value) || 0;
+            const liters = Math.max(0, finalVal - initVal);
+            const priceMap = {
+                '91': parseFloat(document.getElementById('p91').value) || 0,
+                '95': parseFloat(document.getElementById('p95').value) || 0,
+                '98': parseFloat(document.getElementById('p98').value) || 0,
+                'D':  parseFloat(document.getElementById('pd').value)  || 0,
+                'K':  parseFloat(document.getElementById('pk').value)  || 0
+            };
+            const rowAmt = liters * (priceMap[type] || 0);
+
+            nozzleRows.push([
                 document.getElementById(`name-${id}`).value,
-                document.getElementById(`type-${id}`).value,
-                parseFloat(document.getElementById(`i${id}`).value) || 0,
-                parseFloat(document.getElementById(`f${id}`).value) || 0,
-                Math.max(0, (parseFloat(document.getElementById(`f${id}`).value) || 0) - (parseFloat(document.getElementById(`i${id}`).value) || 0)).toFixed(2)
+                type,
+                fmt2(initVal),
+                fmt2(finalVal),
+                fmt2(liters),
+                fmt2(rowAmt)
             ]);
         });
-        doc.autoTable({ head: [["Nozzle", "Type", "Start", "End", "Liters"]], body: rows, startY: doc.lastAutoTable.finalY + 5, styles: { fontSize: 8 } });
-        
-        let finalY = doc.lastAutoTable.finalY + 10;
-        if (!isDayTime) {
-            doc.setFontSize(8);
-            doc.text("Note - Closing reading recorded", 14, finalY);
-            doc.text(`${todayDateStr} Morning Time`, 14, finalY + 4);
-            finalY += 10;
+
+        colAligns = ['left', 'left', 'right', 'right', 'right', 'right'];
+        gradeCol = 1;
+        doc.autoTable({
+            ...baseTable,
+            head: [["Nozzle", "Type", "Opening Meter", "Closing Meter", "Dispensed (L)", "Sales (SAR)"]],
+            body: nozzleRows,
+            startY: currentY + 2.5,
+            margin: { left: margin, right: margin, top: 18, bottom: 32 },
+            alternateRowStyles: { fillColor: [250, 250, 249] },
+            columnStyles: {
+                0: { cellWidth: 22 },
+                1: { cellWidth: 22 },
+                2: { cellWidth: 32, halign: 'right' },
+                3: { cellWidth: 36, halign: 'right' },
+                4: { cellWidth: 33, halign: 'right' },
+                5: { cellWidth: 29, halign: 'right' }
+            }
+        });
+
+        // ------------------------------------------
+        // 7. NIGHT SHIFT NOTE & DASHED SIGNATURE LINES
+        // ------------------------------------------
+        let afterY = doc.lastAutoTable.finalY + 3.8;
+        if (afterY > pageHeight - 46) {
+            doc.addPage();
+            afterY = 20;
         }
-        doc.setFontSize(9); doc.text("Thank you for being part of Reben!", 14, finalY);
-        doc.save(`${station}_Report.pdf`);
+
+        if (!isDayTime) {
+            doc.setFillColor(...C_NOTE_BG);
+            doc.setDrawColor(...C_NOTE_LINE);
+            doc.setLineWidth(0.25);
+            doc.roundedRect(margin, afterY, contentWidth, 8, 1.2, 1.2, 'FD');
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8.6);
+            doc.setTextColor(...C_NOTE_TXT);
+            doc.text(`Note: Night shift closing reading recorded on ${todayDateStr} (Morning Time).`, margin + 3.2, afterY + 5.1);
+            afterY += 8;
+        }
+
+        const sigGap = 10;
+        const sigLineW = (contentWidth - sigGap) / 2;   // 82mm each
+        const sigY = afterY + 8.3;
+
+        doc.setDrawColor(...C_DASH);
+        doc.setLineWidth(0.3);
+        doc.setLineDashPattern([1.1, 1.1], 0);
+        doc.line(margin, sigY, margin + sigLineW, sigY);
+        const rightSigX = margin + sigLineW + sigGap;
+        doc.line(rightSigX, sigY, rightSigX + sigLineW, sigY);
+        doc.setLineDashPattern([], 0);
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8.6);
+        doc.setTextColor(...C_SLATE);
+        doc.text("Shift Attendant / Cashier", margin, sigY + 4);
+        doc.text("Station Supervisor / Manager", rightSigX, sigY + 4);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7);
+        doc.setTextColor(...C_MUTED);
+        doc.text("Name  /  Signature  /  Date", margin, sigY + 8.2);
+        doc.text("Name  /  Signature  /  Date", rightSigX, sigY + 8.2);
+
+        // ------------------------------------------
+        // 8. PAGE FOOTER
+        // ------------------------------------------
+        const totalPages = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= totalPages; i++) {
+            doc.setPage(i);
+
+            if (i > 1) {
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(8);
+                doc.setTextColor(...C_CHAR);
+                doc.text(`${station}  -  SHIFT AUDIT REPORT (continued)`, margin, 11);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(...C_MUTED);
+                doc.text(reportDateStr, pageWidth - margin, 11, { align: 'right' });
+                doc.setDrawColor(...C_CHAR);
+                doc.setLineWidth(0.4);
+                doc.line(margin, 13.5, pageWidth - margin, 13.5);
+            }
+
+            doc.setDrawColor(...C_ROW_LINE);
+            doc.setLineWidth(0.2);
+            doc.line(margin, pageHeight - 19, pageWidth - margin, pageHeight - 19);
+
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(7.8);
+            doc.setTextColor(...C_MUTED);
+            doc.text("Thank you for being part of Reben!  •  Designed By- Mozahid", margin, pageHeight - 14);
+            doc.text(`Page ${i} of ${totalPages}`, pageWidth - margin, pageHeight - 14, { align: 'right' });
+        }
+
+        const safeFileName = `${station.replace(/[^A-Z0-9_-]/gi, '_')}_${reportDateStr.replace(/\s+/g, '')}_Report.pdf`;
+        doc.save(safeFileName);
     }
 
     function saveMem() {
@@ -1834,7 +2104,6 @@
             doMath();
             calculatePayments();
 
-            // Reopened in a new shift without pressing SHIFT? Offer to carry readings forward.
             try {
                 const hasFinal = (data.nozzles || []).some(n => String(n.final || '').trim() !== '');
                 if (data.savedAt && hasFinal && shiftPeriod(new Date()) !== shiftPeriod(new Date(data.savedAt))) {
@@ -1844,7 +2113,7 @@
                         }
                     }, 500);
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) {}
         } else { 
             addNewNozzle(); 
             document.getElementById('shift-text').innerText = "DAY SHIFT (6AM-6PM)";
@@ -1864,7 +2133,6 @@
         doMath();
     }
 
-    // Check online status periodically
     window.addEventListener('online', function() {
         document.getElementById('syncStatus').innerText = '✓ Saved';
     });
@@ -1874,7 +2142,6 @@
         document.getElementById('syncStatus').classList.remove('success');
     });
 
-    // ---- Mobile helpers ----
     (function mobileLayout() {
         const footer = document.querySelector('.footer');
         function fitPadding() {
@@ -1885,9 +2152,7 @@
         window.addEventListener('load', fitPadding);
         fitPadding();
 
-        // Android: hide the footer while the keyboard is open so fields have room
         if (window.visualViewport) {
-            const base = () => Math.max(window.innerHeight, screen.height * 0.5);
             let fullH = window.visualViewport.height;
             window.addEventListener('orientationchange', () => { setTimeout(() => { fullH = window.visualViewport.height; }, 400); });
             window.visualViewport.addEventListener('resize', () => {
@@ -1899,7 +2164,6 @@
         }
     })();
 
-    // Clean-up: remove any old offline/install files a phone may have saved earlier
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister())).catch(() => {});
         if (window.caches) caches.keys().then(ks => ks.forEach(k => caches.delete(k))).catch(() => {});
