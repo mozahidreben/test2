@@ -776,10 +776,10 @@
                 <span id="syncStatus" class="sync-status">✓ Saved</span>
             </div>
             <div class="fuel-mini">
-                <span style="color:var(--91)">91: <span id="sum91">0</span></span>
-                <span style="color:var(--95)">95: <span id="sum95">0</span></span>
+                <span id="wrap91" style="color:var(--91); display:none">91: <span id="sum91">0</span></span>
+                <span id="wrap95" style="color:var(--95); display:none">95: <span id="sum95">0</span></span>
                 <span id="wrap98" style="color:var(--98); display:none">98: <span id="sum98">0</span></span>
-                <span style="color:var(--d)">D: <span id="sumD">0</span></span>
+                <span id="wrapD" style="color:var(--d); display:none">D: <span id="sumD">0</span></span>
                 <span id="wrapK" style="color:var(--k); display:none">K: <span id="sumK">0</span></span>
             </div>
         </div>
@@ -1107,26 +1107,39 @@
         return { total, appsTotal, cash, r, p, s, k, v, c, o };
     }
 
-    function validate() {
-        const fields = [document.getElementById('sn'), document.getElementById('p91'), document.getElementById('p95'), document.getElementById('pd')];
-        let valid = true;
-        fields.forEach(f => {
-            f.classList.remove('invalid');
-            if(!f.value || f.value.trim() === "" || parseFloat(f.value) <= 0) { 
-                f.classList.add('invalid'); 
-                valid = false; 
-            }
+    // A fuel counts as "used" when a nozzle of that type has an initial or final reading entered
+    function fuelUsed(type) {
+        return Array.from(document.querySelectorAll('.nozzle-card')).some(row => {
+            const id = row.id.split('-')[1];
+            if (document.getElementById(`type-${id}`).value !== type) return false;
+            return document.getElementById(`i${id}`).value.trim() !== '' || document.getElementById(`f${id}`).value.trim() !== '';
         });
-        // 98 and Kerosene prices are only required when a nozzle uses that fuel
-        [['98','p98'],['K','pk']].forEach(([t,pid]) => {
+    }
+
+    let validateMsg = "Please complete Station Name and Prices";
+
+    function validate() {
+        let valid = true;
+        validateMsg = "Please complete Station Name and Prices";
+
+        const sn = document.getElementById('sn');
+        sn.classList.remove('invalid');
+        if (!sn.value || sn.value.trim() === "") { sn.classList.add('invalid'); valid = false; }
+
+        // Price is required only for fuels that have readings
+        let anyUsed = false;
+        [['91','p91'],['95','p95'],['98','p98'],['D','pd'],['K','pk']].forEach(([t,pid]) => {
             const f = document.getElementById(pid);
             f.classList.remove('invalid');
-            const used = Array.from(document.querySelectorAll('.nozzle-card')).some(row => {
-                const id = row.id.split('-')[1];
-                return document.getElementById(`type-${id}`).value === t;
-            });
-            if (used && (!f.value || parseFloat(f.value) <= 0)) { f.classList.add('invalid'); valid = false; }
+            if (fuelUsed(t)) {
+                anyUsed = true;
+                if (!f.value || parseFloat(f.value) <= 0) { f.classList.add('invalid'); valid = false; }
+            }
         });
+        if (!anyUsed) {
+            valid = false;
+            if (sn.value && sn.value.trim() !== "") validateMsg = "Please enter at least one nozzle reading";
+        }
         return valid;
     }
 
@@ -1514,8 +1527,9 @@
         document.getElementById('sum98').innerText = q98.toFixed(2);
         document.getElementById('sumD').innerText = qd.toFixed(2);
         document.getElementById('sumK').innerText = qk.toFixed(2);
-        document.getElementById('wrap98').style.display = q98 > 0 ? '' : 'none';
-        document.getElementById('wrapK').style.display = qk > 0 ? '' : 'none';
+        [['91','wrap91'],['95','wrap95'],['98','wrap98'],['D','wrapD'],['K','wrapK']].forEach(([t,w]) => {
+            document.getElementById(w).style.display = fuelUsed(t) ? '' : 'none';
+        });
         document.getElementById('grandTotal').innerText = total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
         calculatePayments();
     }
@@ -1538,7 +1552,7 @@
     }
 
     function shareWA() {
-        if(!validate()) { alert("Please complete Station Name and Prices"); return; }
+        if(!validate()) { alert(validateMsg); return; }
         const station = document.getElementById('sn').value.toUpperCase();
         const shift = isDayTime ? "Day" : "Night";
         const now = new Date();
@@ -1577,11 +1591,11 @@
         msg += `     Shift - ${shift}%0A`;
         msg += `     Reporting Time - ${timeStr}%0A%0A`;
         msg += `---- SUMMARY ----%0A%0A`;
-        msg += ` *🟢91 Total:* ${sum91.toFixed(2)} L%0A`;
-        msg += ` *🔴95 Total:* ${sum95.toFixed(2)} L%0A`;
-        if (sum98 > 0) msg += ` *🟣98 Total:* ${sum98.toFixed(2)} L%0A`;
-        msg += ` *🟡D   Total:* ${sumD.toFixed(2)} L%0A`;
-        if (sumK > 0) msg += ` *🔵K   Total:* ${sumK.toFixed(2)} L%0A`;
+        if (fuelUsed('91')) msg += ` *🟢91 Total:* ${sum91.toFixed(2)} L%0A`;
+        if (fuelUsed('95')) msg += ` *🔴95 Total:* ${sum95.toFixed(2)} L%0A`;
+        if (fuelUsed('98')) msg += ` *🟣98 Total:* ${sum98.toFixed(2)} L%0A`;
+        if (fuelUsed('D')) msg += ` *🟡D   Total:* ${sumD.toFixed(2)} L%0A`;
+        if (fuelUsed('K')) msg += ` *🔵K   Total:* ${sumK.toFixed(2)} L%0A`;
         msg += ` *💰Total Amount:* ${grandTotal} SAR%0A%0A`;
         
         msg += `---- PAYMENTS ----%0A`;
@@ -1606,9 +1620,8 @@
     }
 
     function exportExcel() {
-        if(!validate()) return;
-        const has98 = (parseFloat(document.getElementById('sum98').innerText) || 0) > 0;
-        const hasK = (parseFloat(document.getElementById('sumK').innerText) || 0) > 0;
+        if(!validate()) { alert(validateMsg); return; }
+        const has91 = fuelUsed('91'), has95 = fuelUsed('95'), has98 = fuelUsed('98'), hasD = fuelUsed('D'), hasK = fuelUsed('K');
         const station = document.getElementById('sn').value.toUpperCase();
         const payments = calculatePayments();
         
@@ -1616,19 +1629,19 @@
             ["STATION", station],
             ["DATE", getTopDateStr()],
             ["SHIFT", isDayTime ? "Day" : "Night"],
-            ["91 PRICE", document.getElementById('p91').value],
-            ["95 PRICE", document.getElementById('p95').value],
+            ...(has91 ? [["91 PRICE", document.getElementById('p91').value]] : []),
+            ...(has95 ? [["95 PRICE", document.getElementById('p95').value]] : []),
             ...(has98 ? [["98 PRICE", document.getElementById('p98').value]] : []),
-            ["D PRICE", document.getElementById('pd').value],
+            ...(hasD ? [["D PRICE", document.getElementById('pd').value]] : []),
             ...(hasK ? [["KEROSENE PRICE", document.getElementById('pk').value]] : []),
             ["GRAND TOTAL", document.getElementById('grandTotal').innerText + " SAR"],
             [],
             ["FUEL SUMMARY"],
             ["Fuel", "Liters", "SAR"],
-            ["91", document.getElementById('sum91').innerText, (parseFloat(document.getElementById('sum91').innerText) * parseFloat(document.getElementById('p91').value)).toFixed(2)],
-            ["95", document.getElementById('sum95').innerText, (parseFloat(document.getElementById('sum95').innerText) * parseFloat(document.getElementById('p95').value)).toFixed(2)],
+            ...(has91 ? [["91", document.getElementById('sum91').innerText, (parseFloat(document.getElementById('sum91').innerText) * parseFloat(document.getElementById('p91').value)).toFixed(2)]] : []),
+            ...(has95 ? [["95", document.getElementById('sum95').innerText, (parseFloat(document.getElementById('sum95').innerText) * parseFloat(document.getElementById('p95').value)).toFixed(2)]] : []),
             ...(has98 ? [["98", document.getElementById('sum98').innerText, ((parseFloat(document.getElementById('sum98').innerText) || 0) * (parseFloat(document.getElementById('p98').value) || 0)).toFixed(2)]] : []),
-            ["D", document.getElementById('sumD').innerText, (parseFloat(document.getElementById('sumD').innerText) * parseFloat(document.getElementById('pd').value)).toFixed(2)],
+            ...(hasD ? [["D", document.getElementById('sumD').innerText, (parseFloat(document.getElementById('sumD').innerText) * parseFloat(document.getElementById('pd').value)).toFixed(2)]] : []),
             ...(hasK ? [["K", document.getElementById('sumK').innerText, ((parseFloat(document.getElementById('sumK').innerText) || 0) * (parseFloat(document.getElementById('pk').value) || 0)).toFixed(2)]] : []),
             [],
             ["PAYMENTS"],
@@ -1666,9 +1679,8 @@
     }
 
     function exportPDF() {
-        if(!validate()) return;
-        const has98 = (parseFloat(document.getElementById('sum98').innerText) || 0) > 0;
-        const hasK = (parseFloat(document.getElementById('sumK').innerText) || 0) > 0;
+        if(!validate()) { alert(validateMsg); return; }
+        const has91 = fuelUsed('91'), has95 = fuelUsed('95'), has98 = fuelUsed('98'), hasD = fuelUsed('D'), hasK = fuelUsed('K');
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         const station = document.getElementById('sn').value.toUpperCase();
@@ -1688,14 +1700,20 @@
         doc.setFontSize(16); doc.text(`${station}`, 14, 20);
         doc.setFontSize(8);
         doc.text(`${getTopDateStr()} | ${shift} | ${time}`, 14, 28);
-        doc.text(`91:${document.getElementById('p91').value} 95:${document.getElementById('p95').value} ${has98 ? '98:' + document.getElementById('p98').value + ' ' : ''}D:${document.getElementById('pd').value}${hasK ? ' K:' + document.getElementById('pk').value : ''}`, 14, 34);
+        doc.text([
+            has91 ? '91:' + document.getElementById('p91').value : '',
+            has95 ? '95:' + document.getElementById('p95').value : '',
+            has98 ? '98:' + document.getElementById('p98').value : '',
+            hasD ? 'D:' + document.getElementById('pd').value : '',
+            hasK ? 'K:' + document.getElementById('pk').value : ''
+        ].filter(Boolean).join('  '), 14, 34);
         
         const summary = [
             ["Fuel", "Liters", "SAR"],
-            ["91", document.getElementById('sum91').innerText, (parseFloat(document.getElementById('sum91').innerText) * parseFloat(document.getElementById('p91').value)).toFixed(2)],
-            ["95", document.getElementById('sum95').innerText, (parseFloat(document.getElementById('sum95').innerText) * parseFloat(document.getElementById('p95').value)).toFixed(2)],
+            ...(has91 ? [["91", document.getElementById('sum91').innerText, (parseFloat(document.getElementById('sum91').innerText) * parseFloat(document.getElementById('p91').value)).toFixed(2)]] : []),
+            ...(has95 ? [["95", document.getElementById('sum95').innerText, (parseFloat(document.getElementById('sum95').innerText) * parseFloat(document.getElementById('p95').value)).toFixed(2)]] : []),
             ...(has98 ? [["98", document.getElementById('sum98').innerText, ((parseFloat(document.getElementById('sum98').innerText) || 0) * (parseFloat(document.getElementById('p98').value) || 0)).toFixed(2)]] : []),
-            ["D", document.getElementById('sumD').innerText, (parseFloat(document.getElementById('sumD').innerText) * parseFloat(document.getElementById('pd').value)).toFixed(2)],
+            ...(hasD ? [["D", document.getElementById('sumD').innerText, (parseFloat(document.getElementById('sumD').innerText) * parseFloat(document.getElementById('pd').value)).toFixed(2)]] : []),
             ...(hasK ? [["K", document.getElementById('sumK').innerText, ((parseFloat(document.getElementById('sumK').innerText) || 0) * (parseFloat(document.getElementById('pk').value) || 0)).toFixed(2)]] : []),
             ["TOTAL", "", payments.total.toFixed(2)]
         ];
@@ -1880,6 +1898,12 @@
             });
         }
     })();
+
+    // Clean-up: remove any old offline/install files a phone may have saved earlier
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister())).catch(() => {});
+        if (window.caches) caches.keys().then(ks => ks.forEach(k => caches.delete(k))).catch(() => {});
+    }
 
     window.onload = loadMem;
 </script>
