@@ -8,6 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
     <style>
@@ -327,6 +328,54 @@
             background: var(--input-bg);
         }
 
+        /* Lock icon for the INITIAL (opening) reading */
+        .lock-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            width: 30px;
+            height: 30px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .lock-btn:active { background: var(--input-bg); }
+        .lock-btn.unlocked { color: #d97706; background: rgba(217, 119, 6, 0.14); }
+        .reading-field.is-locked {
+            background: transparent;
+            border-style: dashed;
+            color: var(--text-secondary);
+        }
+        .cam-btn:disabled, .mic-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        /* Small message bubble (report log status, lock hints) */
+        .app-toast {
+            position: fixed;
+            left: 50%;
+            bottom: 90px;
+            transform: translateX(-50%) translateY(10px);
+            max-width: calc(100% - 24px);
+            background: #1e293b;
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.3;
+            text-align: center;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+        .app-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .app-toast.ok { background: #059669; }
+        .app-toast.warn { background: #d97706; }
+
         .reading-stack {
             display: flex;
             flex-direction: column;
@@ -492,7 +541,7 @@
 
         .action-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr 1fr 0.8fr;
+            grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 0.8fr;
             gap: 4px;
         }
 
@@ -522,6 +571,7 @@
         .btn-excel { background: #e8f5e9; color: #2e7d32; }
         .btn-next { background: #fff3e0; color: #ef6c00; }
         .btn-pdf { background: #ffebee; color: #c62828; }
+        .btn-share { background: #ede9fe; color: #5b21b6; }
         .btn-wa { background: var(--wa); color: white; border: none; }
         .btn-history { background: #e0f2fe; color: #0369a1; }
 
@@ -546,6 +596,7 @@
         body.night-mode .btn-excel { background: #1e293b; color: #4ade80; border: 1px solid #4ade80; }
         body.night-mode .btn-next { background: #1e293b; color: #fbbf24; border: 1px solid #fbbf24; }
         body.night-mode .btn-pdf { background: #1e293b; color: #f87171; border: 1px solid #f87171; }
+        body.night-mode .btn-share { background: #1e293b; color: #a78bfa; border: 1px solid #a78bfa; }
         body.night-mode .btn-wa { background: #25D366; color: white; border: none; }
         body.night-mode .btn-history { background: #1e293b; color: #7dd3fc; border: 1px solid #7dd3fc; }
 
@@ -698,6 +749,7 @@
         .nozzle-name { font-size: 16px; width: auto; flex: 1; min-width: 0; padding: 6px 10px; }
         .fuel-badge { font-size: 16px; padding: 6px 8px; min-height: 36px; }
         .delete-btn { width: 40px; height: 40px; font-size: 16px; flex-shrink: 0; }
+        .lock-btn { width: 40px; height: 40px; font-size: 16px; flex-shrink: 0; }
         .cam-btn, .mic-btn { width: 36px; height: 36px; font-size: 14px; }
         .reading-field { padding-right: 90px; }
 
@@ -718,6 +770,7 @@
             .price-row { padding: 6px 4px; gap: 2px; }
             .price-item input, .app-item input { font-size: 15px; }
             .action i { font-size: 16px; }
+            .action { font-size: 8.5px; }
             .grand-total { font-size: 24px; }
         }
         @media (min-width: 700px) {
@@ -785,6 +838,7 @@
         <button class="action btn-excel" onclick="exportExcel()"><i class="fa-solid fa-file-excel"></i><span>EXCEL</span></button>
         <button class="action btn-next" id="btnNext" onclick="rotateShift()"><i class="fa-solid fa-rotate" id="shiftIcon"></i><span>SHIFT</span></button>
         <button class="action btn-pdf" onclick="exportPDF()"><i class="fa-solid fa-file-pdf"></i><span>PDF</span></button>
+        <button class="action btn-share" onclick="sharePDF()"><i class="fa-solid fa-share-nodes"></i><span>SHARE</span></button>
         <button class="action btn-wa" onclick="shareWA()"><i class="fa-brands fa-whatsapp"></i></button>
     </div>
 </div>
@@ -818,6 +872,11 @@
     let currentActiveMicButton = null;
     
     const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbyLrGK3QJ2OJbA421kNuY68KLjSjkAVqm7GDdnctrTaRPwpjlwXORv6PyWc14Uek-Qfpg/exec';
+
+    // REPORT LOG + QR VERIFICATION: uses the same web app as the station sync above (Code.gs, deployment Version 5).
+    // To switch it off, change it to '' - the PDF then works as before and the QR holds a short text instead of a link.
+    const REPORT_API_URL = GOOGLE_SHEET_URL;
+    const REPORT_QUEUE_KEY = 'reben_report_queue';
 
     // Preload logo.png with exact aspect ratio preservation
     let cachedLogoInfo = null;
@@ -931,6 +990,7 @@
                     document.getElementById(inputId).value = numbers[0];
                     doMath();
                     saveMem();
+                    afterReadingSet(inputId);
                 } else {
                     alert("No numbers detected.");
                 }
@@ -1024,6 +1084,7 @@
                             document.getElementById(activeId).value = match[0];
                             doMath();
                             saveMem();
+                            afterReadingSet(activeId);
                             setTimeout(() => { 
                                 document.getElementById('flash').style.animation = ''; 
                                 stopCam(); 
@@ -1127,12 +1188,13 @@
                     <option value="D" ${saved?.type=='D'?'selected':''}>D</option>
                     <option value="K" ${saved?.type=='K'?'selected':''}>K</option>
                 </select>
+                <button class="lock-btn" id="lock-${id}" type="button" onclick="toggleInitLock(${id})"><i class="fa-solid fa-lock-open"></i></button>
                 <button class="delete-btn" onclick="if(!confirm('Delete this nozzle?')) return; this.parentElement.parentElement.remove(); doMath(); saveMem();"><i class="fa-solid fa-trash"></i></button>
             </div>
             <div class="reading-stack">
                 <div class="reading-row">
                     <label>${labelI}</label>
-                    <input type="number" id="i${id}" class="reading-field" value="${saved?saved.init:''}" placeholder="0.00" oninput="doMath(); saveMem()">
+                    <input type="number" id="i${id}" class="reading-field" value="${saved?saved.init:''}" placeholder="0.00" oninput="doMath(); saveMem()" onchange="onInitChange(${id})" onclick="onInitTap(${id})">
                     <div class="action-buttons">
                         <button class="mic-btn" onclick="startVoice('i${id}', this)" type="button"><i class="fa-solid fa-microphone"></i></button>
                         <button class="cam-btn" onclick="startScan('i${id}')" type="button"><i class="fa-solid fa-camera"></i></button>
@@ -1152,7 +1214,61 @@
             </div>
         `;
         document.getElementById('list').appendChild(div);
+        // INITIAL reading starts locked whenever it already has a value (from the last shift or from saved data)
+        const savedInit = saved ? String(saved.init === undefined || saved.init === null ? '' : saved.init).trim() : '';
+        div.dataset.initOrig = savedInit !== ''
+            ? String(saved.initOrig !== undefined && String(saved.initOrig).trim() !== '' ? saved.initOrig : savedInit).trim()
+            : '';
+        setInitLock(id, savedInit !== '');
         if(!saved) window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+
+    // ==========================================
+    // INITIAL (OPENING) READING LOCK
+    // ==========================================
+    function setInitLock(id, locked) {
+        const inp = document.getElementById(`i${id}`);
+        const btn = document.getElementById(`lock-${id}`);
+        if (!inp || !btn) return;
+        if (locked && inp.value.trim() === '') locked = false;   // nothing to protect yet
+        inp.readOnly = locked;
+        inp.classList.toggle('is-locked', locked);
+        inp.closest('.reading-row').querySelectorAll('.action-buttons button').forEach(b => { b.disabled = locked; });
+        btn.classList.toggle('unlocked', !locked);
+        btn.innerHTML = locked ? '<i class="fa-solid fa-lock"></i>' : '<i class="fa-solid fa-lock-open"></i>';
+        btn.title = locked ? 'Initial reading is locked. Tap to unlock.' : 'Initial reading is unlocked.';
+        btn.setAttribute('aria-label', btn.title);
+    }
+
+    function toggleInitLock(id) {
+        const inp = document.getElementById(`i${id}`);
+        if (inp.readOnly) {
+            if (!confirm('Unlock INITIAL reading?\n\nOnly do this if the initial reading is wrong.\nThe change is recorded in the report log.')) return;
+            setInitLock(id, false);
+            inp.focus();
+            try { inp.select(); } catch (e) {}
+        } else if (inp.value.trim() !== '') {
+            setInitLock(id, true);
+        }
+    }
+
+    function onInitChange(id) {
+        const inp = document.getElementById(`i${id}`);
+        const card = document.getElementById(`card-${id}`);
+        if (!inp || !card || inp.value.trim() === '') return;
+        if (!card.dataset.initOrig) card.dataset.initOrig = inp.value.trim();   // first value that was locked in
+        setInitLock(id, true);
+        saveMem();
+    }
+
+    function onInitTap(id) {
+        const inp = document.getElementById(`i${id}`);
+        if (inp && inp.readOnly) showAppToast('🔒 Initial reading is locked. Tap the lock icon to unlock it.', '', 3500);
+    }
+
+    function afterReadingSet(fieldId) {
+        const m = /^i(\d+)$/.exec(String(fieldId));
+        if (m) onInitChange(m[1]);
     }
 
     function saveShiftToHistory() {
@@ -1393,7 +1509,11 @@
             document.querySelectorAll('.nozzle-card').forEach(row => {
                 const id = row.id.split('-')[1];
                 const finalVal = document.getElementById(`f${id}`).value.trim();
-                if (finalVal !== "") document.getElementById(`i${id}`).value = finalVal;
+                if (finalVal !== "") {
+                    document.getElementById(`i${id}`).value = finalVal;
+                    row.dataset.initOrig = finalVal;      // new official opening reading for this shift
+                    setInitLock(id, true);
+                }
                 document.getElementById(`f${id}`).value = "";
                 row.querySelectorAll('label')[0].innerText = isDayTime ? "INITIAL (6 AM)" : "INITIAL (6 PM)";
                 row.querySelectorAll('label')[1].innerText = isDayTime ? "FINAL (6 PM)" : "FINAL (6 AM)";
@@ -1583,9 +1703,150 @@
     }
 
     // ==========================================
+    // REPORT FINGERPRINT, TOKEN & REPORT LOG QUEUE
+    // (the fingerprint code is identical in Code.gs - keep both in sync)
+    // ==========================================
+    function cleanText(v, max) {
+        return String(v === undefined || v === null ? '' : v).replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, max);
+    }
+    function fpNum(x) { return (Number(x) || 0).toFixed(2); }
+
+    // 8-character fingerprint of the whole report: station, date, shift, prices,
+    // every payment channel, totals and every nozzle reading.
+    function reportFingerprint(d) {
+        const pr = d.prices || {}, pay = d.payments || {};
+        const parts = ['V2', String(d.station || '').trim().toUpperCase(), String(d.reportDate || ''), String(d.shift || '').toUpperCase(),
+            fpNum(pr.p91), fpNum(pr.p95), fpNum(pr.p98), fpNum(pr.pd), fpNum(pr.pk),
+            fpNum(pay.r), fpNum(pay.p), fpNum(pay.s), fpNum(pay.k), fpNum(pay.v), fpNum(pay.c), fpNum(pay.o),
+            fpNum(d.total), fpNum(d.cash), fpNum(d.totalLiters)];
+        (d.nozzles || []).forEach(z => {
+            parts.push(String(z.name || '').trim() + ':' + String(z.type || '') + ':' + fpNum(z.init) + ':' + fpNum(z.final));
+        });
+        const src = parts.join('|');
+        let h = 0x811c9dc5;
+        for (let i = 0; i < src.length; i++) {
+            h ^= src.charCodeAt(i);
+            h = Math.imul(h, 0x01000193) >>> 0;
+        }
+        return h.toString(16).toUpperCase().padStart(8, '0');
+    }
+
+    function buildReportId(d, checksum) {
+        const st = String(d.station || '').trim().toUpperCase();
+        const short = (st.split(/[—–-]/)[0] || st).replace(/[^A-Z0-9]/g, '') || st.replace(/[^A-Z0-9]/g, '') || 'STATION';
+        const dateCompact = String(d.reportDate || '').replace(/[\s-]+/g, '').toUpperCase();
+        return `${short}-${dateCompact}-${String(d.shift || '').toUpperCase()}-${checksum}`;
+    }
+
+    // Random, unguessable link code for the QR (one per PDF)
+    function makeReportToken() {
+        const abc = 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        const bytes = new Uint8Array(20);
+        try { (window.crypto || window.msCrypto).getRandomValues(bytes); }
+        catch (e) { for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256); }
+        let t = '';
+        for (let i = 0; i < bytes.length; i++) t += abc[bytes[i] % abc.length];
+        return t;
+    }
+
+    function reportApiReady() {
+        return /^https:\/\/script\.google\.com\/macros\/s\/[^\s?#]+\/exec$/.test(REPORT_API_URL);
+    }
+
+    let appToastTimer = null;
+    function showAppToast(msg, kind, ms) {
+        let el = document.getElementById('appToast');
+        if (!el) {
+            el = document.createElement('div');
+            el.id = 'appToast';
+            document.body.appendChild(el);
+        }
+        el.textContent = msg;
+        el.className = 'app-toast show ' + (kind || '');
+        const footer = document.querySelector('.footer');
+        el.style.bottom = ((footer ? footer.offsetHeight : 80) + 12) + 'px';
+        clearTimeout(appToastTimer);
+        if (ms !== 0) appToastTimer = setTimeout(() => el.classList.remove('show'), ms || 3500);
+    }
+
+    function getReportQueue() {
+        try { return JSON.parse(localStorage.getItem(REPORT_QUEUE_KEY)) || []; } catch (e) { return []; }
+    }
+    function setReportQueue(q) {
+        try { localStorage.setItem(REPORT_QUEUE_KEY, JSON.stringify(q.slice(-60))); } catch (e) {}
+    }
+
+    async function postReport(payload) {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 25000);
+        try {
+            const res = await fetch(REPORT_API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload),
+                redirect: 'follow',
+                signal: ctrl.signal
+            });
+            return await res.json();
+        } finally { clearTimeout(timer); }
+    }
+
+    function describeReportError(e, res) {
+        if (res && res.error) return res.error;
+        const m = e && e.message ? e.message : String(e);
+        if (/Failed to fetch|NetworkError|Load failed/i.test(m)) return 'cannot reach the server';
+        if (/Unexpected token|JSON|not valid/i.test(m)) return 'the server did not answer correctly - check the deployment (Anyone, latest version)';
+        if (/abort/i.test(m)) return 'the server took too long';
+        return m;
+    }
+
+    // Sends reports in the background. If there is no signal the report waits in
+    // a queue on the phone and is sent automatically later (safe to repeat).
+    let reportFlushing = false;
+    async function flushReportQueue() {
+        if (reportFlushing || !reportApiReady()) return;
+        let queue = getReportQueue();
+        if (!queue.length) return;
+        if (!navigator.onLine) { showAppToast('⏳ No internet. The report will be sent automatically.', 'warn', 5000); return; }
+        reportFlushing = true;
+        try {
+            const remaining = [];
+            let lastOk = null, rejected = null, lastErr = '';
+            for (const item of queue) {
+                let res = null;
+                try {
+                    res = await postReport(item.payload);
+                    if (res && res.ok) lastOk = res;
+                    else if (res && res.permanent) rejected = res.error || 'rejected';
+                    else throw new Error('retry');
+                } catch (e) {
+                    lastErr = describeReportError(e, res);
+                    console.warn('Report log: send failed -', lastErr);
+                    item.tries = (item.tries || 0) + 1;
+                    if (item.tries < 12) remaining.push(item);
+                }
+            }
+            setReportQueue(remaining);
+            if (rejected) showAppToast('⚠ Report was not accepted by the log: ' + rejected, 'warn', 7000);
+            else if (remaining.length) showAppToast('⏳ Report not sent yet: ' + lastErr + '. Retrying automatically.', 'warn', 9000);
+            else if (lastOk) showAppToast('✓ Report saved to the log' + (lastOk.version ? ' · Version ' + lastOk.version : ''), 'ok', 3500);
+        } finally { reportFlushing = false; }
+    }
+
+    function queueReport(payload) {
+        const q = getReportQueue();
+        q.push({ payload: payload, tries: 0 });
+        setReportQueue(q);
+        flushReportQueue();
+    }
+
+    window.addEventListener('online', function () { flushReportQueue(); });
+    window.addEventListener('load', function () { setTimeout(flushReportQueue, 1500); });
+
+    // ==========================================
     // SAMPLE 4 — AMBER & CHARCOAL AUDIT (A4 PORTRAIT REPORT)
     // ==========================================
-    async function exportPDF() {
+    async function exportPDF(mode) {
         if (!validate()) { alert(validateMsg); return; }
 
         const has91 = fuelUsed('91'), has95 = fuelUsed('95'), has98 = fuelUsed('98'), hasD = fuelUsed('D'), hasK = fuelUsed('K');
@@ -1628,9 +1889,62 @@
 
         const logoInfo = await loadCompanyLogo();
 
+        // ------------------------------------------
+        // REPORT ID + VERIFICATION QR
+        // ------------------------------------------
+        const shiftCode = isDayTime ? 'DAY' : 'NIGHT';
+        const cleanStation = cleanText(station, 60);
+
+        // Everything that goes into the fingerprint is read once from the screen
+        const fpPrices = {
+            p91: parseFloat(document.getElementById('p91').value) || 0,
+            p95: parseFloat(document.getElementById('p95').value) || 0,
+            p98: parseFloat(document.getElementById('p98').value) || 0,
+            pd:  parseFloat(document.getElementById('pd').value)  || 0,
+            pk:  parseFloat(document.getElementById('pk').value)  || 0
+        };
+        const fpNozzles = [];
+        const openingEdits = [];
+        document.querySelectorAll('.nozzle-card').forEach((row, idx) => {
+            const nid = row.id.split('-')[1];
+            const nName = cleanText(document.getElementById(`name-${nid}`).value, 30) || ('Nozzle ' + (idx + 1));
+            const nInit = parseFloat(document.getElementById(`i${nid}`).value) || 0;
+            const nFinal = parseFloat(document.getElementById(`f${nid}`).value) || 0;
+            fpNozzles.push({ name: nName, type: document.getElementById(`type-${nid}`).value, init: nInit, final: nFinal });
+            const orig = row.dataset.initOrig;
+            if (orig !== undefined && orig !== '' && (parseFloat(orig) || 0) !== nInit) {
+                openingEdits.push({ nozzle: nName, from: parseFloat(orig) || 0, to: nInit });
+            }
+        });
+        const litersForId = ['sum91', 'sum95', 'sum98', 'sumD', 'sumK']
+            .reduce((a, sid) => a + (parseFloat(document.getElementById(sid).innerText) || 0), 0);
+        const reportData = {
+            station: cleanStation, reportDate: cleanText(reportDateStr, 30), shift: shiftCode,
+            prices: fpPrices,
+            payments: { r: payments.r, p: payments.p, s: payments.s, k: payments.k, v: payments.v, c: payments.c, o: payments.o, appsTotal: payments.appsTotal },
+            total: payments.total, cash: payments.cash, totalLiters: litersForId,
+            nozzles: fpNozzles
+        };
+        const checkCode = reportFingerprint(reportData);            // 8 characters
+        const reportId = buildReportId(reportData, checkCode);
+        const reportToken = makeReportToken();
+        const verifyUrl = reportApiReady() ? `${REPORT_API_URL}?t=${reportToken}` : '';
+
+        const qrSize = 20;
+        const qrX = pageWidth - margin - qrSize;
+        const qrY = 10.6;
+        let qrObj = null;
+        try {
+            if (typeof qrcode === 'function') {
+                qrObj = qrcode(0, 'M');
+                qrObj.addData(verifyUrl || `REBEN|${reportId}|REV ${payments.total.toFixed(2)}|CASH ${payments.cash.toFixed(2)}`);
+                qrObj.make();
+            }
+        } catch (e) { qrObj = null; }   // if the QR library is unavailable the report still prints normally
+
         doc.setProperties({
             title: `${station} - Shift Audit Report - ${reportDateStr}`,
-            subject: 'Official Station Shift Audit Record',
+            subject: `Official Station Shift Audit Record - ${reportId}`,
             author: 'Reben Petroleum',
             creator: 'Reben Station Reports'
         });
@@ -1731,7 +2045,17 @@
         doc.text("STATION SHIFT AUDIT REPORT", titleX, 27.2);
 
         // Right block: "Date:" (bold) + value (regular)
-        const rightX = pageWidth - margin;
+        const rightX = qrObj ? (pageWidth - margin - qrSize - 4) : (pageWidth - margin);
+        if (qrObj) {
+            const qn = qrObj.getModuleCount();
+            const qm = qrSize / qn;
+            doc.setFillColor(...C_CHAR);
+            for (let r = 0; r < qn; r++) {
+                for (let c = 0; c < qn; c++) {
+                    if (qrObj.isDark(r, c)) doc.rect(qrX + c * qm, qrY + r * qm, qm + 0.03, qm + 0.03, 'F');
+                }
+            }
+        }
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(9);
         const dateValW = doc.getTextWidth(reportDateStr);
@@ -2026,13 +2350,66 @@
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(7.8);
             doc.setTextColor(...C_MUTED);
-            doc.text("Thank you for being part of Reben!  •  Designed By- Mozahid", margin, pageHeight - 14);
+            doc.text("Thank you for being part of Reben!  •  Official Station Shift Audit Record", margin, pageHeight - 14);
             doc.text(`Page ${i} of ${totalPages}`, pageWidth - margin, pageHeight - 14, { align: 'right' });
+
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(7.2);
+            const idLabel = "Report ID: ";
+            doc.text(idLabel, margin, pageHeight - 9.8);
+            const idLabelW = doc.getTextWidth(idLabel);
+            doc.setFont('helvetica', 'normal');
+            doc.text(reportId + (qrObj ? (verifyUrl ? "   •   Scan the QR code to verify this report online" : "   •   Scan the QR code in the header to verify") : ""), margin + idLabelW, pageHeight - 9.8);
         }
 
         const safeFileName = `${station.replace(/[^A-Z0-9_-]/gi, '_')}_${reportDateStr.replace(/\s+/g, '')}_Report.pdf`;
-        doc.save(safeFileName);
+        // Log this report (and every version of it) in the Google Sheet - runs in the background
+        if (!reportApiReady()) {
+            console.info('Report log is OFF: REPORT_API_URL is empty or not a script.google.com ... /exec link.');
+            showAppToast('ℹ Report log is off (REPORT_API_URL not set). The PDF was still created.', 'warn', 6000);
+        }
+        if (reportApiReady()) {
+            queueReport({
+                token: reportToken, reportId: reportId, checksum: checkCode,
+                station: reportData.station, reportDate: reportData.reportDate, shift: shiftCode,
+                generatedAt: new Date().toISOString(),
+                prices: fpPrices, payments: reportData.payments,
+                total: reportData.total, cash: reportData.cash, totalLiters: reportData.totalLiters,
+                nozzles: fpNozzles, openingEdits: openingEdits,
+                mode: mode === 'share' ? 'share' : 'save'
+            });
+        }
+
+        if (mode === 'share') {
+            await sharePdfDoc(doc, safeFileName, station, reportId);
+        } else {
+            doc.save(safeFileName);
+        }
     }
+
+    // Share the PDF through the phone's share menu (WhatsApp, Telegram, Email, ...)
+    async function sharePdfDoc(doc, fileName, station, reportId) {
+        try {
+            const blob = doc.output('blob');
+            const file = new File([blob], fileName, { type: 'application/pdf' });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    title: `${station} - Shift Report`,
+                    text: `${station} shift report\nReport ID: ${reportId}`
+                });
+            } else {
+                doc.save(fileName);
+                alert('Sharing files is not supported on this device or browser. The PDF was downloaded instead.');
+            }
+        } catch (err) {
+            if (err && err.name === 'AbortError') return;   // user closed the share menu
+            doc.save(fileName);
+            alert('Could not open the share menu. The PDF was downloaded instead.');
+        }
+    }
+
+    function sharePDF() { return exportPDF('share'); }
 
     function saveMem() {
         const data = {
@@ -2060,7 +2437,8 @@
                 name: document.getElementById(`name-${id}`).value,
                 type: document.getElementById(`type-${id}`).value,
                 init: document.getElementById(`i${id}`).value,
-                final: document.getElementById(`f${id}`).value
+                final: document.getElementById(`f${id}`).value,
+                initOrig: row.dataset.initOrig || ''
             });
         });
         localStorage.setItem('reben_v3_premium', JSON.stringify(data));
