@@ -778,6 +778,35 @@
             .footer { left: 50%; right: auto; width: 640px; transform: translateX(-50%); }
             .footer.kb-hidden { transform: translateX(-50%) translateY(110%); }
         }
+
+        /* ===== Fuel type colours (price pills + nozzle dropdown) ===== */
+        :root { --91-t:#059669; --95-t:#dc2626; --98-t:#7c3aed; --d-t:#d97706; --k-t:#0284c7; }
+        body.night-mode { --91-t:#34d399; --95-t:#f87171; --98-t:#a78bfa; --d-t:#fbbf24; --k-t:#38bdf8; }
+
+        .price-item label { font-size: 9px; font-weight: 800; }
+        .price-item.pf-91 label { color: var(--91-t); }
+        .price-item.pf-95 label { color: var(--95-t); }
+        .price-item.pf-98 label { color: var(--98-t); }
+        .price-item.pf-d  label { color: var(--d-t); }
+        .price-item.pf-k  label { color: var(--k-t); }
+        .price-item.pf-91 { border-color: var(--91); }
+        .price-item.pf-95 { border-color: var(--95); }
+        .price-item.pf-98 { border-color: var(--98); }
+        .price-item.pf-d  { border-color: var(--d); }
+        .price-item.pf-k  { border-color: var(--k); }
+
+        .fuel-badge { font-weight: 800; }
+        .fuel-badge.ft-91 { color: var(--91-t); border-color: var(--91); }
+        .fuel-badge.ft-95 { color: var(--95-t); border-color: var(--95); }
+        .fuel-badge.ft-98 { color: var(--98-t); border-color: var(--98); }
+        .fuel-badge.ft-d  { color: var(--d-t);  border-color: var(--d); }
+        .fuel-badge.ft-k  { color: var(--k-t);  border-color: var(--k); }
+        .fuel-badge option { font-weight: 800; background: #ffffff; }
+        .fuel-badge option[value="91"] { color: #059669; }
+        .fuel-badge option[value="95"] { color: #dc2626; }
+        .fuel-badge option[value="98"] { color: #7c3aed; }
+        .fuel-badge option[value="D"]  { color: #d97706; }
+        .fuel-badge option[value="K"]  { color: #0284c7; }
     </style>
 </head>
 <body>
@@ -786,11 +815,11 @@
     <div class="station-card">
         <input type="text" id="sn" class="station-input" placeholder="STATION NAME" oninput="saveMem()">
         <div class="price-row">
-            <div class="price-item"><label>91</label><input type="number" id="p91" step="0.01" placeholder="0.00" oninput="doMath(); saveMem()"></div>
-            <div class="price-item"><label>95</label><input type="number" id="p95" step="0.01" placeholder="0.00" oninput="doMath(); saveMem()"></div>
-            <div class="price-item"><label>98</label><input type="number" id="p98" step="0.01" placeholder="0.00" oninput="doMath(); saveMem()"></div>
-            <div class="price-item"><label>D</label><input type="number" id="pd" step="0.01" placeholder="0.00" oninput="doMath(); saveMem()"></div>
-            <div class="price-item"><label>K</label><input type="number" id="pk" step="0.01" placeholder="0.00" oninput="doMath(); saveMem()"></div>
+            <div class="price-item pf-91"><label>91</label><input type="number" id="p91" step="0.01" placeholder="0.00" oninput="doMath(); saveMem()"></div>
+            <div class="price-item pf-95"><label>95</label><input type="number" id="p95" step="0.01" placeholder="0.00" oninput="doMath(); saveMem()"></div>
+            <div class="price-item pf-98"><label>98</label><input type="number" id="p98" step="0.01" placeholder="0.00" oninput="doMath(); saveMem()"></div>
+            <div class="price-item pf-d"><label>D</label><input type="number" id="pd" step="0.01" placeholder="0.00" oninput="doMath(); saveMem()"></div>
+            <div class="price-item pf-k"><label>K</label><input type="number" id="pk" step="0.01" placeholder="0.00" oninput="doMath(); saveMem()"></div>
             <button class="price-apps-btn" onclick="toggleApps()" id="appsToggleBtn"><i class="fa-solid fa-plus"></i> APPS</button>
         </div>
     </div>
@@ -1134,6 +1163,31 @@
         return { total, appsTotal, cash, r, p, s, k, v, c, o };
     }
 
+    // Station name without leading/trailing spaces (also NBSP / zero-width) so WhatsApp *bold* works
+    // Long station names shrink to fit when not editing (stays 16px while typing so phones don't zoom in)
+    function fitStationName() {
+        const el = document.getElementById('sn');
+        if (!el) return;
+        el.style.fontSize = '';
+        if (document.activeElement === el) return;
+        let size = 16;
+        while (el.scrollWidth > el.clientWidth && size > 10) { size -= 0.5; el.style.fontSize = size + 'px'; }
+    }
+    (function () {
+        const el = document.getElementById('sn');
+        el.addEventListener('blur', fitStationName);
+        el.addEventListener('focus', fitStationName);
+        window.addEventListener('load', () => { fitStationName(); setTimeout(fitStationName, 600); });
+        window.addEventListener('resize', fitStationName);
+        window.addEventListener('pageshow', fitStationName);
+    })();
+
+    function getStationName() {
+        return String(document.getElementById('sn').value || '')
+            .replace(/^[\s\u00A0\u200B-\u200F\u2060\uFEFF]+|[\s\u00A0\u200B-\u200F\u2060\uFEFF]+$/g, '')
+            .toUpperCase();
+    }
+
     function fuelUsed(type) {
         return Array.from(document.querySelectorAll('.nozzle-card')).some(row => {
             const id = row.id.split('-')[1];
@@ -1181,7 +1235,7 @@
         div.innerHTML = `
             <div class="card-header">
                 <input class="nozzle-name" value="${saved ? saved.name : 'Nozzle ' + id}" id="name-${id}" oninput="saveMem()" placeholder="Nozzle ${id}">
-                <select class="fuel-badge" id="type-${id}" onchange="updateRowColor(${id}); saveMem()">
+                <select class="fuel-badge ft-${saved ? saved.type.toLowerCase() : '91'}" id="type-${id}" onchange="updateRowColor(${id}); saveMem()">
                     <option value="91" ${saved?.type=='91'?'selected':''}>91</option>
                     <option value="95" ${saved?.type=='95'?'selected':''}>95</option>
                     <option value="98" ${saved?.type=='98'?'selected':''}>98</option>
@@ -1272,7 +1326,7 @@
     }
 
     function saveShiftToHistory() {
-        const station = document.getElementById('sn').value.toUpperCase();
+        const station = getStationName();
         if (!station) return;
         
         const now = new Date();
@@ -1357,7 +1411,7 @@
         const item = history.find(h => h.id === id);
         if (!item) return;
         
-        document.getElementById('sn').value = item.station;
+        document.getElementById('sn').value = item.station; fitStationName();
         document.getElementById('p91').value = item.prices.p91;
         document.getElementById('p95').value = item.prices.p95;
         document.getElementById('p98').value = item.prices.p98 || "";
@@ -1407,7 +1461,7 @@
             return;
         }
         
-        const station = document.getElementById('sn').value.toUpperCase();
+        const station = getStationName();
         const p91 = parseFloat(document.getElementById('p91').value) || 0;
         const p95 = parseFloat(document.getElementById('p95').value) || 0;
         const p98 = parseFloat(document.getElementById('p98').value) || 0;
@@ -1588,7 +1642,7 @@
 
     function shareWA() {
         if(!validate()) { alert(validateMsg); return; }
-        const station = document.getElementById('sn').value.toUpperCase();
+        const station = getStationName();
         const shift = isDayTime ? "Day" : "Night";
         const now = new Date();
         const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
@@ -1646,7 +1700,7 @@
     function exportExcel() {
         if(!validate()) { alert(validateMsg); return; }
         const has91 = fuelUsed('91'), has95 = fuelUsed('95'), has98 = fuelUsed('98'), hasD = fuelUsed('D'), hasK = fuelUsed('K');
-        const station = document.getElementById('sn').value.toUpperCase();
+        const station = getStationName();
         const payments = calculatePayments();
         
         const headerInfo = [
@@ -1740,8 +1794,8 @@
 
     // Random, unguessable link code for the QR (one per PDF)
     function makeReportToken() {
-        const abc = 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-        const bytes = new Uint8Array(20);
+        const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';   // 32 symbols, no look-alikes (0/O, 1/I)
+        const bytes = new Uint8Array(16);
         try { (window.crypto || window.msCrypto).getRandomValues(bytes); }
         catch (e) { for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256); }
         let t = '';
@@ -1880,7 +1934,7 @@
 
         const fmt2 = (n) => Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-        const station = document.getElementById('sn').value.toUpperCase().trim();
+        const station = getStationName();
         const shiftShort = isDayTime ? "DAY SHIFT (6 AM - 6 PM)" : "NIGHT SHIFT (6 PM - 6 AM)";
         const time = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
         const payments = calculatePayments();
@@ -1928,16 +1982,21 @@
         const checkCode = reportFingerprint(reportData);            // 8 characters
         const reportId = buildReportId(reportData, checkCode);
         const reportToken = makeReportToken();
-        const verifyUrl = reportApiReady() ? `${REPORT_API_URL}?t=${reportToken}` : '';
+        const verifyUrl = reportApiReady() ? `${REPORT_API_URL}?t=${reportToken}` : '';   // opens when the QR/footer is tapped in a soft copy
+        const verifyCode = reportToken.replace(/(.{4})(?=.)/g, '$1-');                  // printed as ABCD-EFGH-JKLM-NPQR
 
-        const qrSize = 20;
+        // QR holds ONLY the 16-character verification code (capitals + digits), so it is a tiny 21x21 code
+        // with big squares that scans easily even when small or printed on a basic printer.
+        // QR now holds ONLY the 8-character checksum as plain text (e.g. DB9F2516), so Google Lens shows it directly.
+        const qrText = 'HTTPS://' + checkCode + '.R';   // 17 capital letters/digits = smallest 21x21 code; .r is not a real domain ending, so nobody can register it
+        const qrSize = 15;   // 15 mm
         const qrX = pageWidth - margin - qrSize;
-        const qrY = 10.6;
+        const qrY = 13.5;   // moved down so the whole code + white border sits inside the header
         let qrObj = null;
         try {
             if (typeof qrcode === 'function') {
-                qrObj = qrcode(0, 'M');
-                qrObj.addData(verifyUrl || `REBEN|${reportId}|REV ${payments.total.toFixed(2)}|CASH ${payments.cash.toFixed(2)}`);
+                qrObj = qrcode(0, 'M');   // 21x21 code; 17 characters leaves room for stronger error-correction
+                qrObj.addData(qrText, 'Alphanumeric');
                 qrObj.make();
             }
         } catch (e) { qrObj = null; }   // if the QR library is unavailable the report still prints normally
@@ -2035,26 +2094,54 @@
         }
 
         doc.setFont('helvetica', 'bold');
-        doc.setFontSize(16);
+        // Station name shrinks a little if it is long, so it never runs into the date block or the QR
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.6);
+        const genWidth = doc.getTextWidth(`Generated: ${todayDateStr}, ${time}`);
+        const titleRight = (qrObj ? (pageWidth - margin - qrSize - 4) : (pageWidth - margin)) - genWidth - 6;
+        let titleSize = 16;
+        const titleMaxW = titleRight - titleX;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(titleSize);
+        while (titleSize > 11 && doc.getTextWidth(station) > titleMaxW) { titleSize -= 0.5; doc.setFontSize(titleSize); }
+        let titleLines = [station];
+        if (doc.getTextWidth(station) > titleMaxW) {          // still too long: use two lines
+            titleLines = doc.splitTextToSize(station, titleMaxW);
+            if (titleLines.length > 2) {
+                titleLines = titleLines.slice(0, 2);
+                let last = titleLines[1];
+                while (last.length > 1 && doc.getTextWidth(last + '...') > titleMaxW) last = last.slice(0, -1);
+                titleLines[1] = last + '...';
+            }
+        }
         doc.setTextColor(...C_CHAR);
-        doc.text(station, titleX, 22.8);
+        if (titleLines.length === 1) {
+            doc.text(titleLines[0], titleX, 22.8);
+        } else {
+            doc.text(titleLines[0], titleX, 20.2);
+            doc.text(titleLines[1], titleX, 24.6);
+        }
+        const subtitleY = titleLines.length === 1 ? 27.2 : 28.6;
 
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(7.2);
         doc.setTextColor(...C_MUTED);
-        doc.text("STATION SHIFT AUDIT REPORT", titleX, 27.2);
+        doc.text("STATION SHIFT REPORT", titleX, subtitleY);
 
         // Right block: "Date:" (bold) + value (regular)
         const rightX = qrObj ? (pageWidth - margin - qrSize - 4) : (pageWidth - margin);
         if (qrObj) {
             const qn = qrObj.getModuleCount();
             const qm = qrSize / qn;
-            doc.setFillColor(...C_CHAR);
+            doc.setFillColor(255, 255, 255);                       // clear white border around the code
+            doc.rect(qrX - 3, qrY - 3, qrSize + 6, qrSize + 6, 'F');
+            doc.setFillColor(0, 0, 0);                             // pure black for the best contrast
             for (let r = 0; r < qn; r++) {
                 for (let c = 0; c < qn; c++) {
                     if (qrObj.isDark(r, c)) doc.rect(qrX + c * qm, qrY + r * qm, qm + 0.03, qm + 0.03, 'F');
                 }
             }
+            if (verifyUrl) doc.link(qrX - 3, qrY - 3, qrSize + 6, qrSize + 6, { url: verifyUrl });   // soft copy: tap the QR to open the verification page
         }
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(9);
@@ -2100,7 +2187,7 @@
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(8.6);
         doc.setTextColor(...C_CHAR);
-        const rateLabel = "UNIT RATES (SAR/L):";
+        const rateLabel = "PRICE:";
         doc.text(rateLabel, margin + 3, barY + 4.7);
         const rateLabelW = doc.getTextWidth(rateLabel);
         doc.setFont('helvetica', 'normal');
@@ -2123,9 +2210,9 @@
         const cardH = 15.5;
 
         const kpis = [
-            { label: "TOTAL SHIFT REVENUE",  value: `${fmt2(payments.total)} SAR` },
-            { label: "TOTAL FUEL DISPENSED", value: `${fmt2(totalLiters)} L` },
-            { label: "NET CASH COLLECTED",   value: `${fmt2(payments.cash)} SAR` }
+            { label: "Total Amount",  value: `${fmt2(payments.total)} SAR` },
+            { label: "Total Sale", value: `${fmt2(totalLiters)} L` },
+            { label: "Total Cash",   value: `${fmt2(payments.cash)} SAR` }
         ];
 
         kpis.forEach((kpi, idx) => {
@@ -2150,7 +2237,7 @@
         // 4. SECTION 1: FUEL SALES SUMMARY
         // ------------------------------------------
         let currentY = kpiY + cardH + 7;
-        drawSectionHeader("1. FUEL SALES SUMMARY", currentY);
+        drawSectionHeader("FUEL SALES", currentY);
 
         const fuelBody = [];
         if (has91) fuelBody.push(["Gasoline 91", `${parseFloat(document.getElementById('p91').value).toFixed(2)}`, `${fmt2(q91)}`, fmt2(q91 * (parseFloat(document.getElementById('p91').value) || 0))]);
@@ -2163,9 +2250,9 @@
         gradeCol = 0;
         doc.autoTable({
             ...baseTable,
-            head: [["Fuel Type", "Unit Price (SAR)", "Volume Sold (L)", "Total Sales (SAR)"]],
+            head: [["Fuel Type", "Price", "Sale (L)", "Total Amount (SR)"]],
             body: fuelBody,
-            foot: [["TOTAL FUEL SALES", "--", fmt2(totalLiters), fmt2(payments.total)]],
+            foot: [["TOTAL SALES", "--", fmt2(totalLiters), fmt2(payments.total)]],
             startY: currentY + 2.5,
             columnStyles: {
                 0: { cellWidth: 40 },
@@ -2179,7 +2266,7 @@
         // 5. SECTION 2: PAYMENT & CASH RECONCILIATION (2-COLUMN PAIRED GRID)
         // ------------------------------------------
         currentY = doc.lastAutoTable.finalY + 7;
-        drawSectionHeader("2. PAYMENT & CASH RECONCILIATION", currentY);
+        drawSectionHeader("PAYMENT", currentY);
 
         const activeDigital = [];
         if (payments.r > 0) activeDigital.push(["ATM / POS", fmt2(payments.r)]);
@@ -2204,7 +2291,7 @@
         gradeCol = -1;
         doc.autoTable({
             ...baseTable,
-            head: [["Payment Channel", "Amount (SAR)", "Payment Channel", "Amount (SAR)"]],
+            head: [["Type", "Amount (SR)", "Type", "Amount (SR)"]],
             body: pairedPayRows,
             foot: [[
                 "Total Digital / Apps",
@@ -2231,7 +2318,7 @@
         // 6. SECTION 3: NOZZLE METER READINGS LOG
         // ------------------------------------------
         currentY = doc.lastAutoTable.finalY + 7;
-        drawSectionHeader("3. NOZZLE METER READINGS LOG", currentY);
+        drawSectionHeader("NOZZLE READINGS", currentY);
 
         const nozzleRows = [];
         document.querySelectorAll('.nozzle-card').forEach(row => {
@@ -2263,7 +2350,7 @@
         gradeCol = 1;
         doc.autoTable({
             ...baseTable,
-            head: [["Nozzle", "Type", "Opening Meter", "Closing Meter", "Dispensed (L)", "Sales (SAR)"]],
+            head: [["Nozzle", "Type", "Start", "End", "Sale (L)", "Amount (SR)"]],
             body: nozzleRows,
             startY: currentY + 2.5,
             margin: { left: margin, right: margin, top: 18, bottom: 32 },
@@ -2359,7 +2446,8 @@
             doc.text(idLabel, margin, pageHeight - 9.8);
             const idLabelW = doc.getTextWidth(idLabel);
             doc.setFont('helvetica', 'normal');
-            doc.text(reportId + (qrObj ? (verifyUrl ? "   •   Scan the QR code to verify this report online" : "   •   Scan the QR code in the header to verify") : ""), margin + idLabelW, pageHeight - 9.8);
+            doc.text(reportId + "   •   Checksum: " + checkCode + (qrObj ? "   •   Designed By- Mozahid" : ""), margin + idLabelW, pageHeight - 9.8);
+            if (verifyUrl) doc.link(margin, pageHeight - 13, contentWidth, 4.6, { url: verifyUrl });   // footer line is tappable too
         }
 
         const safeFileName = `${station.replace(/[^A-Z0-9_-]/gi, '_')}_${reportDateStr.replace(/\s+/g, '')}_Report.pdf`;
@@ -2448,7 +2536,7 @@
         const stored = localStorage.getItem('reben_v3_premium');
         if(stored) {
             const data = JSON.parse(stored);
-            document.getElementById('sn').value = data.sn || "";
+            document.getElementById('sn').value = data.sn || ""; fitStationName();
             document.getElementById('p91').value = data.p91 || "";
             document.getElementById('p95').value = data.p95 || "";
             document.getElementById('p98').value = data.p98 || "";
@@ -2508,6 +2596,7 @@
     function updateRowColor(id) {
         const type = document.getElementById(`type-${id}`).value;
         document.getElementById(`card-${id}`).className = `nozzle-card card-${type.toLowerCase()}`;
+        document.getElementById(`type-${id}`).className = `fuel-badge ft-${type.toLowerCase()}`;
         doMath();
     }
 
